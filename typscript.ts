@@ -97,7 +97,7 @@ function sohanemérvégetfgv():never{throw new Error();}
 
 
 //------------------------------------------------------------------------------------------------------------------------------------------------
-// Interface    tulajdonságai és metódusai(csak neve) is lehetnek
+// Interface    tulajdonságai és metódusai(csak neve) is lehetnek. ígéreteket feltételeket adunk
 
 interface Emlos{}
 interface Peaople extends Emlos{
@@ -142,103 +142,57 @@ cc.reset();console.log(cc);           // [Function: c] { i: 0, reset: [Function 
 cc.i=5;console.log(cc);               // [Function: c] { i: 5, reset: [Function (anonymous)] }
 
 //------------------------------------------------------------------------------------------------------------------------------------------------
+// Abstract Class
+abstract class Emlős {                // nem példányosítható !!!
+  abstract hangotAd():void;           // abstract fgv-ei lehetnek  => egy leszármazott osztájba definiálunk 
+  mozog():void{console.log("fut")}    // és nem abstract is
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------
 // Class  // 1 class csak 1 classtól örökölhet, de bármennyi interface-t kiterjeszthet
 // VAN => public(default), private, protected !!!
 // van static is, ugyanúgy osztoznak rajta a hasonló típusú példányok
 // super()      =>  a szülő constructorát futtatja le
-// super.fgv    == elérem a szülő fgveit
-// abstract osztály(nem példányosítható) tartalmaz egy abstract metódust => amit egy leszármazott osztájba definiálunk 
+// super.fgv()  === elérem a szülő fgveit
 // classon belül a privat dolgaival dolgozunk "_valami" és kívülről a public dolgaival "valami"
+// interface  interface-t    extends
+// class      class-t        extends
+// class      interface-t    implements
 
-
-interface Pont{
-  readonly x:number;  // csak olvasható, a constructorba tudok neki új értéket adni, class v interfaceknál használjuk
-  readonly y:number;  // constans, AMIT A KONSTRUKTORBA MÉG FELÜLÍRHATOM
-}
-var p1:Pont={x:10,y:22};
-
-
+interface MyInterface{id:string;getId():string;} 
+class MyClass implements MyInterface{id:string; getId=()=>this.id;}
+const mc:MyInterface= new MyClass();
 
 class Circle {
-    static pi:number = 3.14;                       // vaj
-    private _radius:number                        // rejtett    // default minden public
-    protected _prot?:string;                      //a gyerekei elérjék kivülről private
-    pi:number= 3;
-    valami?:number;                               // number, de az elején undefined
-    static calculateArea(radius:number):number {  // lehet fgv is
-        return this.pi * radius * radius;
-    }
-    constructor(private _age:number,private _age2?:number){}    // egyből igy lesz is, az _age2 opcionális, nem kötelező paraméter
-//    constructor(public _age:number,private _age2?:number){}    egyböl létrehozza a public és privat szavakkal a public és privat fieldeket
+  static pi:number = 3.14;        // osztoznak rajta a hasonló típusú példányok
+  pi:number= 3;                   // ez a pi a példányhoz tartozik, más lesz a Circle.pi===3.14 és a circleObj.pi===3
+  private _radius:number          // rejtett    // defaultan minden public
+  protected _prot:string;         // a gyerekei elérjék kivülről private
+  readonly x:number;              // csak olvasható, CSAK a constructorba tudok neki újra értéket adni, class v interfaceknál használjuk
+  valami?:number;                 // number, de az elején undefined, nem muszáj értéket adni neki
+  constructor(private _age:number,public kor?:number){}    
+  // a kor opcionális, nem kötelező paraméter, de a bemenetek végén legyen mindíg az összes ilyen opcionális paraméter
+  // egyböl létrehozza a public és privat szavakkal a public és privat fieldeket
+  
+  get age():number {return this._age}
+  set radius(radius){this._radius = radius}
 
-    get age():number {return this._age}
-    get radius():number {return 100}
-    set radius(radius){this._radius = radius}
+  static calculateArea(radius:number):number {  // lehet fgv is static
+      return this.pi * radius * radius;
+  }
+  getId1(){};                                   // itt is lehet így is, csakdefiniálni, de ez csak void lehet
+  getId2:()=>string;                            // így megadhatom hogy mi legyen a return 
+  getId3=():string=>{return "id";};             // nyíl fgv
+  korKiiras():void{console.log(this.kor)}       // normál fgv
 }
 Circle.pi; // returns 3.14
-let circleObj:Circle = new Circle();      // !!!!!!!!!!!!!!!!!!
+let circleObj:Circle = new Circle(23);     
 circleObj.pi; // returns 3
-
-// interface ígéretek feltételeket adunk
-interface MyCI{
-    id:string;
-    getId():string;
-//  getId:()=>string;
-}
-class MyClass1 implements MyCI{id:string; getId=()=>this.id;}
-class MyClass2 implements MyCI{id:string; getId=()=>this.id+'sad';}
-var mc:MyCI= new MyClass1();
-var mc:MyCI= new MyClass2();
-
-// super.fgv()      a szülője fgv-ét hiívom meg
-
-interface MyCIupdated extends MyCI{ value:number;}
-// bővítés, interface-t interfacevá => extends
-
-// HA másik file-ba: allat.ts:
-export class Allat{
-    constructor(public kor:number){this.kor=kor;}      // így nem kell "kor:number;" -t kiírni => egyenlő a kövi 2 sorral
-//  kor:number;
-//  constructor(kor:number){this.kor=kor;}
-
-    fut(){};        // itt lehet így is, csakdefiniálni
-    korKiiras(){console.log(this.kor)}
-}
-// => itt
-import {Allat} from './allat';      // ugyanebbe a mappában van az allat.ts
-var allat= new Allat(32); 
-allat.korKiiras();
-
-class Kutya extends Allat{
-    fut(){console.log("gyorsan fut");}          // override olva van/lesz
-    korKiiras(){this.kor=4;super.korKiiras();}  // először modosítjuk a kort, majd meghívjuk a szülő fgv-ét
-    
-    private _ov:string;                         // ez a konvenció!!!
-    get ov():string{return this._ov}            // getterek setterek => így használhatom érték ként, már nem fgv.
-    set ov(érték:string){this._ov=érték}        // get => extra funkció lefuttatására, pl jelzi nekem hogy vki lekérte az értéket
-}                                               // set => extra ellenörzés pl undefined értéket ne adhatjunk meg
-//                                              // get és set a js ben is léteznek 
-var k1= new Kutya(10);
-k1.fut();                           // "gyorsan fut"
-k1.ov="20";                         // set => így adhatunk értéket neki 
-console.log(k1.ov);                 // és a get...
-
-
-abstract class Allat2 {                 // nem lehet példányosítami
-    abstract hangotAd():void;           // abstract fgv-e i lehetnek
-    mozog():void{console.log("fut")}    // és nem abstract is
-}
-
 
 class Question {        // egy trükk!!!
     value:string;
     key:string;
     label:string;
-    constructor(options:{
-        value?:string,
-        key?:string,
-        label?:string,
-    }){
+    constructor(options:{value?:string,key?:string,label?:string,}){
         for (const k in options) {
             this[k]=options[k];
         }
@@ -248,9 +202,9 @@ class textQuestion extends Question{
     label="valami";
     type:string;
     optionss:{key:string, value:string}[]=[]        // ilyen objektumok tömbje
-    constructor(options:{}={}){     // default érték a semmi
+    constructor(options:{}={}){                     // default érték az üres obj
         super(options);         
-        this.type=options["type"] || [];        // kijátszottuk a típusvizsgálatát a type-nak, vis ami a constructorba jön érték az lesz a this.type
+        this.type=options["type"] || [];            // kijátszottuk a típusvizsgálatát a type-nak, vis ami a constructorba jön érték az lesz a this.type
         this.optionss=options["optionss"] || [];
     }
 }
