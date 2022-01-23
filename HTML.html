@@ -1,0 +1,353 @@
+<!--gyorsbillentyűk:    #id    .class      h1.claass       !        loremx(x=amennyi betűt akarunk)
+    (p>lorem10)*3 ==> 3 db p, amibe a 10 szós lorem van
+    
+    div.form-group>label[for='comment']+textarea#form-control
+    ====>>>>
+    <div class="form-group">
+        <label for="comment"></label>
+        <textarea id="form-control"></textarea>
+    </div>
+    https://chrome.google.com/webstore/detail/social-share-preview/         // 2 bővítmény facebokon megosztva a weboldal hogyan jelenik meg
+    https://chrome.google.com/webstore/detail/localhost-open-graph-chec/
+-->
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <!--általános dolgok-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--eszközökhöz mért szélesség a scale értéke a nagyitás-->
+    <title> dokumentum cím, (felső fül) </title>
+    <meta name="title" content="googleba megjennő cím, description-höz kapcsolódnia kell, <title>-tagban is!!!">
+    <meta name="description" content="rövid összefoglaló a googleba mi jelebnjen meg szöveg">
+    <!-- a speciális és/vagy MAGYAR ékezetes betűket máshogy kell írni pl.: á===&aacute; -->
+    <meta name="robots" content="index,follow">     <!-- gyere beljebb google nézz körbe -->
+    <meta name="keywords" content="kulcsszavak, kulcsszó2">
+    <!-- ne csak egy szóba, komplett mondatban fogalmazzuk meg az oldal kulcs mondanivalóját (ne feledjük egy jó weboldal egy választ ad egy kérdésre!)
+    kerüljük a túlzott általánosításokat címszavainkban, kulcs mondatainkban. pl: "Ők", "mi ", "Este volt" .. -->
+    <meta name="author" content="Az oldal készitőjének a neve">
+    <!--ez a 3 sor nem kötelező-->
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" type="image/png" href="images/kisikon.png" />
+    <!-- favicon generator.. googleból keresni #https://validator.w3.org/#validate_by_input elenörző!!!-->
+</head>
+<body>
+<!--Blokk elem, egész sort kitölti, ha adunk neki szélességet akkor is-->
+    <div> általános jelölő tag, SZEMANTIKAI JELENTÉS NÉLKÜLI</div>
+    
+    <!-- Szemantikus elemek -->
+        <!--CÍMEK-->
+        <h1>címsorok nagyon nagy, Csak 1 lehet</h1><h2>címsorok nagyon</h2><h3>kisseb</h3><h4>még kisseb</h4><h5>még,még kisseb</h5><h6>még,még,még kisseb</h6>
+        <!--Bekezdés-->
+        <p>Bekezdés tartalomn, az elötte lévő címhez kapcsolódnia kell, és a címbe lévő szavaknak megkell jelennie itt, 
+            seoscout.com/tools/keyword-analyzer => a jó szó sűrűség a címbe lévő szavakra 2% < x < 3%</p>
+        <!---->
+        <blockquote cite="http://www.innen.hu/index.html">másik forrásból idézés </blockquote>
+        <main>    weboldal lényges tartalma csak 1 db lehet egyedi tartalom </main>        
+        <header>  fejléc, DE article-ben is lehet amiben pl. van még h2 </header>
+        <footer>  lábléc </footer>
+        <nav>     navigációs elemek amivel megyünk másik helyre </nav>
+        <article> ha kivesszük a dokumentumból, akkor önállóan is értelmes => cikk, pl.: blog posztok,bejegyzések </article>
+        <aside>   OLDALSÁV                      (mellékes tartalom, nem önálló, amely nélkül a dokumentum tökéletesen érthető) </aside>
+        <section> "diveket elválasztó div", részegységek, nem kell hogy önállóan értelmes legyen </section>
+        <details open> <!--lenyíló fül, open=alapértelmezetten nyitva van-->
+            <summary>details első eleme az összegzés </summary>
+            <p> hozzáadott információ </p>
+            <a href="">lehet link is itt</a>
+        </details>
+        <iframe>Más oldalakat, mini alkalmazásokat, szolgáltatásokat tudok beágyazni, pl.: youtube, tőzsde(stockdio.com)</iframe>
+        <!--Kép, mádia content-->
+        <figure> cssnél majd fasza lesz képhez kell tenni
+            <img src="a htm dokumentumtól való eltérése images/kép.jpg" alt="ha nem töltödik be a kép ez lesz kiírva, és a felolvasó program ezt olvassa fel" title="ha ráviszem az egeret ez jelenik meg, link esetében is!!!">
+            <!--https://picsum.photos/640/480
+                https://via.placeholder.com/640x480 -->
+            <figcaption>A kép címe</figcaption>
+        </figure>
+        <picture>       <!-- Csak azt a képet tölti be amilyen felbontásba vunk (mobiloknál jó, hogy ne töltse be a 4k képet)-->
+            <source srcset="https://alérés" media="(max-width:400px)">
+            <source srcset="https://alérés2" >
+            <img src="https://elérés2" alt="valami">        
+        </picture>
+        <!-- felsorolás, lista-->
+        <dl> felsorolás
+            <dt>az eszköz1</dt>
+            <dd>az eszköz1 leírása</dd>
+            <dt>az eszköz2</dt>
+            <dd>az eszköz2 leírása</dd>
+        </dl>
+        <ol type="mivel legyen felsorolva">   <!-- ORDER LIST -->
+            számozottlista type nélkül alapértelmezett
+            <li>első</li>
+            <li>második</li>
+            <li>harmadik</li>
+        </ol>
+        <ul> pontozottlista                   <!-- UNORDER LIST -->
+            <li>első</li>
+            <li>második</li>
+            <li>harmadik</li>
+        </ul>
+        <!-- FORM, Ürlap-->
+        <form method="POST vagy GET">
+            Űrlapok
+            <fieldset>keretezés
+                <legend>a kereten lévő szöveg</legend>
+
+                <legend>ürlap címe</legend>
+                <input type="text">
+                <label for="id_0">Email:</label><!--label-be for-ba adjuk meg hogy melyik id-ju inputhoz tartozik -->
+                <input type="email" id="id_0">
+                <input type="password">
+                <input type="tel"> telefonszám
+                <input type="file">
+                <input type="date">
+                <input type="time" name="time">   <!--name attribútom referenci a js-ben submitolás után + több lehetőséget köt össze-->
+                <input type="button" value="érték">
+                <input type="submit" value="felirat">
+                <select> kiválasztó lenyíló fül
+                <optgroup label="a lenyíló fül neve kék szinek">
+                    <option>kék</option>
+                    <option>kék2</option>
+                    <option>kék3</option>
+                </optgroup> 
+                <optgroup label="a lenyíló fül neve piros szinek">
+                    <option>piros</option>
+                    <option>piros2</option>
+                    <option>piros3</option>
+                </optgroup> 
+            </select>
+                <textarea></textarea>
+                <progress value="30" max="100"></progress> ez egy csík 30% on áll
+                <button type="submit">gomb neve</button>
+                <label for="xy">felirat</label> inputokat köt össze szövegekkel ha szövegre kattintok olyan mintha az inputra katt volna
+                <input type="checkbox" id="xy"> pipálo, összekötöttem az id val YES <input type="radio" name="az azonos nevüekből csak 1 et lehet választani" value="YES"> NO <input type="tel" name="az azonos nevüekből csak 1 et lehet választani" value="NO">           
+            </fieldset>
+        </form>
+        <!--Tábla -->
+            <table>
+                <caption>CÍM</caption>
+                <thead>
+                    <tr>ez egy sor a tr befejezésére
+                        <th>oszlop1 címe</th>
+                        <th>oszlop2 címe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="scoreinfo"> oszlop 1 cella</td>
+                        <td rowspan="2">összevonom az alatta lévővel</td>
+                    </tr>
+                    <tr>
+                        <td>oszlop 1 cella</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"> összevon "2" db cellát a mellette jobbra lévővel</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td>lábléc</td>
+                    </tr>
+                </tfoot>
+            </table>
+        <!---->
+    <!--  -->
+<!--  -->
+
+<!-- Inline elemek, nem töltenek ki sort -->
+    <span>szövegrész kiválasztására, SZEMANTIKAI JELENTÉS NÉLKÜLI</span>
+
+    <!-- Szemantikus elemek -->
+        <em>hangsúlyozott, kiemelt szöveg       => megváltoztatja a mondat jelentését      => dölten jelenik meg</em>
+        <strong>fontos szöveg => NEM változtatja meg a mondat jelentését => vastag</strong>
+        <mark> jelölve lévő szövegrész</mark>
+        <time>08:00</time>kor keltem
+        <code>
+            &lt;section&gt;Some content&lt;/section&gt;
+            <!-- a kacsacsőrök és sok egyéb karaktert helyettesíteni Kell!!! -->
+        </code>
+
+        <a href="http://127.0.0.1:5500/orders.html">absolute url</a>
+        <a href="orders.html">relatív, ebbe a mappába keresi</a>
+        <a href="/orders.html">root, domain gyökér névtől nézi</a>
+        <a href="#idnév">"idnév" id-jú elemhez ugrik</a>
+
+        <a href="www.google.com">link default target= "_self"</a>
+        <a href="www.link.hu" target="_blank" title="mouseover szöveg">egy link ha ott a blank akkor uj oldalon nyílik meg</a>
+        <a href="mailto:ballerk@freemail.hu">email cím link</a>
+    <!--  -->
+<!--  -->
+</body>
+</html>
+<!-- ----------------------------------------------------------------------------------------------------------------------------- -->
+<!--Egyéb nem fontos? -->
+    <!--Blokk elemek-->
+        <hgroup>  Groups header information.</hgroup>
+        <dialog>Dialog box.</dialog>
+        <address> Contact information.</address>
+        <pre>Preformatted text.</pre>
+        <!---->
+    <!-- Inline elemek, nem töltenek ki sort -->
+        <abbr title="ha ráviszem az egeret ezt látom">ERRE</abbr>
+        <!--  -->
+        <!--  -->
+
+<script src="js/js.js"></script>
+<!-- ----------------------------------------------------------------------------------------------------------------------------- -->
+<!-- SEO, a weboldal keresőoptimalizálása, Hogy mindig megtaláljanak -->
+
+<!---->On Page SEO<!---->
+<!-- On Page SEO, 5 fő elem csoport van egy weboldal html tartalmában, amivel mi fejlesztők támogatni tudjuk a weboldalunk készítésekor a SEO-t -->
+
+<!----> <title> Title (cím) </title>
+<!-- Egyértelműnek kell lennie. Nem lehet zavaró, vagy félrevezető üzenete. Megjelenhet a weboldalon is mint tartalom (pl: címe egy cikknek)
+Oldal tartalmára utalnia kell
+Tartalmazza az oldalon található "key word" -öt, kulcsszavat
+A felhasználó azonnal el tudja dönteni miről szól az oldal
+A felhasználó mindig egy kérdésre keres választ ==> "Megoldást" nyújtson a Title egy kérdésre 
+- amit a kereső motorok még kifejezetten könnyen értelmeznek: -->
+
+<!-- 20-60 karakter szám között, 2 és maximum 20 szó között, Néhány rossz példa: -->
+
+<title> képek </title>          <!----> <title> ingyenes képek letöltési lehetősége </title>
+<title> programozó suli </title><!----> <title> legnépszerűbb budapesti programozó iskolák </title>
+<title> gyerekek </title>       <!----> <title> hogyan készítsük fel gyermekünk az iskolára </title>
+
+<!-- fontos megjegyzés: egy html tartalom meta adataiban (<meta> címkéinek tartalmaiban ) is segíthetünk a kereső motoroknak azonosítani 
+a legfontosabb információkat, de ezeket a legújabb algoritmusok már kezdik figyelmen kívül hagyni, a túlzott meta tartalmak elterjedése miatt. -->
+
+<!----> URL
+<!-- Egy weboldal és aloldalainak a címsorban megjelenő tartalmairól beszélünk:
+egyértelműen tartalmazza az oldal fő üzenetét
+gyakran megegyezik az oldal Title és URL tartalma (finoman kiegészítője lehet, vagy egy felesleges szóval kevesebb lehet az egyik a másiknak)
+informatív legyen. Lehetőleg ne egy átlagos szó: "cikk", "post", "mi" -->
+myblog/cikk1        <!----> myblog/hogyan-keszitsunk-tanyasi-levest
+bloggeroldal/post   <!----> bloggeroldal/legjobb-etterem-tippek-dunakeszin
+familytree-pages/mi <!----> familytree-pages/luc-imre-csaladja
+
+
+
+<!----> Content (Tartalom)
+<!-- Az oldal tartalmi megjelenéséről beszélünk. A kereső mindig összehasonlítja a tartalmat a Title-ben és az URL-ben megfogalmazott tartalommal.
+Fontos szempont a felhasználó olvasási élményének növelése, hisz célunk, hogy minél több időt töltsön el oldalunkon! -->
+
+<!-- Legalább 3 helyen tartalmazza a kulcsszavakat (témát amit a Title-ben megjelöltünk)
+Lehet 1-1 helyen finomítani egy címben szereplő fogalmat: pl eBook ==> digital book
+Egy szekció tartalmi részt bontsunk fel bekezdésekre. 3-4 bekezdés maximum egy szekción belül.
+Max 10-15 sor legyen egy bekezdés
+Bekezdések között tartsunk sörtöréseket
+Használjunk kiemeléseket a fontos fogalmakra (dőlt betűk, vastag betűs szavak)
+Ha több gondolatunk, felsorolásunk lenne, használjunk lista elemeket
+Dobjuk fel képekkel az oldal tartalmát -->
+
+<!----> Headings (Fejlécek)
+
+<!-- Kiemelt fontossága van a megfelelő fejezet címeknek! Itt a <h1> -től <h6> jelölt html elemekről beszélünk -->
+<!-- Minden oldalnak kell lenni egy, azaz egy darab <h1> címkével ellátott tartalomnak, címnek
+A kereső motor egy oldalon a <h1> ,<h2>, <h3> címeket kutatják fel
+Használjunk felvezetést a különböző méretű heading típusokban:
+Legnépszerűbb eBook olvasók Magyarországon -->
+
+<!----> Images (Képek)
+<!-- Az oldalon megjelenített képekről beszélünk itt,amik nagyban növelik a felhasználó élményt. -->
+
+<!-- Mindig használjuk a  html tartalom <img> címkéjében az "alt" attribútumot. pl: <img src="myImg.jpg" alt="zoli gyermekkori kép".
+ezt az alt-t értéket letudják olvasni a kereső robotok (és a screen-reader-ek is). Bátran használhatunk a Title-re vontakozó szabályokat itt is (20-60 karakter, jól formázott mondat is lehet)
+a képet mindig formázzuk, meg és állítsuk be közepes vagy kis méretet mielőtt feltöltsük, csökkentve az oldal betöltését
+fontos üzenet: az interneten fellelhető képek, nem a mi tulajdonunk!! Szabálysértést, lopást követhet el az ki más oldalról letöltött képeket használ fel publikálás alatt engedély nélkül! -->
+
+<!-- Nem kell profi design-ernek lennünk ha jó képeket akarunk. Néhány eszköz és oldal ahonnan képeket tudunk letölteni, szerkeszteni: -->
+
+<!-- canva.hu       ==> saját képek tartalmak készítése, alap lehetőségként ingyenes
+istockphoto         ==> minimális összegekért lehet képet vásárolni
+sotryblocks         ==> minimális összegekért lehet képet vásárolni
+unplash             ==> sok ingyenes tartalom -->
+
+<!-- Ezek megfelelő használata a kereső motorokat tudja támogatni a kategorizálásban. Ha nem tudja egyértelműen azonosítani az elemeket, 
+témaköröket, akkor kereséskor nem fog megjelenni az oldal. -->
+<!-- ------------------------------------------------------------ -->
+<!---->Off Page SEO<!---->
+<!-- a webtartalmak rangsorolása -->
+
+<!-- Site History. Megfelelő SEO és Szemantikai elemek. Vannak e spam-re vagy hacker oldalakra utaló linkek?
+Traffic Trends (Forgalom és látogatottság). Nőnek vagy csökkennek az oldal látogatottságai?
+Site Age (az oldal/domain kora). Legalább 1 éves oldal már jó mutatókat hozhat
+Content (Tartalom). Ne legyen az oldalon (felesleges) tartalmi ismétlések
+Az oldalra mutató linkek mennyisége. Hány másik oldalról (domain-ről) van erre az oldalra mutató link. Illetve összesen hány darab link mutat az oldalunkra -->
+
+<!-- --------------------------------------------------------------- -->
+<!---->PageSpeed<!---->
+<!-- az oldal megjelenésének(sebesség) a javítása -->
+<!-- PageSpeed insights https://developers.google.com/speed/pagespeed/insights -->
+<!-- ----------------------------------------------------------------------------------------------------------------------------- -->
+<!---->OpenGraph<!---->
+<!-- A közösségi oldalakon történő megjelenés -->
+<!-- Az Open Graph protokoll segítségével egy poszt előnézetének alábbi tartalmi elemei jelölhetők meg:
+Képi, Videó tartalmak megjelenítése
+Címe
+Bemutatkozó szövege
+Tartalom típusa
+Oldaltartalmából részlet
+Cikk író alap adatai, weboldal-linkje
+Link megjelenítése -->
+<meta property="og:title" content="a bejegyzés címe">
+<meta property="og:description" content="leírás">
+<meta property="og:image" content=" megosztott kép elérhetősége, url-je">
+<meta property="og:url" content="az oldal url-jének lehetősége">
+<meta property="og:type" content="a megosztott tartalom típusa (article, video, music, book, profile website..)"> 
+<meta property="og:video" content="videó tartozik a megosztáshoz, annak elérhetősége"> 
+<meta property="og:site_name" content="ha a tartalom nagyobb oldal része, akkor a website neve."> 
+<!-- ----------------------------------------------------------------------------------------------------------------------------- -->
+<!---->Audio és Média elemek<!---->
+<!---->Audio<!---->
+<audio controls>
+    <source src="my-music.ogg" type="audio/ogg">
+    <source src="my-music.mp3" type="audio/mpeg"> 
+    <!-- <source elemekkel lehet több audio típust megadni, mert bizonyos böngészők egy-egy típust jobban kedvelhetnek.
+    Az első  lejátszásra alkalmas elemet indítja el. -->
+    Your browser does not support the audio element.
+</audio>
+    <!-- <audio> elemeknek attribútumai lehetnek:
+    autoplay:       a teljes audio letöltése előtt, az oldal megjelenésekor már elindítja a hangfile-t
+    controls:       alap vezérlők megjelenítése (play, pause, hangerő)
+    loop:           folyamatosan visszaugrik az elejére a file végén
+    muted:          ha használjuk ezt, akkor automatikusa néma lesz az oldal töltödésekor
+    src:            forrás, elérési út megadása, erre inkább a <source> elem javasolt -->
+    <!-- példa:--> <audio loop muted controls> 
+<!---->Video<!---->
+<video width="320" height="240" controls>
+    <source src="my-movie.mp4" type="video/mp4">
+    <source src="my-movie.ogg" type="video/ogg">
+    <!-- A <source> elemekkel lehet több video típust megadni, mert bizonyos böngészők egy-egy típust jobban kedvelhetnek.
+    Az első  lejátszásra alkalmas elemet indítja el. -->
+    Your browser does not support the video tag.
+    <!-- js-el => video.tulajdonságai => video.pause(); video.muted; stb...-->
+</video>    
+    <!-- legfontosabb attribútumai lehetnek a <video> elemeknek:
+    autoplay:       amit elengedő adatot le tudott tölteni, egyből el kezdi a lejátszást
+    controls:       alap vezérlők megjelenítése (play, pause, hangerő)
+    height:         videót megjelenítő ablak magassága (abszolút értéket lehet megadni)
+    width:          videót megjelenítő ablak szélessége (abszolút értéket lehet megadni)
+    loop:           a videó végén újra lejátszásra kerül az anyag
+    muted:          hang automatikus némítása
+    playsinline:    sorba játsza le
+    poster:         egy kép megadási lehetősége (url) (mobil telefonok kis képernyőén ajánlott egy induló kép megadása) 
+    src:            videó forrásának megadása (url) mégis inkább a <source> elem használata javasolt     -->
+
+<!-- - Mind az audio, mind a video elem esetén elmondható, hogy a legtöbb böngésző által kedvelt formátum az mp3, illetve az mp4. -->
+<!---->YouTube videók beágyazása<!---->
+<!-- <iframe width="560" height="315" src="https://www.yout..... -->
+<!--    1. youtube videó megkeresése, 
+        2.megosztás, 
+        3.beágyazás, és az ottani link átmásolása a weboldalamra -->
+<!-- ----------------------------------------------------------------------------------------------------------------------------- -->
+<!--Egyéb NEM KELL, KERÜLENDŐ -->
+<i>dölt</i>
+<b>vastag</b>
+<br> sortörés, új sor
+<hr> vízszintes vonal
+<u>aláhúzás</u>
+<small>kisseb betű</small>
+<s>áthúzott szöveg, ami már nem érvényes</s>
+<sup>felső index</sup>
+<sub>also index</sub>
+<del>ezt mert már nem aktuális,áthúzom</del><ins>javitom erre, aláhúzom</ins>
+<!--  -->

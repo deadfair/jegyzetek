@@ -1,0 +1,395 @@
+// https://www.sassmeister.com/     gyors segítség fordításra
+// telepítés    : npm i -g sass
+// scss => css  : sass ./input.scss ./output.css
+// automatikus  : sass ./input.scss ./output.css --watch
+// VAGY Live Saas Compiler bővítmény => "watch saas" gomb megnyomása
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// hierarchia:				    // MAX 4-5 mélység	
+nav{ ul{}   a{}   }		    // nav ul{}	nav a{}	
+.a, .w { ul, p{}   }			// .a ul, .a p, .w ul, .w p {}  // a, b => a & b
+ul > {   li {}   }			  // lehet a szülő után 		      // szigorúan alatta!!!	      // ul li{} OK DE ul div li{} NEM OK 
+h2 { + p {}   }			      // a gyerek elött		            // az első mellett lévő kövi() tesó
+p { ~ { span {}  }  }		  // és köztük			              // Az összes első utáni tesó
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// &
+a{            
+    &:hover{
+        background-color: red;
+    }
+          // minden uj tulajdonságnál SZÓKÖZ 
+    @media screen and(min-width: 768px) {
+          // Media Queri-t IDE NE A file végére!!!
+    }     // itt nem kell szóközök
+}
+// !!!
+.green-link-container{        // ==>    .green-link-container-large{
+    &-large{      
+        font-size: large;     //          font-size: large;
+    }                         //        }
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// változók // Number(1,2.3,3px), String("a",'a',a), Color, List, Boolean, null, Map, Function
+$color:red;
+a{
+  $color:blue;              // csak az a-n belül létezik
+  $color:green !global;     // a globalis változó felülíródik
+  color: $color;              // blue lesz 
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+.btn{
+  color: #dfa612;
+}
+.btn--red{
+  @extend .btn;                   // a .btn class-t behuzzuk ide
+  background-color:red;
+}
+//-----------------------------------------
+// placeholder
+// van egy adag szabáj ami az összes gombra + mellé jönnek az extra szabájok 
+%message-shared {			            //  .message, .success {
+  border: 1px solid #ccc;			  //   border: 1px solid #ccc;
+  padding: 10px;			            //   padding: 10px;
+  color: #333;                  //   color: #333;
+}				                          //  }					
+.message {
+  @extend %message-shared; 
+}
+.success {				                //  .success {
+  @extend %message-shared;		    //   border-color: green;
+  border-color: green;          //  }
+}
+// @extend                                                              @mixin:
+// egy file-on belül használjuk elsősorban                              más scss kódból is fel tudjuk használni, importálni
+// a fordító optimalizálja a CSS file tartalmát                         nem törekszik optimalizálni a kódunkat
+// nem tud paramétert kezelni                                           tud paramétereket kezelni    
+// ha lehet ezt használjuk !!!
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// @mixin	// Fügvényszerű változók:
+@mixin basic-format-rules($background-color:red){       // red=default
+  background-color:$background-color;
+  font-weight: bold;
+}
+p{  // => elérni így
+  @include basic-format-rules($valtozo-nevek-igy);
+  // @include basic-format-rules();   // default miatt, lehet így is
+}
+//-----------------------------------------
+@mixin define-vT_2($V_3) {  span.vT_2-#{$V_3} {}  }		// változó lehet akár a classnév is
+@include define-vT_2("women-holding-hands");		      // => span.vT_2-women-holding-hands {}
+//-----------------------------------------
+@mixin prefix($property, $value, $prefixes) {
+@each $prefix in $prefixes {		// tömb elemein megy végig
+  -#{$prefix}-#{$property}: $value; 
+ }	
+  #{$property}: $value; 
+} // =>
+.gray {
+  @include prefix(filter, grayscale(50%), moz webkit);
+} // =>
+.gray { -moz-filter: grayscale(50%);   -webkit-filter: grayscale(50%);   filter: grayscale(50%); }
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// modulok, változók:
+// változók.scss
+$változó_1:red; 		// 	
+// style.scss
+@import 'változók';   // erőforrás igényes => ha "a"-ba behuzzuk "b"-t és "c"-t is akkor a "b" is látja a "c"-t
+body{                 // + kezd elavulni, NE HASZNÁLD
+  color: $változó_1;
+}
+//-----------------------------------------
+// _változók.scss
+$változó_1:red; 		
+// style.scss
+@use 'változók';		
+body{
+  color: változók.$változó_1;
+}
+@use 'változók' as v;		// ez a preferált
+body{
+  color: v.$változó_1;
+}
+@use 'változók' as *;		// így nem kell "v."
+body{
+  color: $változó_1;
+}
+//-----------------------------------------
+// imports.scss
+@forward "colors";
+@forward "változók";
+// style.scss
+// most ezután már csak az imports-ot importáljuk és egyszerre importáltuk minden @forward-ot
+@use 'imports/import';
+body{
+  color: import.$változó_1;
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// @debug
+@debug 10px + 10px;     // sass fileElérés  => debug látható a terminálon
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// calc nélkül is működnek a műveletek
+article[role="main"] {			      //  article[role="main"] {
+  float: left;				            //   float: left;
+  width: 600px / 960px * 100%;    //   width: 62.5%;
+}	                                //  }
+// Műveletek, operátorok:
+//    <, <=, >=, >, ==, !=   
+//    true, false
+//    and, or, not 
+// 1px==1       // false
+// 48px==0.5in  // true
+// 0.999999==1  // true
+// ari="ari"    // true
+// 1ms <= 10s   // true
+// Matematikai operátorok:
+//    +, -, %, *     
+// 10s - 50ms   // 9.95s
+// 10px * 2px   // 20px*px
+// 10px % 2     // 0px
+// 10px / 2     // 10px/2     // String !!!
+// 10px / 2px   // 10px/2px   // String !!!
+// (10px / 2px) // 5          // így már  osztás
+//    /    => Nem ajánlott, HELYETTE => math.div(5px,2)  // 2.5px
+// String operátorok:
+//    +, /, -, #{}
+// "Time " + New      // "Time New"
+// 16px / 16px        // 16px/16px
+// "16px" - "16px"    // "16px"-"16px"
+// abc - abc          // abc-abc
+// #{16px/16px}       // 16px/16px
+// #{"track" - "list"}// "track"-"list"
+// #{"track" + "list"}// tracklist
+//------------------------------------------------------------------------------------------------------------------------------------------------
+@use "sass:string";
+$index: string.index($string,$char); 
+$str:   string.slice($string,1,10);    // mit?, mettől?, meddig?
+$str:   string.slice($string,1);       // mit?, mettől?             // új stringel tér vissza
+//------------------------------------------------------------------------------------------------------------------------------------------------
+@use "sass:math";
+// calc(), env(), var(), min(), max(), round()
+// math.min(1,2,3,232);
+//------------------------------------------------------------------------------------------------------------------------------------------------
+@use "sass:map"; // kulcs érték párok
+$colors-map:(
+  first:blue,
+  second:red,
+)
+map.get($map:$colors-map,$key:first)    // blue
+map.get($colors-map,first)              // blue
+// map-get($colors-map,first);          // blue // inkább NE EZT
+map.has-key($colors-map,first)          // van ilyen kulcsu elem?
+map.keys($colors-map)                   // kulcsok
+map.values($colors-map);                // értékekket adja vissza        
+$colors-map2:(
+"green":green,            // ha értelmes szineket akarunk kulcsként kezelni akkor
+"yellow":yellow,          // mindig legyen string, mert a típusa akkor color
+);                          // és nem string, és ez késöbb probléma lehet 
+$all-colors: map.merge($colors-map,$colors-map2);    // a 2 map egybeolvasztása
+// akkor érdemes, ha van egy mapszín1 (színpalettánk) amiből egy mixin segítségével
+// legenerálom a text és bcg klasszokat (felhasználok háttér és szövegszíneknél),
+// legenerálom nekik a világosabb és sötétebb változatait, majd
+// van egy másik mapszín2-eim, amiknek csak a text szinei kellenek
+// tehát csak a text mixinbe nyúlok bele, 
+// ahol paraméterként megkapja mapszín2-t és mapszín1-t és első lépésként mergelem őket
+$new-colors: map.remove($colors-map,second);          // új map-ot hoz létre, amibe nincs benn a second 
+$colors-nestedmap:(   // map-ben is lehet map
+  base:(blue,red),
+  theme:(white,black,yellow),
+);
+//------------------------------------------------------------------------------------------------------------------------------------------------
+@use "sass:list";                   // 1 től kezdődik az indexelés      // type-of => arglist
+// nth, index
+$ures-list:();
+$weights:(400,500,700)         // === $weights: 400 500 700;   // === $weights: 400,500,700
+list.nth($weights,2)           // 500      // nemlétezőre hivatokzva ERROR
+list.index($weights,500);      // 2        // nemlétezőre hivatokzva null
+$weights2:list.append($weights,300)   // 400,500,700,300    // ÚJ list-el TÉR VISSZA !!!
+list.length($weights)          // 4
+list.separator($weights)       // comma    // mi a separátor? => vessző===comma, space===space
+list.join($weights,100 200)    // 400,500,700,300,100,200        // másik listát hozzáfűz
+list.join($weights,(100, 200));// 400,500,700,300,100,200     // másik listát hozzáfűz
+//------------------------------------------------------------------------------------------------------------------------------------------------
+@use "sass:color";
+// color.scale($color,$red,$green,$blue,$saturation,$lightness,$alpha)
+@debug color.scale(red,$lightness:20%);     // 20% al módosul a szin az adott színhez, világosabb
+@debug color.scale(red,$lightness:-20%);    // 20% al sötétebb lesz
+@debug color.adjust(red,$lightness:20%);    // 20% al világosabb
+
+// @debug lighten(red,20%);                    // 20% al módosul a szin absolutértékben
+// @debug darken(red,20%);                     // color modulos mo a javasolt
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// @if @else        // null === falsy // minden más truthy
+.main{
+  @if $main-padding > 40px{
+    background-color: red;
+  }@else{
+    background-color:yellow;
+  }
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// ciklusok: => // kiszervezni mixinbe => @mixin generate-colored-texts($colors-map){.......}
+// @ while $index{}   // amíg létezik az $index
+// @for
+// @each      // === for in of
+// @for $padding from 1 to 6{         // $padding === 1 től 5 ig   !!!
+@for $padding from 1 through 6{       // $padding === 1 től 6 ig   !!!
+  .p-#{$padding}{
+    padding: $padding * 1px;
+  }
+}
+$margins:10,20,30;                    // list
+@each $m in $margins {
+  .m-#{$m}{
+    margin: $m * 1px;
+  }
+}
+@each $key,$value in $colors-map {    // map-nél muszáj 2 változó
+  .text--#{""+$key}{    // <= !!! ha értelmezhető szineket adunk meg mint változó akkor a sass színként kezeli nem string
+    color:$value;
+  }
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// fgv      // ha számításokat szeretnénk végezni és vissza szeretnénk kapni egy értéket
+/// Ez a dokumentációs komment
+/// meg ez is, a fgv elött kell legyen
+@function get-ten($height){
+  @return 10 * $height;
+}
+@debug get-ten(30px);   // 300px
+//-----------------------------------------
+@function sum($first,$second){
+  @if type-of($value: $first) != number {  // ha a típusa nem number
+    @error "first number not a number"
+  }
+  @return $first + $second
+};
+@function sum($nums...){      // $nums === list, nemtom mennyi paraméter
+  $sum:0;
+  @for $i from 1 through list.length($nums){
+    $sum: $sum + list.nth($nums,$i);
+  }
+  @return $sum
+};
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// @content;
+// var fgv-t mi irtuk meg, azt csinálja hogy egy map hierarchiábol ki keresi pl.:a 600px elt.. grid:(... breakpont:(....mobile:600px...)...)
+// ezt egy másik fgv- el teszi meg, a másik fgv grid-breakpoint-mobile => listát ad vissza (grid breakpoint mobile)
+@mixin mobile-up {
+  @media screen and (min-width: var(grid-breakpoint-mobile)) {
+    @content;
+  }
+}
+.content {
+  @include mobile-up {
+    background-color: black;
+  }
+} 
+// => 
+.content {
+  @media screen and (min-width: 600px) {
+    background-color: black;
+  }
+}
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// url()
+// $roboto-font-path: "../fonts/roboto"
+// @font-face{
+//     src: url("#{$roboto-font-path}/Roboto-Thin.woff2") format("woff2");
+//     src: url( #{$roboto-font-path}/Roboto-Thin.woff2 ) format("woff2");
+//     src: url( $roboto-font-path +"/Roboto-Thin.woff2") format("woff2");   
+//     font-family: "Roboto";
+//     font-weight: 100;
+// }
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// projekt felépítés
+// _                        => amit nem akarok buildelni
+// _normalize.scss          => általános beállításoknak pl. restartok
+// variables/_colors
+// mixins/_backgrounds.scss
+// mixins/_texts.scss         
+// commons/_texts.scss        => hátterek, text tulajdonságok
+// commons/_backgrounds.scss  => meghívva a mixinek + az általános text, bcg tulajd
+// functions/...              // minden file 1 function // összes function 1 forwardal összegyüjtve 1 function.scss-ben
+// style.scss                 // csak use-olom a commons mappában lévő dolgokat
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// optimalizálás
+// btn btn-red    // inkább legyen 2 class 1 elemen , ha csak pár tulajdonságát változtatjuk =>
+// btn btn-green
+// btn-red        // ha csak a btn-red-re btn-green teszünk minden btn tulajdonságot 
+// btn-green      // beextendálva, akkor annyival hosszab lesz a css kód, hiába kicsi az scss
+// primary secondary, info, warning, danger, success // szín nevek így !!!
+//------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+// calc(), clamp(), element(), progid:...(), expression()
+// @error
+// @warn
+//------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+// $padding: 12px;
+// .post {
+//   padding-left: max(#{$padding}, env(safe-area-inset-left));
+//   padding-right: max(#{$padding}, env(safe-area-inset-right));
+// }
+
+
+// https://sass-lang.com/documentation/style-rules/declarations
+// $rounded-corners: false;
+// .button {
+//   border: 1px solid black;
+//   border-radius: if($rounded-corners, 5px, null);
+// }
+
+
+
+// egyéb:
+// $primary: #81899b;
+// $accent: #302e24;
+// $warn: #dfa612;
+// :root {
+//   --primary: #{$primary};
+//   --accent: #{$accent};
+//   --warn: #{$warn};
+//   // Even though this looks like a Sass variable, it's valid CSS so it's not
+//   // evaluated.
+//   --consumed-by-js: $primary;
+// }
+// :root {
+//   --primary: #81899b;
+//   --accent: #302e24;
+//   --warn: #dfa612;
+//   --consumed-by-js: $primary;
+// }
+
+
+// @use "sass:meta";
+
+// $font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+// $font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas;
+
+// :root {
+//   --font-family-sans-serif: #{meta.inspect($font-family-sans-serif)};
+//   --font-family-monospace: #{meta.inspect($font-family-monospace)};
+// }
+
+// :root {
+//   --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+//   --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas;
+// }
+
+
+
+
+
+
+
+
+
+

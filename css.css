@@ -1,0 +1,980 @@
+/*  css gyakorló oldalak
+https://codepen.io/
+https://www.frontendmentor.io/challenges?fbclid=IwAR1IABqNuUO2XD55sGJjDDVutYXHxA6Z-eSihFXxF-gtEuJbXMN1RoCuo_c
+https://cssbattle.dev/battle/7
+------------------------------------
+https://adamschwartz.co/magic-of-css/
+http://book.mixu.net/css/1-positioning.html
+https://leanpub.com/web-visual-effects-with-css3/read
+https://cssanimation.rocks/
+https://css-tricks.com/guides/
+https://www.w3.org/Style/CSS/specs.en.html
+https://www.tutorialrepublic.com/css-tutorial/css3-transitions.php
+https://webfejlesztes.gtportal.eu/?f0=CSS3_Grid_modell
+https://cssanimation.rocks/css-animation-101/
+https://css-tricks.com/snippets/css/complete-guide-grid/
+https://gridbyexample.com/examples/
+https://learncssgrid.com/
+------------------------------------------------------------------------------------------------------------------------------------------------
+https://cssgradient.io
+https://kit.fontawesome.com
+https://cdnjs.com/libraries/font-awesome    // fontawesome cdn
+googlefonts...   
+background-blend-mode: 
+https://bennettfeely.com/clippy/   =>  bal alul lesz egy css kód pl.:clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+https://www.cssmatic.com/box-shadow
+https://easings.net/
+imagecolorpicker.com
+https://polypane.app/css-specificity-calculator/#selector=
+https://randomuser.me/photos
+https://randomuser.me/api/portraits/women/12.jpg        // szám váltogatása más nő ad
+------------------------------------------------------------------------------------------------------------------------------------------------
+változó nevek css-ben: 
+:root {
+    --blue: #1e90ff;
+} 
+body {
+    background-color: var(--blue);
+}
+------------------------------------------------------------------------------------------------------------------------------------------------
+// Elnevezési konvenciók: pl.:              // BEM koncenció           https://css-tricks.com/bem-101/
+block:      btn
+            green-link-container            // nevek kötőjelezve
+element:    btn__részénekaneve
+            btn__text, btn__price
+modosító:   btn--mitmódosít                 // stílus
+            btn--big, btn--orange
+            btn__text--orange
+            btn__text-box--orange           // összetett szó esetében
+            background--lighter-red-5       // 5% al világosabb piros
+
+HA KELL akkor odaadjuk neki a element azonosítót és a módosítót is =>
+.....class="photo__img photo__img--framed"
+
+!!! --TILOS-- !!!: 
+.photo img{}                helyette =>         .photo__img{}
+
+// egymásbaágyazásnál: html: photo > caption > quote       =>
+.photo__caption                                 .photo__caption 
+.photo__caption__quote      helyette =>         .photo__quote 
+------------------------------------------------------------------------------------------------------------------------------------------------
+Media Queries:
+@media not | only mediatype and (expressions){}         // pl.: @media(max-width:1104px){} // @media only screen and (min-width: 600px){}
+
+expressions: pl.:   
+|| min-width: 480px
+|| max-width: 1104px
+
+mediatype:
+|| all	        Used for all media type devices
+|| print	    Used for printers
+|| screen	    Used for computer screens, tablets, smart-phones etc.
+|| speech	    Used for screenreaders that "reads" the page out loud
+------------------------------------------------------------------------------------------------------------------------------------------------      
+selectors:
+    .class{}                          több elemre is
+    #ID{}                             csak 1 elemre lehet használni
+    Tag1>Tag2>Tag3                    A PONTOS hierarchia gyerekszintű..
+    Tag1 Tag2 Tag3                    hierarchia MINDENKI aki alatta van, pl:   Tag1>Tag2>valami>Tag3 => Tag3 is kilessz választva
+                                      üti a gyengébb meghatározást pl.: Tag1 Tag3 tulajdonságait
+    ,                                 vagy (is-is)
+    *                                 minden
+    elem::pszeudoelem{}
+    elem:pszeudoclass{}
+    li.red ~ li{}                     minden  li, ami a li.red után jön (tesók)
+    li.red + li{}                     csak a kövi ami a li.red után jön (tesók)
+nav div input[type="checkbox"]:checked + ul{display:flex} // => ha csekkelve van a kijelölt elem, akkor az utánna lévő flex lesz 
+------------------------------------------------------------------------------------------------------------------------------------------------
+atributum selektorok: pl.: a===type
+    [a]             minden aki rendelkezik ezzel
+    [a="1"]         a==1                =>  kiválasztva    pl.:  [type="email"] v. [class="form-control blue"]  // VIGYÁZAT a class CSAK így nézhet ki
+    [a^="1"]        a==1elkezdődő       =>  kiválasztva
+    [a$="1"]        a==elbefejeződő1    =>  kiválasztva
+    [a*="1"]        a==bárhol1lehet     =>  kiválasztva                            [class*="blue"]              // így már bárhol
+------------------------------------------------------------------------------------------------------------------------------------------------
+Pszeudo elemek  :       
+    ::first-line        első sor        ::first-letter      első betü
+    ::selection         kijelölt résszel mi történjen?
+    ::placeholder       a placeholder mezővel mi történjen? (halvány input mező)
+                        
+    ::after             az utánna lévő elemet formázza amit MOST hozunk létre 
+    ::before            az elötte -||-              {content: "EZT";} 
+STB....
+------------------------------------------------------------------------------------------------------------------------------------------------
+pszeudo classok:
+linkeknél:         
+    :visited             ha már egyszer meglátogattam utánna hogy nézzen ki? (azok a linkek, amelyekre már kattintottak)
+    :link                még nem látogattam meg..
+    :any-link            bármilyen link..(felső kettő |-kapcsolata)
+    
+    :hover               mouseover 
+    :active              mouseclick (ha a felhasználó használ egy elemet, mondjuk rákattint),
+    :focus               klikk az inputra és procol,  (ha éppen használjuk)
+    :required            akinek van ez az atribútum
+    :checked             pipa...(a kiválasztott checkbox),
+    :disabled            (letiltott elem).
+    :empty               (olyan elem, aminek nincs gyereke, azaz nem tartalmaz beágyazott elemet),
+STB....  
+    :nth-child(2n)       minden második gyerek
+    :first-child         a szülő elem első,
+    :last-child          az utolsó gyereke
+------------------------------------------------------------------------------------------------------------------------------------------------                                                              
+mértékegységek:  
+|| px, 
+|| em(nagybetű magasság), ex(kisbetűk magassága)   
+    <= szülő elem font-size-ához képest Xem (X-szeres) lesz az ő font-size-a
+    .szülö{font-size:30px} .gyerek{font-size:0.5em} === .gyerek{font-size:15px)
+    <= VAGY az ő font-size-ához képest mekkora legyen?
+    .elem{font-size:20px;line-height:2em}           === .elem{font-size:20px;line-height:40px} 
+|| vw(szélesség), vh(magasság)                     <= relatív viewport-hoz      / mért % -ok 
+|| rem(1rem(default)=16px)                         <= root elemhez mérten.      / meg kell mondani hogy 20px legyen 1 rem, így => html {font-size:20px;} 
+|| %                                               <= a szüő elem méretének     / hány %?
+
+none=NINCS => border,outline,background stb...
+
+background: white ! important                       // nem lehet lokálisan felülírn	    
+HA az <a>-ba van egy .button, akkor az <a> tulajdonságait nem írja felül  a button tulajdonságai, de adhat hozzá
+HA a <button>-ba teszünk "! important" -ot => felülirjuk
+
+color:
+opacity:    a color 4. értéke :     1 és 0 közti szám = átlátszóság         0=teljesen átlátszó,láthatatlan    
+------------------------------------------------------------------------------------------------------------------------------------------------
+background: bg-color bg-image position/bg-size bg-repeat bg-origin bg-clip bg-attachment
+
+background-color:       
+|| szín 
+|| transparent          átlátszó lesz.
+|| currentcolor         az elem color színével lesz egyenlő(bg-colornár érdekes)
+background-image: 
+|| none      
+|| url                  url("../kepek/kep.gif") | url("http://www.valahol.hu/kep.jpg")
+|| radial-gradient()    =>  https://cssgradient.io
+|| linear-gradient()    =>  https://cssgradient.io
+pl.: linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.4)); // átlátszó lesz lefelé
+background-position:    value    első érték a x tengely második a -y tengely!!
+(%|px|left top|center|right center|stb...)
+|| 0% 0%                bal felső sarok                   
+|| 100% 100%            jobb alsó sarok
+|| 50% 50%              középen 
+background-size:        
+|| auto(default)
+|| length(px px|% %)         nyújtás..      % => relatív, a szülő elemhez viszonyítva!!!
+|| cover                kitölti a teljes konténert, nyújt, de nem tórzít 
+|| contain              teljesen látható a kép,     nyújt, de nem tórzít 
+background-repeat:             
+|| repeat:     folyamatosan minden irányba
+|| repeat-x:   csak x irányba
+|| repeat-y:
+|| no-repeat:  ne ismétlődjön
+|| round:      a teljes kép látható soxor, nyújt
+|| space:      a teljes kép látható soxor és lehet a képek közt kis üres hely
+background-origin:      a kép pozicójának a helye:
+|| padding-box(default)     a paddingba is
+|| border-box:              a borderre is
+|| content-box:             a padding NEM
+background-clip:        ugyanaz mint az előző, csak ez kitölti teljes felületet, nyújt..?
+|| border-box
+|| padding-box
+|| content-box
+|| text                a backgroundot, ha van definiálva + a color:transparent => a backgroundot a textre teszem rá
+background-attachment:  
+|| scroll(default)     a kép,fix NEM gördül a tartalommal, belsővel nem gördül, de a külsővel igen, ahhoz van ragasztva
+|| fixed               a kép,fix NEM gördül a tartalommal,
+|| local               a kép hozzá van ragasztva a tartalomhoz, vele gördül..
+------------------------------------------------------------------------------------------------------------------------------------------------
+border:                 [border-width] [border-style] [border-color]          
+    border-width:   px          border-top-width:                              
+    border-style:   solid       border-top-style: 
+    border-color:               border-top-color: -right,-bottom,-left
+    border-radius:  px|%        (a sarkok lekerekítése, border/radius arány )  top right bot left    
+    30px                                        minden szög
+    25% 10%                                     25%=bal felső + jobb alsó       10%=jobb felső + bal alsó
+    10px 20px 30px 40px                         mind a 4 szög...
+    10px 20px 30px 40px / 50px 60px 70px 80px   a "/" jel bal oldalán mindegyik szög bal oldala szerepel jobb oldalán a jobb.                      
+outline: a border után kivül lévő ujjab border
+    outline:            [outline-width] [outline-style] [outline-color]
+    outline-width:              ugyanaz mint a border                       
+    outline-style:              -||-  
+    outline-color:              -||-
+    outline-offset: px|%        a border és az outline közti távolság 
+border-image: egy bordermintából csinál bordert. menő.        
+                [forrás,elérés] [slice] / [width] / [outset] [repeat]
+    border-image-slice:   hogy szeleteljünk?  => 9 rész 4 oldal + 4 sarok + közép
+    || szám fill?           minél nagyobb az érték, annál kisseb szeletek => próbálgatni kell hogy hogyan lesz szép.
+    || %  fill?             középen csak akkor van ha fill is jelen van
+    border-image-width:   mekkora legyen egy imgborder egység?
+    px|| % || auto          1 || 2 || 3 || 4 értéket is felvhet a 4 oldalára, a logika a megszokott.
+    border-image-outset:  offset szerü cucc, a 4 oldala merre tolódjon, offsetelődjön
+    % || px                 1 || 2 || 3 || 4 értéket is felvhet a 4 oldalára, a logika a megszokott.
+    border-image-repeat: 
+    || stretch          csak szétnyújtja a mintát
+    || repeat           CSÚNYA ismétli,de nem érdekli a sarok 
+    || round            ismétli de a sarok pont jol jön ki
+------------------------------------------------------------------------------------------------------------------------------------------------        
+margin:             px|%|auto|0(letiltja a margót)  kereten kívüli táv        
+padding:            px|%                            keret és a tartalom közötti távolság
+                fent jobbra le balra (óramutató járása)
+BOX-modell:     margin->border->padding->tartalom  
+------------------------------------------------------------------------------------------------------------------------------------------------
+blokkszintű(div) vagy annak megfelelő(IMG,TEXTAREA,OBJECT,INPUT,SELECT) elemnek megadhatunk szélességértékeket és magasságértékeket:
+height: magasság    auto|%|px       max-height:     none|%|px       min-height:     %|px
+width:  szélesség   auto|%|px       max-width:      none|%|px       min-width:      %|px
+min => annyi mindenképp lesz. az oldal növeléséve, ha nő az elem akkor nőni fog..
+max => maximum akkora lehet. az oldal szüküléssével aaz elem is..
+
+position: 
+|| fixed(pl. navmenü)                   (kikerül a helye a dokumentumból)   =>   új kontextust hoz létre 
+|| sticky(ha érintkezik az elem a képernyő szélével akkor fixed lesz, és ha a szülű eltünik akkor ő is)
+|| static(az alapértelmezett, ahol kell lennie)   => minden ami nem static uj kontextust hoz létre a gyerekeinek
+|| relative(magához viszonyítva merre?) (nem kerül ki az eredeti helye a dokumentumból)  => új kontextusba lesz a gyerekei absoluteja és relative-ja
+|| absolute(a dokumenthez viszonyítva)  (kikerül a helye a dokumentumból)   =>   új kontextust hoz létre  
+|| inherit(szülőhöz)
+left:   px              az elem hol legyen? top:0 left:0 => a bal felsö sarokba legyen az elem
+right:
+top:
+bottom:
+------------------------------------------------------------------------------------------------------------------------------------------------
+Styling Images
+filter:         a képre ad filtert, mindenféle csilivili cuccost
+| none | blur() | brightness() | contrast() | drop-shadow() | grayscale() | hue-rotate() | invert() | opacity() | saturate() | sepia() | url()
+https://www.w3schools.com/cssref/css3_pr_filter.asp
+transform: scaleX(-1);      a kép tükrözése y középtengeyére
+
+Image Reflection: 
+-webkit-box-reflect:   [kulcsszó] [offset(px)] [linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.4))]      
+    tükrözi a képet 
+|| below        földre tükröz
+|| above        égre
+|| left         balra
+|| right.       jobbra
+
+object-fit:  a kép px-elre szabása anélkül hogy nyújtanánk vagy zsugorítanánk zseniális cucc
+|| fill(default)        torzít
+|| cover                a beállított px el arányt tartja meg             + a kép közepére fokuszál           + levágja a széleit ha lekell
+|| contain              nem a beállított px arány lesz, csak ami belefér + megtartja az eredeti kép arányait + a teljes eredeti képet is
+|| none                 nem lehet a kép méreteit változtatni, immunis lesz rá
+|| scale-down           majdnem mint a contain, de ha nagyobbra kell nyűjtani NEM nyújt (none lesz)
+object-position:        ha a képből vágni kellet akkor merre fokuszáljon?
+50% 50% (default)
+------------------------------------------------------------------------------------------------------------------------------------------------
+Buttons 3 fajta:
+<a href="#" class="button">Link Button</a>
+<button class="button">Button</button>
+<input type="button" class="button" value="Input Button">
+
+
+.button{
+cursor: pointer;
+display: inline-block;
+}
+.disabled {                     // nem elérhető gomb
+opacity: 0.6;
+cursor: not-allowed;
+}
+.button:active {                // klikk efekt
+background-color: #3e8e41;
+box-shadow: 0 5px #666;
+transform: translateY(4px);
+}
+------------------------------------------------------------------------------------------------------------------------------------------------
+text
+color:
+text-align:         vízszintes igazítás
+left|right|center|justify(sorkizárt)
+text-align-last:    utolsó sor milyen legyen? akkor működik csak, ha text-align:justify;
+left|right|center|justify(sorkizárt)|end(text-direction-tól függ hova igazít)|start
+text-justify:       foggalmam sincs mi ez :( 
+auto|inter-word|inter-character|none
+vertical-align:     függőleges igazítás  
+|| % || px || -px   0% => baseline  X%>0 => felső index
+|| sub:             alsó index     
+|| super:           felső index  
+|| top:             legmagasabb elem tetejéhez 
+|| baseline(default)alapvonalhoz    
+|| text-top:        szöveg tetejéhez    
+|| middle:          középre         
+|| text-bottom:     szöveg aljához
+text-decoration:    [text-decoration-line] [text-decoration-color] [text-decoration-style]
+    text-decoration-line:   
+    || none               nincs
+    || underline          aláhúzva
+    || overline           föléhúzva
+    || line-through       áthúzva     
+    text-decoration-color:  a text dekoráció színe
+    text-decoration-style:  solid           mint bordernél pl.                         
+text-transform:
+|| none(semmi)
+|| capitalize         kezdő betű a nagy
+|| uppercase
+|| lowercase
+text-indent:   |px|%    csak blokk szintű elemekre,a szöveg első sorának behúzása:
+letter-spacing:|px                               betűk közti vízszintes távolság
+word-spacing:  |px                               szavak közti vízszintes távolság
+white-space:            szóközök számának szabájozására:
+|| normal:         több szóközt egynek vesz
+|| pre:            anyit ír ki amennyi a forrásba van
+|| nowrap:         nem engedélyez sortörést!! sortörés csak a <br> tag   
+text-shadow:   [h-shadow] [v-shadow] [blur-radius] [color]      "," -vel elválasztva több is adható, inset ...=> belül 
+    h-shadow     px  vízszintes irány.
+    v-shadow     px  függöleges irány.   
+    blur-radius  px  mennyire legyen homályos?
+    color
+direction:     szöveg igazítása,          balra v jobbra            
+|| ltr(default)
+|| rtl        
++ unicode-bidi:bidi-override;  a szöveget megfordítja, HA direction=rtl
+text-overflow:    mi történjen ha nem fér bele a dobozba?      
+|| clip(default)  kiírja amennyit tud, de vág
+|| ellipsis       "..." lesz ami nem fér ki
+word-break:       ha nem fér be a dobozba, mert olyan hosszú a szó? 
+|| normal         => kilóg DE ha egy sortöréstől kifér akkor belerakja 
+|| break-all      töri a sort ahol tudja, a szó közepén is!
+|| keep-all       => kilóg DE ha egy sortöréstől kifér akkor SE töri meg 
+|| break-word     majdnem mint a break-all de ez az a szó elé is, ami nem fér ki sortörést tesz, nem csak a szó közepére
+word-wrap:        ha nem fér be a dobozba, mert olyan hosszú a szó?
+|| normal         => kilóg
+|| break-word     új sort kezd a szó közepén is
+writing-mode: 
+|| horizontal-tb  alapértelmezett, balról jobbra irja a szavakat
+|| vertical-rl                     fentről lefele, 90 fokkal fordítja a szöveget 
+|| vertical-lr
+------------------------------------------------------------------------------------------------------------------------------------------------
+font: [font-style] [font-variant] [font-weight] [font-size]/[line-height] 
+      [font-family|caption|icon|menu|message-box|small-caption|status-bar|initial|inherit]
+font-style:             
+|| normal
+|| italic       dölt
+|| oblique      (nagyon dölt)
+|| bold         vastag
+font-variant:           
+|| normal
+|| small-caps   a kis betű is nagy betű de kissebb    
+font-weight:    100...normal(=400)...900  betűvastagság 
+font-size:      px|%
+line-height:    px|%|szám(betűméret/szám=sortáv) szövegsorok közötti függőleges távolság
+font-family:    betűtípus   több megadása esetén: prioritás
+------------------------------------------------------------------------------------------------------------------------------------------------
+ikonok          <i> 
+https://www.w3schools.com/icons
+<script src="https://kit.fontawesome.com/a076d05399.js" ></script>
+
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/> 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+<i class="glyphicon glyphicon-cloud"></i>    
+</body>
+------------------------------------------------------------------------------------------------------------------------------------------------
+Listák, felsorolások
+list-style:             [list-style-type] [list-style-position] [list-style-image]
+    list-style-type:        listaelemek felsorolás stílusa:
+|| disc:                   pötty
+|| cirle
+|| square
+|| decimal:                sorszám
+|| decimal-leading-zero:   01,02,03...
+|| lower-roman:            kisbetűs romai számok
+|| lower-alpha:            kisbetűk
+|| upper-alpha
+|| upper-roman
+|| none:                   egyik sem
+stb...
+    list-style-position: a felsorolás jelek az objektumon kívül vagy belül legyenek e.                         
+|| outside                 kívül
+|| inside                  belül
+    list-style-image: url(../kepek/kiskep.gif)  a felsorolás elemek kis képek is lehetnek
+------------------------------------------------------------------------------------------------------------------------------------------------
+visibility:         nem töröl, csak láthatatlanná tesz, de ottvan..!!!
+|| visible          látható
+|| hidden           nem látható de ott van a helye
+|| collapse         csak a sort teszi láthatatlanná a tábláknál
+display:        szupererő
+|| none         elem eltüntetése, mintha törlődne..
+|| grid:        szuperpower
+|| flex:        szuperpower
+
+|| inline       width           nem működik 
+                height          nem működik
+                marginX             működik
+                marginY         nem múködik
+                padding             működik
+            text-align: center      működik
+
+|| block        width           kitölti a befogadó elem 100%-át, mivel block  
+                height              működik
+                margin              működik
+                padding             működik
+            text-align: center  nem működik
+
+|| inline-block widht               működik
+                height              működik
+                margin              működik
+                padding             működik
+            text-align: center      működik
+
+|| table || table-caption || table-column-group || table-header-group || table-footer-group || table-row-group || table-cell || table-column || table-row	
+|| inline-flex || inline-grid || inline-table	
+|| run-in
+|| list-item    sortörés az elem elé és utánna + felsorolásjelek
+
+resize:         lehet e egy x*y os ablakot ujraméretezni?
+|| none         nem
+|| both         x,y irányba is
+|| horizontal   x
+|| vertica      y
+overflow:       overflow-x:     overflow-y:
+|| visible      csúnya.. ha kimegy a doozból a tartalom akkor is látszik
+|| hidden       rejtve van ami kimegy a dobozból        
+|| scroll       lehet görgetni
+float:          objektumokat körülírjuk szövegekkel, összehúzza magát ahogy tudja
+|| none         a képpel egy sorba csak 1 sor lesz.
+|| left         bal oldalon van a kép
+|| right        jobb oldalon van a kép   
+clear:          adott elem nem fog bemenni float mellé
+|| none(default)LEHET mind2 oldalt
+|| left         balra float-olt elem mellé ne menjen be
+|| right
+|| both         mind2 őt
+box-sizing: 
+|| content-box(default)     width, height csak a contentre                 értendő
+|| border-box               width, height (content) + padding + border-re  értendő (MARGINRA NEM!!!)
+box-shadow: [offset-x] [offset-y] [blur-radius] [spread-radius] [color] 
+    vesszővel "," elválasztva akár 2 árnyéka is lehet 
+    VAGY  pl.: inset===belülről => box-shadow: 0 0 50px #0f0, inset 0 0 50px #0f0;
+https://www.cssmatic.com/box-shadow
+--------------------
+clearfix technika, => floatolásnál ha egy blockba akarunk tenni egy floatolt elemeket és szöveget, 
+és ha a sectiont formázzuk pl.: borderrel, akkor nem úgy működik, ahogy elvárnánk a megoldás:
+Floatolás:                          // így egymás mellé tudunk tenni block elemeket, mintha flex-elnénk
+.valami{float:left; width:25%;} 
+.amibeVanaValami{display:block}
+.amibeVanaValami::after{
+    content:"";
+    clear:both;
+    display:table;
+}
+------------------------------------------------------------------------------------------------------------------------------------------------
+FORMS
+input[type=text]        - will only select text fields
+input[type=password]    - will only select password fields
+input[type=number]      - will only select number fields
+STB...
+textarea                nagy text doboz
+select                  lenyíló fül, választó cucc
+------------------------------------------------------------------------------------------------------------------------------------------------
+transform    Mozgatás, forgatás..=>     NINCS hatása a dokumentumra, csak az adott elemet transformáljuk(gyerekestül)
+
+2D
+transform-origin: a transformált elem pozicióját változtatjuk
+[x-axisg [y-axis] [z-axis]
+transform:      !!! deg=fok !!!
+|| skewX(szög)            x tengelyre történő tranzformáció térbe => paralelogramma kreálása
+|| skewY(szög)            y tengelyre történő tranzformáció térbe
+|| translateX(n)          pl 50px => 50px el jobbra      
+|| translateY(n)          pl 50px => 50px el le tolás   
+|| scaleX(n)              az elem width-jét modosítja       width=width*n       nyújt és torzít
+|| scaleY(n)              az elem height-jét modosítja      height=height*n     nyújt és torzít
+|| skew(skewX(szög),skewY(szög))
+|| translate(translateX(n),translateY(n))
+|| scale(scaleX(n),scaleY(n))
+|| matrix(scaleX(n),skewY(n),skewX(szög),scaleY(szög),translateX(n),translateY(n))
+|| rotate(szög)           rotate(20deg) => az elemet az óramutató járásával megeggyező irányba forgatja 20 fokkal a tengelye körül a síkban
+
+3D
+transform-origin: a transformált elem pozicióját változtatjuk
+[x-axisg [y-axis] [z-axis]
+transform:
+|| rotateX(szög)           rotateX(20deg) => az elemet az óramutató járásával megeggyező irányba forgatja 20 fokkal X tengelyen
+|| rotateY(szög)           y tengelyen
+|| rotateZ(szög)           z tengelyen  
+|| translateZ(n)           pl 50px => 50px el le tolás
+|| rotate3d(x,y,z,szög)	
+|| scale3d(x,y,z)
+|| translate3d(x,y,z)
+|| perspective(n)          => honnan nézzük milyen közelről?  px||cm||stb
+|| matrix3d(n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n)
+|| + ami 2dnél is volt.
+transform-style: 
+|| flat(default)
+|| preserve-3d              a gyereke is megkapja az anya transformációját még akkor is ha a gyerek position: absolute; 
+perspective-origin: [x-axis] [y-axis]
+a perspective(n) nek a nézőpontját tolhatjuk el x,y irányba  % || px   (50%,50%) a default
+backface-visibility: ha az elem hátoldalát látjuk, akkor azt lássuk e?
+|| visible (default)
+|| hidden               láthatatlan lesz az egész elem ha megfordul
+
+pl:
+transform: translateX(10px) rotate(10deg) translateY(5px);
+transform: perspective(500px) translate(10px, 0, 20px) rotateY(3deg);
+------------------------------------------------------------------------------------------------------------------------------------------------
+cursor: 
+|| wait(várakozás)
+|| progress(wait+nyil)
+|| pointer(mutató uj) 
+|| stb....
+https://www.w3schools.com/cssref/tryit.asp?filename=trycss_cursor
+https://developer.mozilla.org/en-US/docs/Web/CSS/cursor
+------------------------------------------------------------------------------------------------------------------------------------------------
+tooltip vagyis ha rávisszük az egeret egy szövegre akkor ez előugrik és segít nekünk infót ad hogy mi is ez.
+
+az anyát position:relativ -ra tesszük a gyereket(a felugró kis tooltip-et) position:absolute -ra z-index:1;
+azért csináltuk a relativvá tételt mert így könnyeb késöb számolni vele hogy merre hány px el toljuk el.
+és hover efektre visibility: hidden; => visibility: visible;
+
+.tooltip .tooltiptext::after {                  // kis nyilacskaszerü 3 szög készítése 
+  content: " ";                                 // a veszünk egy semmit 
+  position: absolute;                           // az item position:relativ volt
+  top: 100%;                                    // az item tetejére akarjuk,
+  left: 50%;                                    // az item közepéhez akarjuk, left:50%  az item eleje mert relative volt az anya
+  margin-left: -5px;                            // a 3 szög méretével balra kell tolni hogy középen legyen
+  border-width: 5px;                            // a 3 szög mérete
+  border-style: solid;
+  border-color: black transparent transparent transparent;  // a border teteje kell, vis az a 3 szög
+}
+------------------------------------------------------------------------------------------------------------------------------------------------
+Átmenetek           transition: [property] [duration]  [timing-function] [delay];
+transition: background 0.5s linear;         micsoda? mennyi ideig történjen?  hogyan? késleltetés?
+optimálisabb ha NEM az "all" -t használjuk, hanem kiírjuk mindegyik "micsoda?"-t, ha több van
+a transition tulajdonságot csak az ELEMHEZ kell írni
+elem:hover{ide csak a végállapotot}        
+ha csak a hover részbe írjuk akkor csak odafele animál vissza nem..  
+
+[timing-function]  hogyan?:          https://easings.net/
+linear,         3-3-3-3-3                               === kb a sebesség
+ease-in,        1-2-3-4-4                               (lassu,lassan lassul a gyorsulás az animáció vége fele),
+ease-out,       4-4-3-2-1                               (gyorsan indul, majd az animáció vége fele lassul)
+ease-in-out,    1-2-3-2-1                               (lassan indul, gyorsul a közepe fele, majd lassul)
+cubic-bezier(1,-0.5,.13,1.1)                            (4 értéket vár, ez a manuális forma.. túl is mehet,de vissza ugrik)
+https://cubic-bezier.com/ itt lehet személyre szabni
+steps();            (itt ugrál vár paramétereket..)
+
+javascriptel, egy stilushoz adhatunk..
+element.style.transition = 'opacity 1s ease-out';
+
+animation: [name][duration][timing-function][delay][iteration-count][direction][fill-mode][play-state]
+
+animation-name =>
+
+@keyframes animation-name {
+  0%,20% {          // így mind 2 értékhez azt írtuk hogy blue, linear
+    background: blue;
+    animation-timing-function: linear;
+  }
+  100% {
+    background: green;
+  }
+}
+
+@keyframes
+animation-name                  neve amit a keyframes-ben adunk neki
+animation-duration              átmenet ideje ms-ban
+animation-timing-function       ugyanaz mint az átmeneteknél, csak itt most a @keyframes nél kell írni..
+animation-delay                 mennyit várjon mielött elindul?
+animation-iteration-count       hányszor? szám vagy infinite
+animation-direction             normal(0%=>100% ig), reverse(100%=>0%), alternate(0%=>100%=>0%), alternate-reverse
+animation-fill-mode             none(csak ha meghívódik)|forwards(utolsó keyframeben marad)|backwards(első releváns keyframeből indul)|both
+animation-play-state:           paused|running         animáció pauzolásához
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+flexboxok: NEM CSAK ul li -vel, hanem div-div-ekkel is
+<ul>
+  <li></li>
+  <li></li>
+  <li></li>
+</ul>
+
+li{
+width: 100px;
+height: 100px;
+background-color: #8cacea;
+margin: 8px;
+}
+
+ul-ben:
+ul{display:flex;}   // flex tulajdonságok állításához
+
+flex-direction: row || column || row-reverse || column-reverse  // irány, oszlop v sor legyen
+
+flex-wrap: 
+|| nowrap           1-2-3-4-5-6-7-8-9-10    (default)
+|| wrap             1-2-3-4-5-6             (új sort kezd ha nem fér ki,tartja az elem szélességet..)
+                    7-8-9-10                                   
+|| wrap-reverse     7-8-9-10 
+                    1-2-3-4-5-6
+
+flex-flow: [flex-direction] [Flex-wrap]   // rövid forma.
+
+justify-content:    // fő tengely mentén... (az li-ben lévő margin:auto; kiüti ezt a propertízt)
+|| flex-start               1-2-3-x-x           (balra igazított)
+|| flex-end                 x-x-1-2-3           (jobbra)
+|| center                   x-1-2-3-x           (középre)    
+|| space-between            1-x-2-x-3           (a dobozok közt egyenletes távolság) x=táv   
+|| space-around         y-1-y-y-2-y-y-3-y       (a dobozoknak van paddig szerűje egymáshoz viszonyítva)
+
+align-items:        // függöleges igazítás, ha egy magas konténerbe vunk.. 1 sor elem... OSZLOP esetén viszszíntesen lesznek...
+|| flex-start       // az elem magassága a sor magasság lesz, fel igazítva
+|| flex-end         // az elem magassága a sor magasság lesz, le igazítva
+|| center           // az elem magassága a sor magasság lesz, középre igazítva
+|| stretch          // az elem magassága a konténer magasság, fel igazítva
+|| baseline         // az elem magassága a sor magasság lesz, fel ígazítva + a sorok alja egy vonalba
+
+align-content:      // több sor elemre, y irány szerint gondolkodva: 1 = első sor elemei 
+|| stretch                    1-y-2-y
+|| center                     y-1-2-y
+|| flex-start                 1-2-y-y
+|| flex-end                   y-y-1-2
+|| space-between              1-y-y-2
+|| space-around             y-1-y-y-2-y
+|| space-evenly              y-1-y-2-y                    
+
+gap: 10px           // => elemek közötti "margó"
+row-gap: 10px       // csak vízszintes
+column-gap:10px     // csak függőleges
+
+li properízek!!!
+order:              minden elemnek, egy listának alapértelmezetten az orderje=0;
+                    ha növeljük pl 1-re, akkor az-az elem hátra kerül, a 0 orderűek után...
+
+Flex-grow:          (default:0) egy pozitív szám, az egyes li elemek szélessége, 
+                    hogy töltse ki, milyen arányba a maradék helyet? 
+                    ha 1db elem 1, akkor kitölti az az elem a maradék helyet
+                    ha 2db elem 1, akkor azok 2 en elosszák egymás közt a maradék helyet 
+                    ha 1db 2 1db 1, akkor a maradék helyet 2:1 arányba osztják szét egymás közt a maradék helyet, stb.
+flex-shrink:        (default:1) (zsugorodás.. a szöveghez rá)
+                    1 => zsugorodik ha kezd elfogyni a hely
+                    2 => kétszer olyan gyorsan zsugorodik
+                    0 => NEM zsugorodik, tartja a szélességét
+flex-basis:         (default:auto) flex-direction tól függ: HA                 
+                    row    -> konstans fix szélesség px-ben vagy auto vagy %(maradék hely %-a)
+                    column -> konstans fix magasság px-ben vagy auto vagy %(maradék hely %-a)
+                        -> ilyenkor a width: 100px; a szélesség
+                        -> ul {align-items: center;} től fogg középre kerülni
+
+flex:       [Flex-grow] [flex-shrink] [flex-basis]
+            0 0 auto // ahoyg tud összezsugorodik
+auto  ===   1 1 auto // ahogy tud kitágul 
+1     ===   1 1 0    // mivel a basis = 0 ezért 1-1 részre lesz osztva
+50%   ===            // a terület felét foglalja el
+100%  ===            // a teljes területet
+
+li:nth-child(1) {flex: 2 1 0;}         
+li:nth-child(2) {flex: 1 1 0;}
+2-1 arányba elosztja az odlalt
+
+
+align-self: auto || flex-start || flex-end || center || baseline || stretch
+ul beli align-items-el ugyanaz, csak itt egy li elemre vonatkozik... auto, akkor a szülő (ul) dönti el
+
+
+flex: 0 0 auto                                              =>  1-2-3-x-x
+li:nth-child(1) {margin-right: auto;}                       =>  1-x-x-2-3
+li:nth-child(1) {margin-left: auto; margin-right: auto}     =>  x-1-x-2-3
+a margin auto a justify-content propertízt kiüti, nem fog működni
+------------------------------------------------------------------------------------------------------------------------------------------------
+GRID rendszer    div szülőnek div gyerekei.... // https://grid.layoutit.com/
+szülőnek: 
+
+display: grid           
+display: inline-grid        // függőleges grid?
+
+"..." =>px,   %,  fr(arány),  auto(amennyit tud),  span x (kövi x db)
+minmax(minimum,maximum),                // minimum és maximum mekkora lehet..
+repeat(4, 100px)                        // 100px 100px 100px 100px
+repeat(4,[col] 100px)                   // [col] 100px [col] 100px [col] 100px [col] 100px [col]
+repeat(auto-fill, 100px )               // annyi lesz kreálva amennyit a gyerek felhasznál 
+                                        // pl, ha a legutolsó grid-column: 3 / 5 ; => 4 oszlop
+repeat(auto-fill, [row] auto  );        // ilyet is lehet.
+repeat(auto-fill, 100px 200px);         // 100px 200px 100px 200px 100px 200px ...
+repeat(auto-fill, minmax(200px,1fr));   // annyi dobozt csinál amennyit tud 200px ekből  
+repeat(auto-fit, minmax(200px,1fr));    // CSAK annyit csinál amennyit felhasználunk
+span 3             // gyerekbe          // 3 lefoglalt hely 0-tól
+2 / span 3         // gyerekbe          // 3 lefoglalt hely 2-től
+
+grid-template-columns:  ...  ...;       // oszlopszélességek
+grid-template-rows:     ...  ...;
+
+grid-template-columns: [first] 40px [line2] 50px [line3] auto [end];        // a választóvonalakat elis nevezhetjük
+=> gyerekbe:                                 grid-column: first/line2  === 1/2
+=> ha minden oszlopnév ugyanaz pl first =>   grid-column: first/span 1 === 1/span 1
+
+grid-gap:    [grid-row-gap] [grid-column-gap]      => ha egyenlőek => 1 érték is elég
+    grid-row-gap:    20px;      => a dobozok közti üres hely x irány
+    grid-column-gap: 5rem;      => a dobozok közti üres hely y irány
+
+grid-template-areas:                    // a gyerek grid-area: név; attribumait 2d be, a . az üres
+    "header header  header  header"     // ha nem adjuk meg a grid-template-rows-t és 
+    "main   main    .       sidebar"    // a grid-template-columns-st akkor
+    "footer footer  footer  footer"     // 1fr 1fr 1fr 1fr -be lesznek
+
+grid-template: [grid-template-rows] / [grid-template-columns];
+
+grid-template:  [row1-start] "header header header" 25px [row1-end]
+                [row2-start] "footer footer footer" 25px [row2-end]
+                / auto 50px auto;
+<=>{
+grid-template-rows: [row1-start] 25px [row1-end row2-start] 25px [row2-end];
+grid-template-columns: auto 50px auto;
+grid-template-areas: 
+                    "header header header" 
+                    "footer footer footer";
+    }
+=> ( a gyerekbe lehet igy írni 		grid-columns: header-start / header-end;)
+
+Ha több hely van mint amit elfoglalunk, =>
+justify-items:      minden gyerekre x tengely mentén egy kiskonténeren bellüli igazítás
+|| start
+|| end 
+|| center 
+|| stretch 
+align-items:        minden gyerekre y tengely 
+|| start
+|| end 
+|| center 
+|| stretch 
+place-items: [align-items] [justify-items]
+
+justify-content:    a konténerek x irányú autó igazítása
+|| start            a konténerek közt 0 hely és balra igazítva
+|| end              a konténerek közt 0 hely és jobbra igazítva
+|| center           a konténerek közt 0 hely és középre igazítva
+|| stretch          a teljes hely kitöltése tágul
+|| space-between            1-z-2-z-3
+|| space-around         y-1-y-y-2-y-y-3-y
+|| space-evenly           w-1-w-2-w-3-w
+align-content       a konténerek y irányú autó igazítása
+|| start            a konténerek közt 0 hely és fel igazítva
+|| end              a konténerek közt 0 hely és le igazítva
+|| center           a konténerek közt 0 hely és középre igazítva
+|| stretch          a teljes hely kitöltése tágul
+|| space-between            1-z-2-z-3
+|| space-around         y-1-y-y-2-y-y-3-y
+|| space-evenly           w-1-w-2-w-3-w
+place-content:    [align-content] [justify-content]
+
+grid-auto-flow:   // azokat a konténereket, amiket nem definiáltunk hogy mettől meddig legyenek
+|| row (default)    1-2-3
+                    4-5-6
+|| column           1-3-5
+                    2-4-6
+|| row dense        először a nagyokat rakja le, majd a kissebbeket ahova fér
+|| column dense     ugyanaz, csak oszlop stratégiával.
+
+grid:                 ? => elhagyható
+[grid-template-rows] / auto-flow? dense? [grid-auto-columns]?  VAGY
+auto-flow? dense? [grid-auto-rows]? / [grid-template-columns]
+
+grid-auto-rows      a mérete, hogy mekkora sorokkal töltse ki automatice a maradék helyet
+grid-auto-columns   -||- és majd pl a gyereknél adjuk meg hogy melyik hol van.
+
+
+
+gyereknek: 
+float, display: inline-block, display: table-cell, vertical-align and column-*
+nincs hatással a grid itemre!!!!
+
+grid-column-start:  2;                  // 1-sor1-2-sor2-3     
+grid-column-end:    3;                  // =>       sor2 
+grid-row-start
+grid-row-end
+grid-column:    2 / 3;                  // ugyanaz csak rövidítve
+grid-row:       2 / span 3; === 2 / 5   // 2. vonaltól 3 lefoglalt hely  
+grid-area: [grid-row-start] / [grid-column-start] / [grid-row-end] / [grid-column-end]
+VAGY, adhatunk neki nevet pl header
+grid-area: header;   =>  amire majd a szülőbe hívatkozunk
+grid-row-start:    header;      // így is megadhatjuk
+grid-row-end:      header;
+grid-column-start: header;
+grid-column-end:   header;
+
+z-index: 0(ahol most van) -1(eggyel lejjeb) 1(eggyel feljebb) //(z irányba....)
+align-self:     a cellán belül hova igazodjon y irányba
+|| start 
+|| end 
+|| center 
+|| stretch          kitölti a teljes cellát y irányba
+justify-self:   a cellán belül hova igazodjon x irányba
+|| start 
+|| end 
+|| center 
+|| stretch          kitölti a teljes cellát x irányba
+place-self:     [align-self] [justify-self]  => 1 érték esetén mind2 ugyanaz -> rövidítés
+
+order: mint a flex nél, minden elemnek, egy listának alapértelmezetten az orderje=0;
+
+-NEM muszály a html-be egymásmellett lenniük 
+mert css-be úgy rakjuk őket egymás mellé ahogy akarjuk
+-Ugyanarra a pozicióra rakhatunk több elemet is Z indexel trükközhetünk
+- a cserélgetés csak vizuális, a nth-child() a html-ben lévő doksit nézi
+- lehet a gyerek is szülője egy kövi gyereknek, display:grid; és lehet csinálni a gyerekeket
+DE a gyerekek gyerekeiben lévő számozás relatív vagyis 1 től indul.
+
+HA a szülőbe       + gyerekbe  => ÚJ position kontextusba lesz absolute önmagához mérve,vagyis
+position:relative; + position:absolute; => az absolute(0,0) a gyerek elem bal feslő sarka 
+                                           a ::befor és ::after-ja is uj kontextusba
+
+szülő: grid-template-columns: repeat(auto-fill, minmax(200px, 1fr) ) ; 
+gyerek:grid-column: auto / span 2;  =>  a kezdő helye autómatikus lesz a többihez képest
+------------------------------------------------------------------------------------------------------------------------------------------------
+// css változó elérése jsben
+
+<div class="mover"></div>
+
+.mover {
+    width: 50px;
+    height: 50px;
+    background: red;
+    position: absolute;
+    left: var(--mouse-x);
+    top: var(--mouse-y);
+}
+:root {
+    --mouse-x: 0px;
+    --mouse-y: 0px;
+}
+
+Perhaps you use them to set a position:
+.mover {
+  left: var(--mouse-x);
+  top: var(--mouse-y);
+}
+
+To update those values from JavaScript, you’d:
+
+let root = document.documentElement;
+
+root.addEventListener("mousemove", e => {
+  root.style.setProperty('--mouse-x', e.clientX + "px");
+  root.style.setProperty('--mouse-y', e.clientY + "px");
+});
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+EXTRA:
+---------------------------------------------
+buttonra -ra és ikonok -ra erőszakolás :
+css-ben ezeket kell a bottonra és az ikonra erőszakolni =>
+line-height:  24px !important;
+font-size:    24px !important;
+height:       24px !important;
+width:        24px !important;
+---------------------------------------------
+user-select:none;       // ha kiakarom jelölni nem lesz csúnya háttere
+---------------------------------------------
+Inline elem esetén működik, "clone" -ozás, addig tart az elem amig ő maga van =>
+pl 2 sorba irt szöveg háttere csak a betűk mögötti háttér lesz
+-webkit-box-decoration-break:clone;
+-o-box-decoration-break:clone;
+box-decoration-break:clone;         // ezek azért vannak mert mindegyiket más böngésző támogatja
+---------------------------------------------
+Dark Mód:
+html{
+    background:black;
+    filter: invert(1) hue-rotate(180deg);
+}   minden színből vált a ellentettjére + de megtartja az alapszínt
+---------------------------------------------
+így a felhasználó az optionsba állíthat a betűméreten =>          ha px van megadva akkor nem
+html{
+    font-size:62.5%;
+}
+h1{
+    font-size: 2 rem;
+}
+---------------------------------------------
+csak szövegre linear-gradient..: 
+h1{
+    background: linear-gradient(....)
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    display:inline;
+}
+---------------------------------------------
+
+height => min-hight
+width  => max-width
+
+
+width: min(1000px, calc(70% + 100px));
+font-size: max(1.2rem, 1.2vw);
+font-size: clamp(2rem,1rem+10vw,5rem )       // clamp(MINIMUM,  bármi ami nem min v max, MAXIMUM)
+
+left: calc(50% - 7px*#{$multiple}*#{$multiple}*#{$multiple} + 2px - 146px*#{$multiple});
+
+
+---------------------------------------------
+.msg{opacity:0}
+input:not(:placeholder-shown) + .msg{opacity:1;}    // => az üzenet akkor jelenik meg, ha az inputba írtunk
+---------------------------------------------
+restartok:
+*{
+    box-sizing:border-box
+}
+---------------------------------------------
+vonal=>
+h2::before, h2::after {
+    content:"";
+    width: 200px;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 20px;
+    border-bottom: 5px solid green;    
+    border-radius: 5px
+}
+h2::before, h2::after {
+    content:"";
+    width: 200px;
+    height: 4px;
+    background-color: green;  
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 20px;
+
+}
+h2{
+    text-align: center;
+}
+---------------------------------------------
+// Saját betűtípus
+@font-face{
+    font-family:"kiscica";
+    src:url("az-elérési-ut.ttf");
+    font-weight:500;
+}
+// =>
+font-family:"kiscica";          // idézőjelbe kell rakni
+---------------------------------------------
+// importál másik css-t de csak akkor ha 768px nél nagyobb a képernyő
+@import "mobile.css" screen and (min-width: 768px);
+---------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+EGYÉB: 
+Pagination  // lapozó fül
+https://www.w3schools.com/css/css3_pagination.asp
+Multiple Columns
+https://www.w3schools.com/css/css3_multiple_columns.asp
+CSS Responsive....
+
+EGYÉB sztem nem annyira fontos:
+counters() => lehet számolni hogy egy adott tag, pl a h1 hányadiknak szerepel.. => könyvek esetén használható 
+https://www.w3schools.com/css/css_counters.asp
+https://www.w3schools.com/css/css_website_layout.asp => sztem elavult már
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
