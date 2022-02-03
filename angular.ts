@@ -88,8 +88,10 @@ export class AppComponent implements OnInit{  // app.component.ts
 {{ getName() }}		        // lehet fgv.
 {{"A neve: "+ name}}		  // vagy bármilyen js kód is akár
 
+@Input('ilyenNévenKapomKivülről') props:string  // gyerekbe .ts   // dinamikusan változtathatjuk a prop értékét a szülőbe
 [prop]="value"            // szülő HTML     // .ts  => HTML       // a props: komponens inputja, a value: a .ts változója   // property bind-ing
-@Input props.string       // gyerekbe .ts                         // dinamikusan változtathatjuk a prop értékét a szülőbe
+[name]="fruit"      or name="{{fruit}}"                           // valós idejű 1 irányú kötés   // .ts  => HTML
+[attr.name]="fruit" or attr.name="{{fruit}}"  
 
 (clickEvent)="fgv($event)"                      // szülő HTML     // HTML  => .ts                                           // event bind-ing
 fgv(value.string){this.valami=value}            // szülő .ts      // a this.value egyenlőlesz a 'valami value' -vel
@@ -97,7 +99,8 @@ fgv(value.string){this.valami=value}            // szülő .ts      // a this.va
 (click)="fgvgyerek('valami value')""                              // gyerekbe html
 fgvgyerek(value:string){this.clickEvent.emit(value)}              // gyerekbe .ts                                           
 
-[(ng-model)]="prop" // HTML <=>  .ts      // a props: Ez a komponens változója, pl input komponensre kötjük, így valós időbe változik a props, ha változik az input értéke
+[(ngModel)]="prop" // HTML <=>  .ts   // a props: Ez a komponens változója, pl input komponensre kötjük, 
+// így valós időbe változik a props, ha változik az input értéke, típusa string  // ngModel-hez kell a FormsModul                                  
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // HTML 
 <app-root></app-root>           // a componensek szelektora     // az angular program belépő pontja a HTML-ben  
@@ -109,11 +112,14 @@ fgvgyerek(value:string){this.clickEvent.emit(value)}              // gyerekbe .t
 {{name | titlecase}}              // nagybetűvel kezdődik
 {{name | uppercase}}		          // a name változót futtassa át az uppercase-n ami a CommonModulba van benne 
 {{name | lowercase}}		          //  
+{{name | slice: -11}}		          // string slice fgv 
 {{name | percent}}		            // 0.235 => 24%         https://angular.io/api/common/PercentPipe
 {{name | percent:'4.1-5'}}	      // 0.235 => 0,023.5%    (tizedespont elötti számjegyek dbszáma).(-||- utáni MINIMÁLIS dbszáma)-(-||- MAXIMÁLIS dbszáma)  
 {{name | percent:'4.1-5':'fr'}}	  // 0.235 => 0 023,5% 
 {{name | number}}          {{name | number:'4.1-5'}}	      {{name | number:'4.1-5':'fr'}}	 
 // ugyanaz mint a percent, csak % nélkül és nem szoroz 100-al
+{{name | date: 'long'}}		        // dátum formázás   // {{name | date: 'short'}}	 // stb.	       
+{{name | date: 'yyyy.MM.dd HH:mm'}} // stb.
 {{ value | date [ : format [ : timezone [ : locale ] ] ] }}                                         https://angular.io/api/common/DatePipe
 {{ value_expression | currency [ : currencyCode [ : display [ : digitsInfo [ : locale ] ] ] ] }}    https://angular.io/api/common/CurrencyPipe
 // pénznem kiírás
@@ -128,7 +134,38 @@ export class MyPipe implements PipeTransform{
   transform(value:string,prefix:string ="Mr. "):string{
     return `${prefix} ${value}`;
   }
-}/*
+}
+
+// HTML:
+// select   =>  [(ngModel)] = "szelekt"
+// inputba  =>  [(ngModel)] = "szürőszöveg"
+// táblázat =>  *ngFor= let rows of list | szűrő :szürőszöveg: szelekt
+@Pipe({name:'szűrő'})      // Pipe neve
+export class MyPipe implements PipeTransform{
+  transform(value:any[],phrase:string ="",key:string=""):any{       // ide az ngModel value értekei fognak becsöppenni
+    if (!phrase) {return value}
+    phrase = phrase.toLowerCase()
+    return value.filter(val=>{
+      if (!key || key==="notset") {
+        let isOk:boolean =false;
+        for (const k in val) {
+          let check = val[k].toString().toLowerCase()
+          if (check.indexOf(phrase)>-1) {
+            isOk = true;
+          }
+        }
+        return isOk;
+      }else{
+        let check = val[key].toString().toLowerCase()
+        return check.indexOf(phrase)>-1
+      }
+    })
+  }
+}
+// => csak azokat jeleníti meg ami szerepel a beírt szövegnek
+
+
+/*
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // Események
 <li (click)="fgv()"></li>		    // click eseményre meghívjuk a fgv()-t ami az akt. komponensbe van
@@ -144,7 +181,7 @@ export class MyPipe implements PipeTransform{
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // Direktívák
 //-------------
-// *ngIf
+// *ngIf i
 // <div hidden></div>                  // a div nem jelenik meg, OTTVAN de css property miatt nem látszik
 // <div [hidden]="feltétel1()"></div>  // ha a feltétel1() igaz => akkor lesz hidden => nem látszik
 // AZ *ngIf JOBB NAGYOBB FÁKON !!! =>
@@ -163,7 +200,7 @@ export class MyPipe implements PipeTransform{
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // *ngFor
 <ul>
-	<li *ngFor="let user of users; index as i">	// for ciklussal kiírjuk a tömb elemeit
+	<li *ngFor="let user of users; index as i; let f = first">	// for ciklussal kiírjuk a tömb elemeit
 		{{user.name}} ({{user.age}}) - {{i}}      // "as" kulcsszóval importálhatunk a HTML-be értékeket, pl az indexet <= a tömb indexei !!!
 	</li>
 </ul>
@@ -174,8 +211,8 @@ last:boolean  =>  true, ha ez az utolsó a tömbben
 even:boolean  =>  true, ha ez akt elem páros indexű a tömbben
 odd:boolean   =>  true, ha az akt elem páratlan indexű a tömbben
 
-// speciális attribútumnak így kell értéket adni for-ba
-attr.aria-valuenow="{{skills.values[i]}}"
+attr.aria-valuenow="{{skills.values[i]}}" // speciális attribútumnak így kell értéket adni for-ba
+[src]="sklill.imgUrl"                     // így érem el az attribútumot            
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // ngClass => dinamikus értékeket amiket felvehet => string, array, object, komponens fgv
 [ngClass]="változó"   pl az one az a komponens css-ébe van benne  .one{}
@@ -252,28 +289,23 @@ import {faTimes} from '@fortawesome/free-solid-svg-isons'
 változó=faTimes;
 // button.component.html:
 <fa-icon [icon]="változó"></fa-icon>
+// vagy berakjunk az angularconfog css részéhez a fontawesome elérési útját és ezután régi normális módon működik => // <i></i>
 /*------------------------------------------------------------------------------------------------------------------------------------------
-// FORMOK
-<form>
-  <div >
-    <label for="firstName"></label>                             // for <=> id     kötés az input és a label között
-    <input id="firstName" name="firstName" >                    // name <=> .ts   name értéke, kötés a .ts-ben lévő változóval ami a firstName
-  </div>
-<form>
-[name]="fruit" or name="{{fruit}}"                              // valós idejű 1 irányú kötés
-[attr.name]="fruit" or attr.name="{{fruit}}"  
-//------------
-// NGMODEL
+// FORMOK       
+// NGMODEL      // ngModel-hez kell a FormsModul
 // <input [value]="változó" (keyup.enter)="változó=$event.target.value; fgv()">	
 // az input változó az "változó" de NINCS kötés 
 // az enter lenyomása után, a komponens változó változója egyenlő lesz az input mező értékével, majd fgv() lefut
-// => mostmár van kötés
+// => mostmár van kötés =>
 
-<input [(ngModel)]="változó" (keyup.enter)=fgv()>	    
+<input [(ngModel)]="változó" (keyup.enter)=fgv()>	          // a változó típusa string
 // ugyanazt csinálja mint a fentebb lévő DE KELL a "FormsModule"
 
-<input [ngModel]="változó">		    // FormsModule-ba van benne
+<input [ngModel]="változó" (ngModelChange)="modelChange($event)">
+public változó!:NgModel
+public modelChange(value:string) {}   // value az input valós értéke ez, valós változást néz
 // nincs meg az oda vissza kötés, vis ha elötte az oldalon vhol használtuk akkor az már nem változik
+
 
 ngModel részei:
 value
@@ -593,28 +625,22 @@ export interface Ember{
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 /* ROUTING: 
+ng generate module app-routing --flat --module=app        // ha nincs routing module
+
+// routolás lépései: 
+// 1. az app-routing.module.ts-be   definiálni kell hogy milyen url-re milyne komponens legyne aktív 
+// 2. a navbáron                    routerLink eket definiálunk, hogy melyik gomb hova vigyen
+// 3. a komponensekbe               az elem (click) eseményén meghívjuk a this.router.navigate(["/items"]) -et
+// 4. amelyik komponens betöltődik  annál feliratkozunk az activatedRoute-jára és kiszedjük belőle a komponensnek a releváns adatokat, pl ID
+// 4.:                              majd a kimentett dolgok alapján lekérjük egy service-ből a nekünk kellő adatokat, amit megjelenítünk
+
 <router-outlet></router-outlet>     // az adott router komponensét rendereli ki, dinamikus routerválasztás
 //                                  // a router-outlet UTÁN jön létre a komponens, NEM BELE   */
 
 // app-routing.module.ts:         
 // ngModule({  import:RouterModule.forRoot(routes)   // routes -es változó a app-routing.modul.ts-ben
-// VAGY               RouterModule.forChild(routes)  // RouterModule = beépített Router modul
+// VAGY               RouterModule.forChild(routes)  // haladó téma, felejtsem el még 
 //             exports: [RouterModule]	             // ezt exportáljuk így az app.module.ts-be, HA ott importálva van
-
-// routerLink
-// <a routerLink="/myComp"></a>	// routerlinkeket ÍGY ÉRÜNK EL TILOS A href !!!
-//    routerLink="/post/1"  => localhost:4200/post/1 -rt tölti be
-//  [routerlink]="['/post/',2,3,4]"      => localhost:4200/post/2/3/4 -et   // több paraméter esetén
-//  [routerlink]="['/post',follower.id]" => localhost:4200/post/X           // X===follower.id
-//  [routerlink]="['/post/',1]" [queryParams]="{userId:'1',id:'2'}" => localhost:4200/post/1?userId=1&id=2
-//  [routerlink]="['/admin/users']"      => childrenes    ???????????????????????????????????????????????????????????????
-
-//  több egymás melletti routerlink esetén probléma, hogy az aktive-at jelölni kéne, mindegyikhez hozzáadjuk:
-// <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/elso"></a></li>
-// <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/masodik"></a></li>
-// active és a current, mind2 css..      [routerLinkActiveOptions]="{exact:true}" => a pontos elérési utat figyelje 
-//                                        ha ez nem lenne beállítva akkor "/" és "/elso" re is active lenne egyszerre
-
 const routes: Routes = [          // sorrendbe fut le lefele
   {
     path:'myCompt',               // localhost:4200/myComp => töltse be a
@@ -627,53 +653,61 @@ const routes: Routes = [          // sorrendbe fut le lefele
   },       
   
 // admin.module.ts :  // KELL ADMIN MODULE aminek vannak ROUTE-s jai, amik ezek!! =>
-// ngModule({ import:RouterModule.forChild(routes) 
-// const routes: Routes = [
+ngModule({ import:RouterModule.forChild(routes), exports: [RouterModule],})export class AppRoutingModule {}
+const routes: Routes = [
   {                    
     path:'admin',     
     children:[       
-      {               
-        path:'users', 
-        component:PostsComponent
-      },
-      {
-        path:'settings',
-        component:PostsComponent
-      }
+      {path:'users',component:PostsComponent},    // localhost:4200/admin/users
+      {path:'settings',component:PostsComponent}  // localhost:4200/admin/settings 
     ]
-  },// localhost:4200/admin/users     localhost:4200/admin/settings 
+  },
 // DE a app-routing.module.ts be:
-  {
-    path:'admin',
-    loadChildren:()=>import('./admin/admin.module').then(m=>m.AdminModule)
-  }
+  {path:'admin',loadChildren:()=>import('./admin/admin.module').then(m=>m.AdminModule)}
 // ígymár ujrahaznosítható az admin module
 ];
-import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-// Átadott paraméterek elérése, dependency injectionnal, ha van külön service akkor ott
-constructor(private activatedRoute:ActivatedRoute){} //  
 
-// ActivatedRoute:
-// paramMap vs queryParamMap => a queryParamMap az egyéb globális paramétereket is átadja, pl.: user/:id?tab=edit => a "tab"-ot
-  // queryParams:
-    this.activedRoute.queryParams.subscribe(params=>{this.id= params['id']})
-    // VAGY html.ben [queryParams]-al , json formátumba // [routerlink]="['/post/',1]" [queryParams]="{userId:'1',id:'2'}"
-    // => localhost:4200/post/1?userId=1&id=2         => (queryparaméterek: userId=1, id=2)
+// routerLink           // navigáció a navbaron
+// <a routerLink="/myComp"></a>	// routerlinkeket ÍGY ÉRÜNK EL TILOS A href !!!
+//    routerLink="/post/1"  => localhost:4200/post/1 -rt tölti be
+//  [routerlink]="['/post/',2,3,4]"      => localhost:4200/post/2/3/4 -et   // több paraméter esetén
+//  [routerlink]="['/post',follower.id]" => localhost:4200/post/X           // X===follower.id
+//  [routerlink]="['/post/',1]" [queryParams]="{userId:'1',id:'2'}" => localhost:4200/post/1?userId=1&id=2
+//  [routerlink]="['/admin/users']"      => childrenes    ???????????????????????????????????????????????????????????????
 
-  // paramMap:   
-    //.get("id")      // return az "id" nevü paraméter értéke mint STRING vagy NULL, ha nincs ilyen
-    //.getAll("id")   // -||- string tömbbe adja vissza az id értékeit (HA több értéke is van..ezt kell használni get helyett) 
-    //.has("id")      // => true ha van olyan paraméternév hogy "id"
-    //.keys           // string tömbben adja vissza az összes paraméter értékét
-    this.activatedRoute.paramMap.subscribe(params=>{thi.id = +params.get('id');})   
-    // visszaadja az id-t  <=  path:'post/:id',   A + jel => Numberré konvertál
-    // a params egy objekt amiket átadtam azokat használhatom, id és userId
-        
+// Router               // navigáció al/más komponensekből (click)=navigateX(i)
+constructor(private router: Router) {}
+navigateX(i):void{
+  this.router.navigate(["/items"])      //        /items
+  this.router.navigate(["/items",i])    //        /items/i
+}
 
-  // snapshot.paramMap:     NEM FRISSÜL, csak egyszer tölti be !!! 
-    //.get("id")      //.getAll("id")   //.has("id")      //.keys 
-    this.id=Number(this.activatedRoute.snapshot.paramMap.get('id'));  // ==== 'post/:id' (lehet több paramétert is átadni)    
+// ActivatedRoute:      // megadja hogy melyik Route-n vunk épp 
+constructor(private activatedRoute: ActivatedRoute) {}                       
+// activatedRoute.url.map(segments => segments.join(''))    // url    => az útvonal url-je
+// activatedRoute.data.map(d=>d.user)                       // data   => a komponensnek átadott adatok
+ngOnInit(): void {this.subsRouter = this.activatedRoute.paramMap.subscribe(paramMap => this.index = paramMap.get('index'))}
+const routes: Routes = [{path:'items/:index', ...}]                            // <= itt az index a felettem lévő index
+// activatedRoute.snapshot  // activatedRoute.ParamMap
+// 1x fut le                // folyamatosan figyeli
+//.get("index")             //.get("index")      // return az "index" nevü paraméter értéke mint string | null
+this.router.navigate(['/items', { index: ['bar', 'baz'] } ]);
+//.getAll("index")          //.getAll("index")   // -||- string tömbbe adja vissza az index értékeit (HA több értéke is van..ezt kell használni get helyett) 
+this.router.navigate(['/items', index]); 
+//.has("index")             //.has("index")      // => true ha van olyan paraméternév hogy "index"
+//.keys                     //.keys              // string tömbben adja vissza az összes paraméter értékét
 
+// activatedRoute.queryParamMap: az egyéb globális paramétereket is átadja, pl.: user/:id?tab=edit => a "tab"-ot
+// VAGY html.ben [queryParams]-al , json formátumba // [routerlink]="['/post/',1]" [queryParams]="{userId:'1',id:'2'}"
+// => localhost:4200/post/1?userId=1&id=2         => (queryparaméterek: userId=1, id=2)
+this.activatedRoute.queryParams.subscribe(p=>this.id= p['id'])// DEPRECATED SOON
+this.activatedRoute.params.map(p=>p.id)                       // DEPRECATED SOON
+
+// az aktív linkre css rakás :
+// <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/elso"></a></li>
+// <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/masodik"></a></li>
+// active és a current, mind2 css..      [routerLinkActiveOptions]="{exact:true}" => a pontos elérési utat figyelje 
+// ha nem lenne beállítva az {exact:true}, akkor "/" és "/elso" re is active lenne egyszerre mert nem telejs eggyezést néz
 //-------------
 // dinamikos onclickes navigáció akár id alapon
 export class PostsComponent implements OnInit{  // PostsComponent NEM PostComponent
@@ -685,6 +719,8 @@ export class PostsComponent implements OnInit{  // PostsComponent NEM PostCompon
   //  this.router.navigate(['/post']);  
     }
   }
+
+
 
 //-------------
 // ha azt akarjuk hogy pl a headerbe egy komponens ne jelenjen meg ha épp pl az about pagen vunk
@@ -698,10 +734,6 @@ hasRoute(route:string){
 /*
 
 
-// constructor(private aRoute:ActivatedRoute)             // megadja hogy melyik Route-n vunk épp 
-// aRoute.params.map(p=>p.id)                             // params => az url paraméterei, pl id, DE ez OBSERVABLE vis subscribe-lni kell
-// aRoute.url.map(segments => segments.join(''))          // url    => az útvonal url-je
-// aRoute.data.map(d=>d.user)                             // data   => a komponensnek átadott adatok
 
 // constructor(private route:Route){}
 // router.navigateByUrl(`/hero/${hero.id}`)               // ts-ben navigálunk
@@ -716,10 +748,6 @@ hasRoute(route:string){
 // RouterConfigLoadStart(a konfiguráció betöltése előtt aktivált esemény)
 // RouterConfigLoadEnd(a konfiguráció betöltése után aktivált esemény)
 // NavigationEnd(a navigáció sikeres befejezése után aktivált esemény)
-
-
-
-
 //------------------------------------------------------------------------------------------------------------------------------------------
 // services: szükséges modulok: 
 app.module.ts : HttpClientModule

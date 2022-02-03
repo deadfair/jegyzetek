@@ -19,6 +19,7 @@ let U_0:unknown;        // ismeretlen tipus, nem tudjuk előre milyen, megkell m
 let U_1:undefined;      // visszatérési értéknél van értelme
 let N_1:null;           // -||-
 let NU_1:null | undefined;  
+let V_0:"vagyez" | "vagyaz";
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // Readonly
 class Ember {readonly id: number;}      // csak olvasható, mint a const DE csak Interface v Class property-je lehet, CSAK konstruktorba kap értéket
@@ -70,7 +71,7 @@ function getZoldName(num:string){
 }
 let num:number = Szinek.Piros;    // 0
 Szinek["Piros"];                  // 0
-Szinek[0]                         // "Piros"
+Szinek[0]                         // "Piros"    // csak akkor működik a visszaút ha számok az értéke a Pirosnak
 Szinek[Szinek.Piros]              // "Piros"
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // FGV
@@ -148,20 +149,18 @@ abstract class Emlős {                // nem példányosítható !!!
   mozog():void{console.log("fut")}    // és nem abstract is
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------
-// Class  // 1 class csak 1 classtól örökölhet, de bármennyi interface-t kiterjeszthet
-// VAN => public(default), private, protected !!!
-// van static is, ugyanúgy osztoznak rajta a hasonló típusú példányok
+// Class  // 1 class csak 1 classtól örökölhet, de bármennyi interface-t kiterjeszthet 
+// VAN => public(default), private, protected !!! // van static is, ugyanúgy osztoznak rajta a hasonló típusú példányok
 // super()      =>  a szülő constructorát futtatja le
 // super.fgv()  === elérem a szülő fgveit
+// a szülő konstruktorát felülirhatom a gyerekével
 // classon belül a privat dolgaival dolgozunk "_valami" és kívülről a public dolgaival "valami"
-// interface  interface-t    extends
 // class      class-t        extends
 // class      interface-t    implements
 
 interface MyInterface{id:string;getId():string;} 
 class MyClass implements MyInterface{id:string; getId=()=>this.id;}
 const mc:MyInterface= new MyClass();
-
 class Circle {
   static pi:number = 3.14;        // osztoznak rajta a hasonló típusú példányok
   pi:number= 3;                   // ez a pi a példányhoz tartozik, más lesz a Circle.pi===3.14 és a circleObj.pi===3

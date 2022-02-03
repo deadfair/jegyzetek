@@ -122,7 +122,7 @@ const createdElementRef = await setDoc(doc(db, "persons", id), data); // ez vár
 //------------------
 // READ
 // egy elem keresése  // getDoc                                      
-const docSnapshot = await getDoc(docQ)                      // ID alapján keres, docSnapshot-ot ad vissza   
+const docSnapshot = await getDoc(docQ)                      // Mindig ID alapján keres, docSnapshot-ot ad vissza   
 // több elem keresése // getDocs
 const querySnapshot = await getDocs(colQ)                   // querySnapshot ad vissza, ez egy lista
 //------------------

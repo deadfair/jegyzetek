@@ -416,7 +416,7 @@ const tag = (texts, values) => {console.log(texts,values);}
 const tag = (texts, value1,value2) => {console.log(texts,values);}
 // texts=["My name is "," "," and I am "," years old"] value1="kiki" value2="baller"
 const tag = (texts, ...values) => texts.map((text,index) =>
-        `${text}${values[index]?`<strong>${values[index].toLocalUpperCase()}</strong>`:""}`).join("";)
+        `${text}${values[index]?`<strong>${values[index].toLocalUpperCase()}</strong>`:""}`).join("")
 const template = tag`My name is ${user.firstName} ${user.lastName}, and I am ${user.age} years old`
 // => My name is <strong>kiki</strong> <strong>baller</strong>, and I am <strong>20</strong> years old
 
@@ -1341,18 +1341,6 @@ kérés_küldés_2(url, 'POST', body, function(token) {
         alert('Error');
     }
 })
-
-
-
-
-
-
-
-
-
-
-
-
 
 //---------------------------------------------------------------------------------------------------------------------------
 // Assincron programozás
