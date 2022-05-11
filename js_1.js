@@ -231,6 +231,7 @@ UintXxx     =>  HA nem ábrázolható értéket adunk neki => 0("-" számok eset
 [a = 5, b = 7] = [1];                   // default értékek a=1, b=7
 
 arr_2 = new Array(4)                    // uj 4 méretű undefined elemekből álló tömb
+arr_2 =[].constructor(4)
 arr_2.fill(2, 0, 4)                     // 2 esekkel tölti fel a tömböt a [0:4] intervallumba 
 
 let arr_0 = ["Saab", "Volvo", "BMW"];
@@ -366,7 +367,8 @@ weakSet.set(object2)
 object2 = null;weakSet.get(objekt2)   // undefined, ÉS már forEach-el sem érem el // törlődik az elem is
 // Csak get(), add(), has(), delete() metódusokkal rendelkezik.
 //----------------------------------------------------------------------------------------------------------------
-// function
+// function         // hoisting működik fgv esetén ! var, let, const változók esetén viszont NEM !
+// IIFE-n belül definiált fügvényt semilyen módon se érünk el
 
 // closure          // a fgv viszatérési értéke egy belső fgv, ami hivatkozik e külsö fgv egyik változójára és ezért életbe tartja
 function x(){       // így hozzáférünk a x() en belül deklarált változóhoz is
@@ -401,7 +403,7 @@ function fgv_1({elso=1000,masodik=21,harmadik=2}={}){   // ha ez a fura sintaxis
 }
 console.log(fgv_1({elso:200}));     // igy a többi paramétere default lesz
 
-function sum(a,b,...c){             // így a c egy tömb MINDÍG
+function sum(a,b,...c){             // így a c egy tömfb MINDÍG
     console.log(c);
 }
 sum(1,2,3)                          // [3] a c egy tömb MINDÍG
@@ -683,6 +685,7 @@ const obj = {}          // === new Object()
 
 
 Object.freeze(turtle)   // objektum lefagyasztása, vagyis NEM MODOSÍTHATÓ MÉG A KULCS ÉRTÉKEI SEM
+                        // csak a legfelső szintet fagyasztja be, vis freezelt objekt objektjét már modosíthatom
 
 const turtle= new Object();
 turtle.property="az érték";
@@ -714,7 +717,9 @@ const myObj={
   [keys.shift()]:values.shift(),        // key2:"value2"
   [keys.shift()]:values.shift(),        // key3:"value3"
 }
-
+const {firstName} = userOne;  // firstName be kiszedjük az userOne firsName - ét
+http.createServer((req, res)=>{})   // pl 
+http.createServer(({url}, res)=>{}) // kiszedtük a req ből a req.url-t
 const {firstName="“unknown”",lastName="“unknown”",job="“unknown”"} = userOne;   // mi legyen a default érték ha az userOne propja undefined..
 const {firstName:f="“unknown”",lastName:l="“unknown”",job:j="“unknown”"} = userOne; // ha máshogy akarjuk nevezni, f l j
 const{name,legs}=turtle;                        // === name=turtle.name  legs=turtle.legs      // objektum kulcsai alapján értékeket szedünk ki

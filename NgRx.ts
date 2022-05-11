@@ -1,6 +1,164 @@
 // redux devtools letöltése CROME ÉS FIREFOXRA
 // npm install @ngrx/store-devtools
 // app.module.ts => imports: [StoreDevtoolsModule.instrument({logOnly:environment.production,})]
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+/*State management lifecycle
+
+// adatbázis <-> service <-> effects (adat érkezett, mellékhatások, melyik service metódusa felel melyik adatért)
+//                             ^ 
+//                             |
+//       angular               v
+//      component----------->action (események)
+//          ^                  |
+//          |                  v
+//          |                reducer (átalakítja az adatot emészthető formába)
+//          |                  |
+//          |                  v
+//      selector<------------store (cash-elés, adatok megjegyzése)  
+//    (kiválasztom a store-bol az adatot amire fel akarok iratkozni)                       
+
+ADATBÁZIS:
+Van egy adatbázisunk, ehhez kapcsolódik egy szerver, így az adatbázis nem közvetlenül kommunikál az interneten, 
+továbbá a védelmi mechanizmusok be vannak építve.
+SERVICE:
+A service felel az adatok kezeléséért, ez kapja meg az adatokat. Az effect jelzi azt, hogy adat érkezett 
+(ez az úgynevezett „mellékhatása” az adatnak – side-effect), illetve itt van leírva, hogy melyik adatért melyik service-metódus felel.
+EFFECTS:
+ezek tartják a kapcsolatot a service-szel; 
+az action és a service között helyezkednek el, és a megfelelő esemény hatására váltódnak ki.
+ACTION:
+Ez kapcsolatban áll az action-nel (esemény), amely ha megtörténik, a reducer a kapott adatokat átalakítja olyan formára, 
+amilyet szeretnénk látni. Az adatok bekerülnek a store-ba, amely megjegyzi, 
+cache-eli adatokat: ebben vannak benne azok az adatok, amelyekkel az alkalmazás éppen dolgozik
+STORE:
+Ha egy adatot szeretnék megkapni, akkor a komponensből nem érem el közvetlenül a store-t, ezért írok egy szelektort, 
+amely kiválasztja a nekem szükséges adatot (erre fel tudok iratkozni, mert Observable-t ad vissza).
+SELECTOR:
+Majd triggerelem, dispatch-elem az action-t, elindítom az eseményt a komponensből, 
+lefut a reducer, és a store-ból a selector szolgáltatja az adatot.
+
+Az előnye ennek a folyamatnak az, hogy szabványos, előre leírt módon érjük el az adatokat, az pedig sok hibát kiküszöböl, 
+hogy nem lehet egymásnak ellentmondó módon elérni az adatokat, hiszen a körforgás révén mindig ugyanabban az irányban mennek.
+
+*/
+
+//--------------------------------------------------------------------------------------------------------------------------
+// ng add @ngrx/store
+// npm i @ngrx/effects
+
+// app.modul.ts
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+
+imports: [
+    StoreModule.forRoot({ users: UserReducer }),  // honnan kapja az adatot a store?
+    EffectsModule.forRoot([ UserEffect ]),        // az összes effekt, azért tömb
+  ],
+
+//-------------------
+// Actions =>
+// app/store/XXX/XxxActions.ts
+import { createAction, props } from '@ngrx/store';
+import { Xxx } from 'src/app/model/xxx';
+
+export const getItems = createAction('[Xxx] get items');                              // '[Xxx] get items' az esemény neve                  
+export const loadItems = createAction('[Xxx] load items',props<{items: Xxx[]}>());    // props: mire hívjam meg?
+export const errorItem = createAction('[Xxx] error items',props<{message: string}>());
+//-------------------
+// Efefects =>
+// app/store/XXX/XxxEffects.ts                  // services és az actions között a kapcsolat
+import {Injectable} from '@angular/core'
+import { Actions, ofType, createEffect } from '@ngrx/effects';
+import { Action } from '@ngrx/store';
+import {XxxService} from ''
+@Injectable()
+export class XxxEffect {
+    constructor(
+      private actions$: Actions,    // a 2 irányú kapcsolat miatt ugye..
+      private xxxService: XxxService,
+    ) { }
+    loadItems$ = createEffect( (): Observable<Action> => {
+      this.actions$.pipe(                           // this.actions$ egy Observable-t ad vissza,
+        ofType(getItems),                           // akkor fusson csak le ha getItems a típus..       
+        switchMap( () => this.xxxService.get() ),   // lekéri az összes adatot..           
+        switchMap( users => of({ type: '[Xxx] load items', items: users })),       // olyan formátumra alakítom amit az Actions megkövetel
+        catchError( error => of({ type: '[Xxx] error item', message: error })),    // ha hiba volt akkor az errorActions-t triggerelem
+      )};
+};
+//-------------------
+// Reducer =>
+// app/store/XXX/XxxReducers.ts 
+export interface State {
+  xxxs: { items: Xxx[], error: string };
+}
+
+export const initialState: State = {
+  xxxs: { items: [], error: '' }
+};
+
+export const XxxReducer = createReducer(
+  initialState,
+  on(loadItems, (state, action) => ({   // ha a loadItems esemény megtörténik akkor átadja a state-et
+    ...state,
+    items: action.items
+  })),
+  on(errorItem, (state, action) => ({
+    ...state,
+    error: action.message
+  })),
+);
+
+export const selectItems = (state: State) => state.users.items;
+export const selectError = (state: State) => state.users.error;
+//-------------------
+// Xxx.component.ts
+constructor(private store:Store<any>){}   // itt vannak az adatok
+list$:Observable<Xxx|Xxx[]>
+ngOnInit(): void {
+  this.store.dispatch(getItems());        // az action
+  this.list$ = this.store.pipe( select(selectItems) );
+}
+//--------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+// Ü a felső a ROSSZ
+// export const musiciansReducer = createReducer(
+//   on(musiciansPageActions.search, (state, { query }) => {
+//     // `filteredMusicians` is derived from `musicians` and `query`
+//     const filteredMusicians = state.musicians.filter(({ name }) =>
+//       name.includes(query)
+//     );
+
+//     return {
+//       ...state,
+//       query,
+//       filteredMusicians,
+//     };
+//   }))
+// );
+
+// a jó
+// export const selectFilteredMusicians = createSelector(
+//   selectAllMusicians,
+//   selectMusicianQuery,
+//   (musicians, query) =>
+//     musicians.filter(({ name }) => name.includes(query))
+// );
+// export const musiciansReducer = createReducer(
+//   on(musiciansPageActions.search, (state, { query }) => ({
+//     ...state,
+//     query,
+//   }))
+// );
+
+
+
+
+
 
 // 1. npm i @ngrx/store
 // 2. xxx.state.ts
@@ -291,81 +449,5 @@ constructor(private store:Store<AppState>){}
 onAddPost(){
     this.store.dispatch(addPost({post}))
 }
-
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-/*State management lifecycle
-
-Van egy adatbázisunk, ehhez kapcsolódik egy szerver, így az adatbázis nem közvetlenül kommunikál az interneten, 
-továbbá a védelmi mechanizmusok be vannak építve.
-
-A service felel az adatok kezeléséért, ez kapja meg az adatokat. Az effect jelzi azt, hogy adat érkezett 
-(ez az úgynevezett „mellékhatása” az adatnak – side-effect), illetve itt van leírva, hogy melyik adatért melyik service-metódus felel.
-
-Ez kapcsolatban áll az action-nel (esemény), amely ha megtörténik, a reducer a kapott adatokat átalakítja olyan formára, amilyet szeretnénk látni. 
-Az adatok bekerülnek a store-ba, amely megjegyzi, cache-eli adatokat: ebben vannak benne azok az adatok, amelyekkel az alkalmazás éppen dolgozik
-
-Ha egy adatot szeretnék megkapni, akkor a komponensből nem érem el közvetlenül a store-t, ezért írok egy szelektort, 
-amely kiválasztja a nekem szükséges adatot (erre fel tudok iratkozni, mert Observable-t ad vissza).
-
-Majd triggerelem, dispatch-elem az action-t, elindítom az eseményt a komponensből, lefut a reducer, és a store-ból a selector szolgáltatja az adatot.
-
-Az előnye ennek a folyamatnak az, hogy szabványos, előre leírt módon érjük el az adatokat, az pedig sok hibát kiküszöböl, 
-hogy nem lehet egymásnak ellentmondó módon elérni az adatokat, hiszen a körforgás révén mindig ugyanabban az irányban mennek.
-
-adatbázis <=> service <=> effects <=> Action => Reducer! => store => selector => component => Action!
-*/
-/*
-ng add @ngrx/store
-npm i @ngrx/effects
-*/
-
-
-// app.modul.ts
-import { StoreModule } from '@ngrx/store';
-import { EffectsModule } from '@ngrx/effects';
-
-imports: [
-    StoreModule.forRoot({ users: UserReducer }),
-    EffectsModule.forRoot([ UserEffect ]),
-  ],
-
-// app/store/XXX/XxxActions.ts
-import { createAction, props } from '@ngrx/store';
-import { Xxx } from 'src/app/model/xxx';
-
-export const getItems = createAction('[Xxx] get items');                            
-export const loadItems = createAction('[Xxx] load items',props<{items: Xxx[]}>());
-export const errorItem = createAction('[Xxx] error items',props<{message: string}>());
-
-
-
-// Elkészítjük az effect-eket, ezek tartják a kapcsolatot a service-szel; 
-// az action és a service között helyezkednek el, és a megfelelő esemény hatására váltódnak ki.
-
-
-// app/store/XXX/XxxEffects.ts                  // services és az actions között a kapcsolat
-import {Injectable} from '@angular/core'
-import {Actions} from '@ngrx/effects'
-import {XxxService} from ''
-
-@Injectable()
-export class XxxEffect {
-    constructor(
-      private actions$: Actions,
-      private xxxService: XxxService,
-    ) { }
-    loadItems$ = this.actions$.pipe(
-        ofType(getItems),                           // akkor fusson csak le ha ez a típus.. kommunikál az effects a services-el
-        switchMap( () => this.xxxService.get() ),   // lekéri az összes adatot..            elindul a kommunikáció
-        switchMap( users => of({ type: '[User] load items', items: users })),       // kiváltom az eseményt
-        catchError( error => of({ type: '[User] error item', message: error })),    // ha hiba volt
-      );
-};
-// A loadItems$ (this.actions$) egy Observable-t ad vissza, amelyet továbbpipe-olok. 
-// Az ofType-pal meg tudom adni, hogy melyik típusúnál fusson le: ha nem jó a típus, nem fut le.
-//  Esetünkben a getItems a típus, ezért importáljuk is. A switchMap segítségével meghívjuk a get-et, 
-//  lekérjük a felhasználókat, és a load items items néven megkapja a felhasználók tömbjét. Ha hiba történt, azt lekezeljük.
-
 
 

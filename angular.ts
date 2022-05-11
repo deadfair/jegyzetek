@@ -6,7 +6,7 @@ CLI
 ng new MyApp        	// létrehozza a MyApp új projectet
 ng serve            	// live szerver indítása
 ctr + c               // leállítása
-ng build		          // a kész projektet elkészíti => kitehetjük weboldalra
+ng build		          // a kész projektet elkészíti => kitehetjük weboldalra ,(deploy)
 
 ng g c KomponensNév	// uj komponens generálása
 ng g module MNév	  // uj modul generálása    // a modulok a komponenseket fogja össze
@@ -50,7 +50,9 @@ app.module.ts =>
     BrowserModule,	
     AppRoutingModule,
   ],
-  providers: [],		        // service-ek helye   // (pl.:lekér adatot a szervertől)
+  providers: [// service-ek helye   // (pl.:lekér adatot a szervertől)
+    {provide:PostService, useClass:PostMockService}   // mock servise neve a PostService lesz 
+  ],		        
   bootstrap: [AppComponent]	// melyik az első komponens amit bekell tölteni?
 })
 export class AppModule{}
@@ -69,7 +71,9 @@ export class AppComponent implements OnInit{  // app.component.ts
   constructor(/*service importok */){}       
   ngOnInit():void{}                     // akkor fut le amikor betölt a komponens
 }
-
+/*------------------------------------------------------------------------------------------------------------------------------------------
+// HTML 
+<app-root></app-root>           // a componensek szelektora     // az angular program belépő pontja a HTML-ben  
 //------------------------------------------------------------------------------------------------------------------------------------------
 // Lifecycle Hooks:       // minden komponensnek KELL lennie életciklusnak
 
@@ -102,13 +106,9 @@ fgvgyerek(value:string){this.clickEvent.emit(value)}              // gyerekbe .t
 [(ngModel)]="prop" // HTML <=>  .ts   // a props: Ez a komponens változója, pl input komponensre kötjük, 
 // így valós időbe változik a props, ha változik az input értéke, típusa string  // ngModel-hez kell a FormsModul                                  
 /*------------------------------------------------------------------------------------------------------------------------------------------
-// HTML 
-<app-root></app-root>           // a componensek szelektora     // az angular program belépő pontja a HTML-ben  
-<input #változó>                // HTML elemen lévő változó
-/*------------------------------------------------------------------------------------------------------------------------------------------
 // Pipe-ok => az eredeti adatot nem módosítja, csak a megjelenést!
 {{     | json}}                   // JSON formába alakít
-{{     | async}}                  // Observable-t alakít értékre
+{{     | async}}                  // Observable-t alakít értékre amikor emmittálódik +++ Observable<T> | Subscribable<T> | Promise<T>
 {{name | titlecase}}              // nagybetűvel kezdődik
 {{name | uppercase}}		          // a name változót futtassa át az uppercase-n ami a CommonModulba van benne 
 {{name | lowercase}}		          //  
@@ -163,8 +163,6 @@ export class MyPipe implements PipeTransform{
   }
 }
 // => csak azokat jeleníti meg ami szerepel a beírt szövegnek
-
-
 /*
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // Események
@@ -175,7 +173,6 @@ export class MyPipe implements PipeTransform{
     (ngSubmit)="fgv()"          // form-ba kell beletenni, a submit esemény
     (btncClick)="fgv()"
 
-<a (click)="egyVáltozó='Béla'">JANI</a>  // clickre, értéket vált az egyVáltozó értéke és Béla lesz
 <input #x (keyup)="0">                   // érzékeli a gomb lenyomását de nem hív meg fgv-t => olyankor jó, ha 
 {{x.value}}                              // vhol megakarjuk jeleníteni amikor változik
 /*------------------------------------------------------------------------------------------------------------------------------------------
@@ -221,7 +218,6 @@ attr.aria-valuenow="{{skills.values[i]}}" // speciális attribútumnak így kell
 [ngClass]="fgv()"                       // a fgv visszatérési az elözö 3 variáció egyike:string,array,object
 fgv(){return {'one':this.változó3.változó4=="valami", 'two':true}}  // feltételhez is köthető
 // XXX.component.ts be =>  változó='one'; változó2='two' // .scss-ben => .one{} .two{},  ezeket dinamikusan változgathatjuk...
-
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // ngStyle
 [ngStyle]="{'background-color':'green'}"
@@ -291,42 +287,69 @@ változó=faTimes;
 <fa-icon [icon]="változó"></fa-icon>
 // vagy berakjunk az angularconfog css részéhez a fontawesome elérési útját és ezután régi normális módon működik => // <i></i>
 /*------------------------------------------------------------------------------------------------------------------------------------------
-// FORMOK       
-// NGMODEL      // ngModel-hez kell a FormsModul
+// Template reference, változó
+<input #firstname (keyup)="0"></input>    // (keyup)="0"    =>   triggereli a billentyűt ha leütjük, vis frissít egyből
+<h1>{{firstName.value}}</h1>              // az input értéke
+
+<componentChild #componentRef></componentChild>
+<h1>{{componentRef.selectedCustomer?}}</h1>
+// copmponentChild :
+public selectedCustomer?:string;   
+
+// ElementRef
+ViewChild("elementRef") private element?:ElementRef
+// .ts
+this.element.nativeElement.setAttribute('style','color:red')
+this.element.nativeElement.value                // stb
+/*------------------------------------------------------------------------------------------------------------------------------------------
+// FORMOK       // FormsModule
+// NGMODEL      // ngModel-hez kell a FormsModule
 // <input [value]="változó" (keyup.enter)="változó=$event.target.value; fgv()">	
 // az input változó az "változó" de NINCS kötés 
 // az enter lenyomása után, a komponens változó változója egyenlő lesz az input mező értékével, majd fgv() lefut
 // => mostmár van kötés =>
 
+[(ngModel)]=item.nums   // így akár hozzákötöthetem az input értékét egy Subjecthez aminek van nums propja !!! 
 <input [(ngModel)]="változó" (keyup.enter)=fgv()>	          // a változó típusa string
-// ugyanazt csinálja mint a fentebb lévő DE KELL a "FormsModule"
+// ugyanazt csinálja mint a fentebb lévő DE KELL a "FormsModulee"
 
 <input [ngModel]="változó" (ngModelChange)="modelChange($event)">
 public változó!:NgModel
 public modelChange(value:string) {}   // value az input valós értéke ez, valós változást néz
 // nincs meg az oda vissza kötés, vis ha elötte az oldalon vhol használtuk akkor az már nem változik
 
+#firstName ="ngModel"     // kimentjük az ngModel-jét egy firstName változóba a html be
+firstName.dirty           // elérem
+
+[ngValue]= "true" // lehet bármi !! boolean is
+value = "true"    // Ez csak string
 
 ngModel részei:
 value
-touched       // ha már belekattintottunk az inputba => true
+touched       // true => ha már belekattintottunk az inputba majd kikattint 
 untouched     // ha már belekattintottunk az inputba => false
-dirty
-pristine      // érintetlen, nem nyúltak hozzá
+dirty         // true => ha módosítottuk az értékét
+pristine      // dirty ellentetje
 valid         // ha az input mező valid => true
 invalid       // ha az input mező valid => false                            
-errors        // a hibák itt vannak => ... *ngIf="változo.errors.required" .... *ngIf="változo.errors.minlength" ...
-//            ngModel része => consolba kiolvashatjuk pl. az akt. minlength értékét: változo.error.minlength.requiredLength          
+errors        // a hibák itt vannak => 
+... *ngIf="változo.errors.['required']" 
+....*ngIf="változo.errors.['minlength']" 
+... *ngIf="változo.errors.['email']" 
+// ngModel része => consolba kiolvashatjuk pl. az akt. minlength értékét: változo.error.minlength.requiredLength          
 
+// css osztálkyok a kontroll státuszokhoz =>
+.ng-valid .ng-invalid .ng-pending .ng-pristine .ng-dirty .ng-untouched .ng-touched .ng-submitted (enclosing form element only)
 
-VALIDÁTOROK:
-required          // muszáj megadni
-minlength="3"     // minimum 3 karakter
-maxlength="10"
-pattern="regex"   // regex
-FormBuilder-be =>
-Validators.email,   // érvényes email
-Validators.min(16)  // min értéke 16
+VALIDÁTOROK:    
+HTML-be =>                                                         FormBuilder-be =>  
+required          // muszáj megadni                             // Validators.required 
+minlength="3"     // minimum 3 karakter                         // Validators.minLength(3)
+maxlength="10"                                                  // Validators.maxLength(10)      
+pattern="regex"   // regex                                      // Validators.pattern("regex") 
+email             // érvényes email                             // Validators.email       
+                  // min értéke 16                              // Validators.min(16)      
+                  // muszáj true nak lennie, pl.: checkboxnál   // Validators.requiredTrue 
 
 
 {{ showinputerrors() }}      // a hiba megjelenítését célszerű egy fgv-be kiszervezni ahol a hibától függően jelenítjük meg a hibát
@@ -334,19 +357,22 @@ Validators.min(16)  // min értéke 16
 //                  !xxxForm.form.valid                     // Template-driven esetén
 
 
+FromGroup-ok: FromControll-okat és FormGroup-okat is tartalmazhatnak
 // 2 út van elötte  =>   
     Reactive        => több kontroll és logika, komplexebb, unit tesztelhetőség
 vs  Template-driven => egyszerübb formoknál szuper, könnyü, kevés kód  !!! logika a HTMLben !!!
 
+/*-----------------------------
 // Template-driven
-<form #xxxForm="ngForm">                      // xxxForm.form.valid és egyéb dolgok... az egész Formra
-  <div>
-    <input                                    // az olvashatóság miatt ÍGY KELL TÖRDELNI
-      required                                // validátorok itt is lehetnek
-      minlength="3" 
-      ngModel     
-      name="firstName"                        // name értéke a "firstName" változó amit elérünk a .ts-ben is
-      #változo="ngModel">                     // helyi változón keresztül NgModel
+<form #xxxForm="ngForm" (ngSubmit)="onSubmit(xxxForm)"> // xxxForm.form.valid és egyéb dolgok... az egész Formra
+// => onSubmit(xxxForm:NgForm){xxxForm.value}           // xxxForm.value => a form értékee kulcs érték párokként egy objektumba
+  <div ngModelGroup="name">  // egy belső formGroup => xxxForm.value.name.firstName
+    <input required  minlength="3"                      // validátorok helye
+      ngModel                // ezzel mondjuk meg, hogy formControl legyél
+// [(ngModel)]=person.firstname  // így hozzákötjük egy person objektum firstname változojához is 
+// DEEEEEE ha nem szükséges a bekötés akkor => xxxForm.value.name.firstName jébe is benne van az érték submit után
+      name="firstName"      // ezzel mondjuk meg, hogy a  formControl-ra milyen kulcsal hivatkozzunk "firstName" 
+      #változo="ngModel">   // helyi HTML változóra tesszük az NgModel jét ennek az inputnak => tudjunk validálni
     <div *ngIf="változo.touched && !változo.valid">
       <div *ngIf="változo.errors.required"> 
         muszáj értéket adni
@@ -357,42 +383,43 @@ vs  Template-driven => egyszerübb formoknál szuper, könnyü, kevés kód  !!!
     </div>
   </div>
   <div>
-    <textarea 
-      [(ngModel)]="hero.comment"               // hero.comment -el (.ts) van összekötve 2 irányú adatkötéssel a textarea 
-      name="comment" 
-    </textarea>
-  </div>
 <form>
 
-// uj stilust pl. az invalid cuccokhoz úgy adunk hogy console-ba megnézzük az elem class="" értékeit és felülírjuk, amikor mind ott van.
-=>  .form-controll.ng-touched.ng-invalid{}
-
+@ViewChild('xxxForm') form?:NgForm;
+this.form?.setValue(car)    // a car érékeit betölti a form-értékeire
+/*-----------------------------
 // Reactive
 új komponens: ng g c post-create
-app-routing.module.ts: {path:'post\create',component:PostCreateComponent}
 app-module.ts: FormsModule, ReactiveFormsModule
 post-create.component.ts:*/
 import{FormGroup,FormBuilder,FormArray, Validators,FormControl} from '@angular/forms';
 export class PostCreateComponent implements OnInit{
-// FormGroup:
-// status (VALID|INVALID|PENDING|DISABLED|PRISTINE)  // pillanatnyi validációs állapota  // formGroupnév.status==='INVALID'      // az egészre vonatkozik
-// value                      // objektum amely tárolja a FormControl-ok értékeit        
-// controls                   // az objektum ami tárolja a group egy FormControl-ait     // formGroupnév.controls.title.valid    // title = a FormGroup egyik értéke
-// [add|remove|set]Control    // hozzáad, eltávolít, frissít egy FormControl-t
-// contains                   // az adott nevű FormControl megtalálható a group-ban?
-// reset                      // visszaállítja a FormControl-ok értékeit
-  reactiveForm_0:FormGroup =new FormGroup({
-    title:new FormControl(""),        // <input formControlName="title" 
-    body:new FormControl(""),
-    id:new FormControl('',[Validators.required]),
-  })
+// FormGroup ÉS a formControllnak is lehet =>
+// .status (VALID|INVALID|PENDING|DISABLED|PRISTINE)  // pillanatnyi validációs állapota  // formGroupnév.status==='INVALID'      // az egészre vonatkozik
+// .value                      // egy objektum amely tárolja a FormControl-ok értékeit    // pl.: value.email,value.name        
+// .controls                   // az objektum ami tárolja a group egy FormControl-ait     // formGroupnév.controls.title.valid    // title = a FormGroup egyik értéke
+// .[add|remove|set]Control    // hozzáad, eltávolít, frissít egy FormControl-t
+// .contains                   // az adott nevű FormControl megtalálható a group-ban?
+// .reset                      // visszaállítja a FormControl-ok értékeit
+
+// PL.: lehet egyszerre értéket adni =>
+this.dishForm.setValue({image:"",...dish})  // dishformba feltölti a dish mezőít plusz az image mezőjét
+this.name?.setValue(dish.name)              // vagy egyesével
+
+reactiveForm_0:FormGroup =new FormGroup({
+  title:new FormControl(""),        // <input formControlName="title" 
+  body:new FormControl(""),
+  id:new FormControl('',[Validators.required]),
+})
+// ezeket célszerű getterezni =>
+get id():AbstractControl | null{return this.reactiveForm_0.get("id")}
 // ====>
-  reactiveForm: FormGroup;
-  nestedForm:FormGroup;   // akkor kell ha egybeágyazás van
-  dynamicForm:FormGroup;  // akkor kell ha nem ugyanazt a referenciát akarjuk használni
+  reactiveForm: FormGroup;              // <form [formGroup]="reactiveForm" (ngSubmit)=submit()></form>
+  nestedForm:FormGroup;       // akkor kell ha egybeágyazás van
+  dynamicForm:FormGroup;      // akkor kell ha nem ugyanazt a referenciát akarjuk használni
   constructor(private fb:FormBuilder){}
   ngOnInit():void{
-    this.reactiveForm=this.fb.group({   // <form [formGroup]="reactiveForm"
+    this.reactiveForm=this.fb.group({   // <form [formGroup]="reactiveForm" (ngSubmit)=submit()></form>
       title:'',                         // <input formControlName="title"       // háttérbe =>  // title = new FormControl()
       body:'default',                   // <textarea formControlName="body"
       id:1
@@ -405,7 +432,7 @@ export class PostCreateComponent implements OnInit{
     })
     const user2 =this.fb.group({
       email:'',
-      name:['',[Validators.required,
+      name:['',[Validators.required,              // muszáj megadni
                 Validators.pattern("regex...."),  // regex
                 Validators.minLength(5),          // hossz min 5
                 Validators.email,                 // érvényes email
@@ -548,99 +575,39 @@ dynamic form:
   </div>
   <button (click)="addUser()">add</button>
 </form>*/
+//------------------------------------------------------------------------------------------------------------------------
+// Custom Validator írása
+// forbiddenWordsValidator(control: FormControl) {
+//   if (this.forbiddenWords.contains(control.value)) {
+//       return {'forbiddenWord': true};
+//   }
+//   return null;
+// }
+// 'nickname': new FormControl('', this.forbiddenWordsValidator.bind(this))
 
-
-
-//------------------------
-// Materials =>  material.angular.io => 
-// 1. telepíteni:
-//    cd material-demo/
-//    npm i --save @angular/cdk @angular/material @angular/animations hammerjs
-// 2. css. be beleírni: 
-//    @import "~@angular/material/prebuilt-themes/TÉMANEVE"
-//    TÉMANEVE: indigo-pink.css || deeppurple-amber.css || pink-bluegrey.css || purple-green.css
-// 3. app.module.ts:
-//    import {BrowserAnimationsModule} from '@angular/platform-browser/animations';   // kell animáció
-//    import {NoopAnimationsModule} from '@angular/platform-browser/animations';      // nem kell animáció
-//    import:[BrowserAnimationsModule]
-// 4. minden komponenst külön kell importálni
-//     material.angular.io/components/KOMPONENSNÉV/api
-
-//------------
-// checkbox:
-/* <md-checkbox
-      #változo
-      [value]=''
-      [checked]="isCVálltozó"       // kötés XXX.component.ts-ben az isCVálltozó
-    //checked="true"                // így csak a kezdeti állapotát változtatjuk 
-      (change)="onChange($event)">  // XXX.component.ts-ben   : onChange($event){console.log($event)}     
-    </md-checkbox>
-<div *ngIf="változo.checked"></div>
-
-// radio button
-<md-radio-group value="0">        // alapbeállításként a '0' értékű lesz be chacked-olva
-  <md-radio-button value='1'>male   </md-radio-button> 
-  <md-radio-button value='0'>female </md-radio-button>      
-</md-radio-group>
-
-// drop-down list
-<md-select [(MgModel)]="változo">     // HA pl a => változo = 2  => 2 es color.id lesz a default
-  <md-option 
-    *ngFor="let color of colors"
-    [value]="color.id">{{color.name}}</md-option>
-</md-select>
-
-// input
-<md-input-container>
-  <input
-    ngModel                                   // ez KELL mert ebbe vannak az error-ok
-    #változo="ngModel"
-    name="username"
-    type="text" mdInput placeholder="Username" required></input>
-  <md-hint>ide jönnek a hint-ek</md-hint>     // tippek
-  <span mdSuffix>@domain.com</span>           // mdSuffix => az input mező után lévű konstans
-  <span mdPrefix>admin.</span>                // mdPrefix => az input mező elött lévű konstans
-  <md-error *ngIf="változo.invalid && változo.errors.required">nincs megadva az username</md-error>
-</md-input-container>
-
-
-/*-----------------------------------------------------------
-// ember.model.ts egy Ember model-je hogy nézzen ki:
-
-export interface Ember{
-    name:string,
-    age:number
-  }
-  model:Ember; // ahhoz hogy ezt engedje => tsconfig.json ba:
-"noImplicitReturns": false,
-"strictPropertyInitialization": false,
-*/
-//------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
+// zipValidator(zipInput: AbstractControl):ValidationErrors|null {
+//   const pattern = /^\d{4}$/
+//   return pattern.test(zipInput.value) ? null :{zipError:'do not match pattern 9999'}
+// }                                    // null, ha minden rendbe van
+// 'nickname': new FormControl('', [this.zipValidator])
 //------------------------------------------------------------------------------------------------------------------------------------------
 /* ROUTING: 
 ng generate module app-routing --flat --module=app        // ha nincs routing module
-
+//-------------
 // routolás lépései: 
 // 1. az app-routing.module.ts-be   definiálni kell hogy milyen url-re milyne komponens legyne aktív 
 // 2. a navbáron                    routerLink eket definiálunk, hogy melyik gomb hova vigyen
 // 3. a komponensekbe               az elem (click) eseményén meghívjuk a this.router.navigate(["/items"]) -et
 // 4. amelyik komponens betöltődik  annál feliratkozunk az activatedRoute-jára és kiszedjük belőle a komponensnek a releváns adatokat, pl ID
 // 4.:                              majd a kimentett dolgok alapján lekérjük egy service-ből a nekünk kellő adatokat, amit megjelenítünk
-
+//-------------
 <router-outlet></router-outlet>     // az adott router komponensét rendereli ki, dinamikus routerválasztás
 //                                  // a router-outlet UTÁN jön létre a komponens, NEM BELE   */
-
+//-------------
 // app-routing.module.ts:         
 // ngModule({  import:RouterModule.forRoot(routes)   // routes -es változó a app-routing.modul.ts-ben
-// VAGY               RouterModule.forChild(routes)  // haladó téma, felejtsem el még 
-//             exports: [RouterModule]	             // ezt exportáljuk így az app.module.ts-be, HA ott importálva van
+// VAGY               RouterModule.forChild(routes)  // lazy loading
+//             exports: [RouterModule]	             // így exportáljuk az app.module.ts-be, majd ott importáljuk AppRoutingModule néven 
 const routes: Routes = [          // sorrendbe fut le lefele
   {
     path:'myCompt',               // localhost:4200/myComp => töltse be a
@@ -648,25 +615,26 @@ const routes: Routes = [          // sorrendbe fut le lefele
 //  path:'**',                    // nem létező route ra mi történjen? pl. fő oldal
     component: MyCompComponent,   // MyCompComponent-st <router-outlet></router-outlet> UTÁN
    	                              // HTML-be elérni => <a routerLink="/myComp"></a> 
-    redirectTo:'/myCompt',        // átirányítás => a localhost:4200/myComp -ra
+    redirectTo:'myCompt',         // átirányítás => a localhost:4200/myComp -ra
     pathMatch:'full'              // átirányításkor típusa
   },       
   
 // admin.module.ts :  // KELL ADMIN MODULE aminek vannak ROUTE-s jai, amik ezek!! =>
-ngModule({ import:RouterModule.forChild(routes), exports: [RouterModule],})export class AppRoutingModule {}
+ngModule({ import:RouterModule.forChild(routes), exports: [RouterModule]})export class AdminModule {}
 const routes: Routes = [
   {                    
-    path:'admin',     
-    children:[       
-      {path:'users',component:PostsComponent},    // localhost:4200/admin/users
-      {path:'settings',component:PostsComponent}  // localhost:4200/admin/settings 
+    path:'',   
+    component:AdminMainComponent,
+    children:[       // itt van a kövi réte router-outlet ha többet akarunk bekötni
+      {path:'list',component:AdminListComponent},         // localhost:4200/admin/list
+      {path:'settings',component:AdminSettingsComponent}  // localhost:4200/admin/settings 
     ]
   },
 // DE a app-routing.module.ts be:
   {path:'admin',loadChildren:()=>import('./admin/admin.module').then(m=>m.AdminModule)}
 // ígymár ujrahaznosítható az admin module
 ];
-
+//-------------
 // routerLink           // navigáció a navbaron
 // <a routerLink="/myComp"></a>	// routerlinkeket ÍGY ÉRÜNK EL TILOS A href !!!
 //    routerLink="/post/1"  => localhost:4200/post/1 -rt tölti be
@@ -674,14 +642,29 @@ const routes: Routes = [
 //  [routerlink]="['/post',follower.id]" => localhost:4200/post/X           // X===follower.id
 //  [routerlink]="['/post/',1]" [queryParams]="{userId:'1',id:'2'}" => localhost:4200/post/1?userId=1&id=2
 //  [routerlink]="['/admin/users']"      => childrenes    ???????????????????????????????????????????????????????????????
-
+//-------------
+// az aktív linkre css rakás :
+// <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/elso"></a></li>
+// <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/masodik"></a></li>
+//  routerLinkActive="active current"         // ha ezen az elemen vunk akkor a navbáron lévü li, kap egy active és current css osztályt
+// [routerlinkActiveOptions]="{exact:true}"   // csak teljes eggyezésnél lesz aktív
+// ha nem lenne beállítva az {exact:true}, akkor "/" és "/elso" re is active lenne egyszerre mert nem telejs eggyezést néz
+//-------------
 // Router               // navigáció al/más komponensekből (click)=navigateX(i)
 constructor(private router: Router) {}
-navigateX(i):void{
+navigateX(id):void{
   this.router.navigate(["/items"])      //        /items
-  this.router.navigate(["/items",i])    //        /items/i
+  this.router.navigate(["/items",id])   //        /items/id
 }
-
+// ha azt akarjuk hogy pl a headerbe, egy komponens ne jelenjen meg ha épp pl az about pagen vunk
+//<app-button *ngIf="hasRoute('/items')""  // ha most a /items en vunk akkor megjelenik
+hasRoute(route:string){               // kell a Router, hogy lecsekkoljuk melyik odlalon vunk
+  return this.router.url===route;     // ha azon amin kell akkor true, ha nem akkor false
+}
+// router.navigateByUrl(`/hero/${hero.id}`)               // ts-ben navigálunk
+// state: RouterState = router.routerState;
+// root: ActivatedRoute = state.root
+//-------------
 // ActivatedRoute:      // megadja hogy melyik Route-n vunk épp 
 constructor(private activatedRoute: ActivatedRoute) {}                       
 // activatedRoute.url.map(segments => segments.join(''))    // url    => az útvonal url-je
@@ -703,43 +686,8 @@ this.router.navigate(['/items', index]);
 this.activatedRoute.queryParams.subscribe(p=>this.id= p['id'])// DEPRECATED SOON
 this.activatedRoute.params.map(p=>p.id)                       // DEPRECATED SOON
 
-// az aktív linkre css rakás :
-// <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/elso"></a></li>
-// <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/masodik"></a></li>
-// active és a current, mind2 css..      [routerLinkActiveOptions]="{exact:true}" => a pontos elérési utat figyelje 
-// ha nem lenne beállítva az {exact:true}, akkor "/" és "/elso" re is active lenne egyszerre mert nem telejs eggyezést néz
 //-------------
-// dinamikos onclickes navigáció akár id alapon
-export class PostsComponent implements OnInit{  // PostsComponent NEM PostComponent
-    model:Array<Post>;
-    constructor(private router:Router){}        // itt ROUTER-t akarunk átadni MERT
-    ngOnInit():void{this.model=POSTS;}          // a navigate() fgv-ét akarjuk használni
-    public onClick(post:Post):void{           
-      this.router.navigate(['/post',post.id]);  
-  //  this.router.navigate(['/post']);  
-    }
-  }
-
-
-
-//-------------
-// ha azt akarjuk hogy pl a headerbe egy komponens ne jelenjen meg ha épp pl az about pagen vunk
-// header.component.ts:
-constructor(private router:Router)    // kell a Router, hogy lecsekkoljuk melyik odlalon vunk
-hasRoute(route:string){
-  return this.router.url===route;     // ha azon amin kell akkor true, ha nem akkor false
-}
-//header.component.html:
-//<app-button *ngIf="hasRoute('/')""  // ha most a / en vunk akkor megjelenik
 /*
-
-
-
-// constructor(private route:Route){}
-// router.navigateByUrl(`/hero/${hero.id}`)               // ts-ben navigálunk
-// state: RouterState = router.routerState;
-// root: ActivatedRoute = state.root
-
 // ROUTER ESEMÉNYEK=> router.events.subscribe(e=>{if(event instanceof NavigationStart{})})
 // NavigationStart(navigáció indításakor), 
 // NavigationCancel(ha a navigáció védelme megszakítja a navigációt), 
@@ -749,7 +697,49 @@ hasRoute(route:string){
 // RouterConfigLoadEnd(a konfiguráció betöltése után aktivált esemény)
 // NavigationEnd(a navigáció sikeres befejezése után aktivált esemény)
 //------------------------------------------------------------------------------------------------------------------------------------------
-// services: szükséges modulok: 
+// Guardok
+CanActivate                     // egy interface, amit majd  implements-elni kell           // rámehetünk e az oldalra?
+CanDeactivate<LoginComponent>   // védi a LoginComponent, hogy elnavigálhatunk e az oldalról?
+Resolve
+CanLoad
+CanActivateChild
+
+1. // kikell service-be tenni
+CanActivateGuardService implements CanActivate{
+  canActivate(route:ActivatedRouteSnapshot,state:RouterStateSnapshot){
+    if(!this.auth.loggedInUser){
+      return this.router.createUrlTree([""])    // navigate helyett van 
+    }
+    return true       // mehetek // aktiválódik a guard
+  }
+} 
+2. // router
+path:'xxx',component:xxxComponent,canActivate:[CanActivateGuardService]
+
+1.
+DeactivateGuardService implements CanDeactivate<LoginComponent>{
+  canDeactivate(component:RegFormComponent,currentRoute:ActivatedRoute){
+    if(component.loginForm.dirty && component.loginForm.value){
+      return confirm('elakarod hagyni az oldalt?')?true:false
+    }else{
+      return true   // elmehet az odlalról
+    }
+  }
+}
+2.
+path:'xxx',component:xxxComponent,canDeactivate:[DeactivateGuardService]
+
+Angularban a Guardokat arra használjuk, hogy megadjuk azt, hogy a felhasználó át tud-e navigálni egy adott útvonalra, vagy el tud-e navigálni a jelenlegi útvonalról.
+Láttuk a Routingnál, hogy meghatározhatjuk, milyen részekre tud navigálni a felhasználó az applikációnkon belül, de célszerű korlátozni, 
+illetve bizonyos feltételekhez kötni (pl. login) azt, hogy a felhasználó mely részeket érheti el.A Route Guardok erre a célra jöttek létre.
+pl.:
+egy navigációs utasítás jóváhagyása
+megkérdezhetjük a felhasználót, hogy biztos el akarja-e hagyni az adott oldalt (pl. űrlapoknál mentés, küldés előtt)
+bizonyos felhasználóknak adhatunk hozzáférést az app bizonyos részeihez
+az elérési út paramétereinek validálása
+HTTP kérések lefuttatása az adott részelem megjelenítése előtt
+//------------------------------------------------------------------------------------------------------------------------------------------
+// HTTP kérések: szükséges modulok:       // stateles-ek vis nem szükséges leiratkozni róluk, 1x lefutnak azt jól van
 app.module.ts : HttpClientModule
 services.ts-ben: HttpClient, HttpHeaders  from '@angular/common/http'
 //               Observable               from 'rxjs'       
@@ -764,111 +754,30 @@ url === ha csak egy adott id-ju elem kell akkor => url =`${this.jsonUrl}/${id}`
 */                                                                                                                                 
 // MIT AKARUNK?     xxx.service.ts    yyyfgv():Observable<ModelTípusa>{}      xxx.component.ts: ngOnInit():                                     
 // Lekérés, GET     return this.http.get<ModelTípusa>(url);                   this.xxxService.getfgv().subscribe(data=>{this.model=data;})      
-// Törlés, DELETE   return this.http.delete<ModelTípusa>(url);                this.xxxService.deletefgv(model).subscribe();
+// Törlés, DELETE   return this.http.delete<ModelTípusa>(url+"/"+id);         this.xxxService.deletefgv(model).subscribe();
 // Update, PUT      return this.http.put<ModelTípusa>(url,model,httpOptions)  this.xxxService.putfgv(model).subscribe();
 // Add, POST        return this.http.post<ModelTípusa>(url,model,httpOptions) this.xxxService.postfgv(model).subscribe();
-//                                                                                                          .subscribe((data)=>{"mellkhatás"})
-// ++ => const httpOptions={headers:new HttpHeaders({"Content-Type":"application/json"})}
-// hibakezelés a xxx.service.ts yyyfgv() ének a return után =>
+//                                  .patch                                                                  .subscribe((data)=>{"mellkhatás"})
+// ++ => a httpOptions ba adjuk meg az ociókat HA nem a default értékeket szeretnénk használni, pl autentikáció 
+// const httpOptions={headers:new HttpHeaders({"Content-Type":"application/json"})}
+
+// get:     a model jön meg
+// delete:  üres objektum jön vissza !!!
+// post:    vissza jön a model, DE nem adunk ID-t, azt a szerver generálja majd,
+// put:     az egész objektumot át kell adni mindenestűl + vissza jön a mentett model
+// patch:   elég az ID + amit szeretnénk változtatni
+
+// hibakezelés pipe-olva => a xxx.service.ts yyyfgv() ének a return után => 
 // return this.http.......
 // .pipe(catchError(this.handleError('getfgv',[])))                         // get, az összes
 // .pipe(catchError(this.handleError<ModelTípusa>('getfgv id=${id}')))      // get, az adott id-jú
 // .pipe(catchError(this.handleError<ModelTípusa>('yyyfgv')))               // post, v delete v put
-//------------------------------------------------------------------------------------------------------------------------------------------
-/* esemény öröklés
-
-// PARENTS.component.html:            
-<app-child-elem (eEmitter)="postfgv($event)"    // a gyerek, csak egy váz, van egy eseménye, DE itt a parentsbe mondjuk meg, hogy az esemény mit csináljon
-
-=> PARENTS.service.ts: + PARENTS.component.ts: => a szokásos GET,DELETE,PUT,POST
-
-// CHILD.component.html
-<form (ngSubmit)="onSubmit()">
-  <div>
-    <label for="text">Task</label>
-    <input type="text" name="text" id="text" playeholder="Add Task"
-    [(ngModel)]="text"/>    // text:string; <= ez a text
-  </div>
-  <input type="submit" value="Save Task"/>
-</form>
-
-// CHILD.component.ts
-@Output() eEmitter:EventEmitter<Task>=new EventEmitter();
-text:string;          // [(ngModel)] miatt 2 irányú adatkötés
-onSubmit(){
-    const newTask={
-      text:this.text,
-    }
-    this.eEmitter.emit(newTask);
-    this.text='';
-  }
-}*/
-
-/*
-// komponenst -> másik komponensbe változó értékekkel
-// Az adat változón keresztül FENTRŐL LE => Szülőtöl -> Gyerekig
-// aholhasználjuk.component.html: 
-<app-button 
-  color="green" 
-  text="gombszövege" 
-  (btnClick)="fgv()"      // fgv() => aholhasználjuk.component.ts -be van megírva
-></app-button>
-// button.component.ts:
-import {Input, Output, EventEmitter} from '@angular/core'     // Input:text,color,stb... miatt 
-export class ButtonComponent implements OnInit{               // Output, Eventemitter: eventek miatt
-  @Input() text:string;     // fentről jövő változók 
-  @Input() color:string;    // amik benne vannak az akt komponens HTML-jébe is is
-  @Output() btnClick = new EventEmitter()   // @Output() OnDeleteTask = new EventEmitter<Task>()
-  onClick(){this.btnClick.emit()}           // OnDelete(task){this.OnDeleteTask.emit(task)}
-}
-// button.component.html:
-<button 
-  [ngStyle]="{'background-color':color}"
-  (click)="onClick()"                       // (click)="OnDelete(task)"
->
-  {{text}}
-</button>
-
-// Ugyanaz forciklussak =>
-<app-task-item 
-  *ngFor="let task of tasks" 
-  [változó]="task"
-  (onDeleteTask)="fgv(task)"  // fgv(task) => aholhasználjuk.component.ts -be van megírva
- ></app-task-item>        // magát a taskot is átküldhetjük
-// a változó értékét vagyis az egyes task-okat lejjeb küldjük =>
-@Input() változó:Ember;   // a lejjebbi XXX.component.ts-be
-*/
-
-//-------------
-// RxJS => Subscription, Subject ....
-/*
-// az EventEmitter helyett =>
-
-// ui.service.ts: 
-private showAddTask:boolean=false;
-private subject=new Subject<any>();
-onObservable():Observable<any>{
-  return this.subject.asObservable();
-}
-submit():void{
-  this.showAddTask=!this.showAddTask;
-  this.subject.next(this.showAddTask)
-}
-
-// xxx.component.ts:
-showAddTask:boolean;
-subscription:Subscription;
-  OnInit{this.subscription=this.uiService.onObservable().subscribe(value=>this.showAddTask=value)}
-  onSubmit(){this.uiService.submit()}
-
-// xxx.component.html:
-<app-button
-  color="{{showAddTask ? 'red' : 'green'}}"
-  text="{{showAddTask ? 'Close' : 'Add'}}"    // a gomb szövege függ..
-  (btncClick)="onSubmit()">
-</app-button>
-*/
-
+// hibakezelés a végén:
+.subscribe({
+  next:(data)=>{this.data = data;},
+  error:(e)=>{console.log(e)},
+  complete:()=>{}   // itt zárjuk be az ablakot ha szükséges
+})
 //------------------------------------------------------------------------------------------------------------------------------------------
 // Animation
 // 1. limitált de könnyebb módsze:
@@ -972,6 +881,67 @@ export let fade = trigger('fade',[
 <zippy>*/ 
 
 /*
+//------------------------------------------------------------------------------------------------------------------------
+// Materials =>  material.angular.io => 
+// 1. telepíteni:
+//    cd material-demo/
+//    npm i --save @angular/cdk @angular/material @angular/animations hammerjs
+// 2. css. be beleírni: 
+//    @import "~@angular/material/prebuilt-themes/TÉMANEVE"
+//    TÉMANEVE: indigo-pink.css || deeppurple-amber.css || pink-bluegrey.css || purple-green.css
+// 3. app.module.ts:
+//    import {BrowserAnimationsModule} from '@angular/platform-browser/animations';   // kell animáció
+//    import {NoopAnimationsModule} from '@angular/platform-browser/animations';      // nem kell animáció
+//    import:[BrowserAnimationsModule]
+// 4. minden komponenst külön kell importálni
+//     material.angular.io/components/KOMPONENSNÉV/api
+
+//------------
+// checkbox:
+/* <md-checkbox
+      #változo
+      [value]=''
+      [checked]="isCVálltozó"       // kötés XXX.component.ts-ben az isCVálltozó
+    //checked="true"                // így csak a kezdeti állapotát változtatjuk 
+      (change)="onChange($event)">  // XXX.component.ts-ben   : onChange($event){console.log($event)}     
+    </md-checkbox>
+<div *ngIf="változo.checked"></div>
+
+// radio button
+<md-radio-group value="0">        // alapbeállításként a '0' értékű lesz be chacked-olva
+  <md-radio-button value='1'>male   </md-radio-button> 
+  <md-radio-button value='0'>female </md-radio-button>      
+</md-radio-group>
+
+// drop-down list
+<md-select [(MgModel)]="változo">     // HA pl a => változo = 2  => 2 es color.id lesz a default
+  <md-option 
+    *ngFor="let color of colors"
+    [value]="color.id">{{color.name}}</md-option>
+</md-select>
+
+// input
+<md-input-container>
+  <input
+    ngModel                                   // ez KELL mert ebbe vannak az error-ok
+    #változo="ngModel"
+    name="username"
+    type="text" mdInput placeholder="Username" required></input>
+  <md-hint>ide jönnek a hint-ek</md-hint>     // tippek
+  <span mdSuffix>@domain.com</span>           // mdSuffix => az input mező után lévű konstans
+  <span mdPrefix>admin.</span>                // mdPrefix => az input mező elött lévű konstans
+  <md-error *ngIf="változo.invalid && változo.errors.required">nincs megadva az username</md-error>
+</md-input-container>
+/*-----------------------------------------------------------
+// ember.model.ts egy Ember model-je hogy nézzen ki:
+
+export interface Ember{
+    name:string,
+    age:number
+  }
+  model:Ember; // ahhoz hogy ezt engedje => tsconfig.json ba:
+"noImplicitReturns": false,
+"strictPropertyInitialization": false,
 //------------------------------------------------------------------------------------------------------------------------------------------
 // KONSTANS URL:
 // xxx.service.ts:
@@ -1041,6 +1011,100 @@ npm install @fullcalendar/interaction
 //------------------------------------------------------------------------------------------------------------------------------------------
 // EXTRAPLUSSZPLUSSZ
 
+//------------------------------------------------------------------------------------------------------------------------------------------
+/* esemény öröklés
+
+// PARENTS.component.html:            
+<app-child-elem (eEmitter)="postfgv($event)"    // a gyerek, csak egy váz, van egy eseménye, DE itt a parentsbe mondjuk meg, hogy az esemény mit csináljon
+
+=> PARENTS.service.ts: + PARENTS.component.ts: => a szokásos GET,DELETE,PUT,POST
+
+// CHILD.component.html
+<form (ngSubmit)="onSubmit()">
+  <div>
+    <label for="text">Task</label>
+    <input type="text" name="text" id="text" playeholder="Add Task"
+    [(ngModel)]="text"/>    // text:string; <= ez a text
+  </div>
+  <input type="submit" value="Save Task"/>
+</form>
+
+// CHILD.component.ts
+@Output() eEmitter:EventEmitter<Task>=new EventEmitter();
+text:string;          // [(ngModel)] miatt 2 irányú adatkötés
+onSubmit(){
+    const newTask={
+      text:this.text,
+    }
+    this.eEmitter.emit(newTask);
+    this.text='';
+  }
+}*/
+
+/*
+// komponenst -> másik komponensbe változó értékekkel
+// Az adat változón keresztül FENTRŐL LE => Szülőtöl -> Gyerekig
+// aholhasználjuk.component.html: 
+<app-button 
+  color="green" 
+  text="gombszövege" 
+  (btnClick)="fgv()"      // fgv() => aholhasználjuk.component.ts -be van megírva
+></app-button>
+// button.component.ts:
+import {Input, Output, EventEmitter} from '@angular/core'     // Input:text,color,stb... miatt 
+export class ButtonComponent implements OnInit{               // Output, Eventemitter: eventek miatt
+  @Input() text:string;     // fentről jövő változók 
+  @Input() color:string;    // amik benne vannak az akt komponens HTML-jébe is is
+  @Output() btnClick = new EventEmitter()   // @Output() OnDeleteTask = new EventEmitter<Task>()
+  onClick(){this.btnClick.emit()}           // OnDelete(task){this.OnDeleteTask.emit(task)}
+}
+// button.component.html:
+<button 
+  [ngStyle]="{'background-color':color}"
+  (click)="onClick()"                       // (click)="OnDelete(task)"
+>
+  {{text}}
+</button>
+
+// Ugyanaz forciklussak =>
+<app-task-item 
+  *ngFor="let task of tasks" 
+  [változó]="task"
+  (onDeleteTask)="fgv(task)"  // fgv(task) => aholhasználjuk.component.ts -be van megírva
+ ></app-task-item>        // magát a taskot is átküldhetjük
+// a változó értékét vagyis az egyes task-okat lejjeb küldjük =>
+@Input() változó:Ember;   // a lejjebbi XXX.component.ts-be
+*/
+
+//-------------
+// RxJS => Subscription, Subject ....
+/*
+// az EventEmitter helyett =>
+
+// ui.service.ts: 
+private showAddTask:boolean=false;
+private subject=new Subject<any>();
+onObservable():Observable<any>{
+  return this.subject.asObservable();
+}
+submit():void{
+  this.showAddTask=!this.showAddTask;
+  this.subject.next(this.showAddTask)
+}
+
+// xxx.component.ts:
+showAddTask:boolean;
+subscription:Subscription;
+  OnInit{this.subscription=this.uiService.onObservable().subscribe(value=>this.showAddTask=value)}
+  onSubmit(){this.uiService.submit()}
+
+// xxx.component.html:
+<app-button
+  color="{{showAddTask ? 'red' : 'green'}}"
+  text="{{showAddTask ? 'Close' : 'Add'}}"    // a gomb szövege függ..
+  (btncClick)="onSubmit()">
+</app-button>
+*/
 //-------------
 // Lekérés, GET 
 // xxx.service.ts:    

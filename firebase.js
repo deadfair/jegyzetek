@@ -152,3 +152,236 @@ unsubscribe()       // erről lekell iratkozni ha bezárom az oldalt mert felesl
   // await saveNewPerson(newPerson)
   // await readPersons()     // így először bevárja a programot és minden sorba fut
 })();
+//--------------------------------------------------------------------------------------------------------------------------------------------------
+// + ANGULAR
+
+// https://github.com/angular/angularfire                   // <= HELP
+
+// 1, kell egy webApp
+
+// 2, AngularFire https://github.com/angular/angularfire
+
+// 3, ng add @angular/fire    // legujjab verzió            // 3, ng add @angular/fire@7.2.0-canary.eeb9dcc  // előző verzió
+//    ezt a verziót akarod telepíteni? igen
+//    mi kell nekünk? space-select
+//    Firestore,aut,deploy,stb
+//    email kiválasztása
+//    projekt kiválasztása
+//    új app v meglévő?
+
+// 4, app module imports: kikell kommentezni a provideFirebaseApp(()=>.....)
+//                                          provideFirestore(()=>....)
+// 4, helyette => 
+// import {AngularFireModule} from "@angular/fire/compat";
+// import {AngularFireAnalyticsModule} from "@angular/fire/compat/analytics";
+// import {AngularFirestoreModule} from "@angular/fire/compat/firestore";
+// AngularFireModule.initializeApp(environment.firebase),
+// AngularFirestoreModule,
+// AngularFireAnalyticsModule
+
+// 4.5, HA most nem jó akkor =>
+// npm install typescript@4.4.4 // lekell butítani a typescriptet
+//---------------------------------------
+
+constructor(private afs: AngularFirestore)
+postCollection =  this.afs.collection<Post>("posts");
+
+// Creat
+createPost(post:Post):Promise<DocumentReference<Post>>{   // @angular/fire/compat/firestore
+  return this.postCollection.add(post);
+}
+//---------------------------------------
+// Get
+getPosts():Observable<Post[]>{              
+  return this.postCollection.get().pipe(      // querySnapshot ból Observable<Post[]>
+    map((posts)=> posts.docs.map((post)=>{      
+      const convertedPost:Post = post.data();
+      convertedPost.id = post.id
+      return convertedPost
+    }))
+  )
+}
+// posts?:Observable<Posts[]>               // component.ts
+// this.posts = postservice.getPosts()      // component.ts
+// posts | async                            // component.HTML   // leiratkozást is kezeli
+
+public getFilteredCars(field: string, value: string): Observable<CarModel[]>{
+  return this.afs.collection<CarModel>("cars", ref => ref.where(field, "==", value))
+  .get().pipe( map((carModels) => carModels.docs.map((cars) => {
+//             querySnapshot =>                    queryDocSnapshot => data()
+      const convertedCar: CarModel = cars.data();
+      convertedCar.id = cars.id;
+      return convertedCar
+    })
+  ));
+}
+
+getPostById(id:string):Observable<Post |undefined>{       // ez a csúnya ID
+  postDoc:AngularFirestoreDocument<Post> = this.afs.doc<Post>(`posts/${id}`)
+  return postDoc.get().pipe(
+    map((post:DocumentSnapshot<Post>)=>post.data())
+  )
+}
+//---------------------------------------
+// Update
+public updatePost(data: Post, id: string): Promise<void> {
+  const postDoc: AngularFirestoreDocument<Post> = this.afs.doc<Post>(`posts/${id}`);
+  return postDoc.set(data);
+}
+//---------------------------------------
+// Delete
+public getPost(id: string): Promise<void> {
+  const postDoc: AngularFirestoreDocument<Post> = this.afs.doc<Post>(`posts/${id}`);
+  return postDoc.delete()
+}
+
+//---------------------------------------
+// service:
+// constructor(private afs:AndularFirestore){}
+// private customCollection: AngularFirestoreCollection<Model> = this.afs.collection<Model>('table')
+/*public saveCustomer(customer:Model):Observable<DocumentReferenc<Model>>{
+  return from(this.customCollection.add(customer))      // létre is hozza a táblát ha nincs
+}
+public getCustomers():Observable<QuerySnapshot<Model>>{
+  return this.customCollection.get()              // 1x ad vissza értéket
+  return this.customCollection.valueChanges()     // folyamat figyel, 2 irányú kötés
+}
+// component:
+this.service.getCustomers().subscribe(
+  {
+    next:(data)=>{
+      data.forEach(customer =>{this.customers.push(customer.data())})
+    },
+    error:(err)=>{console.log(err)},
+    complete:()=>{}
+  }
+)
+
+  public getCars(): Observable<CarModel[]> {
+    return this.afs.collection<CarModel>(this.CARS_COLLECTION).valueChanges({ idField: 'id' });
+  }
+
+  public getCarById(id: string): Observable<CarModel | undefined> {
+    return this.afs.doc<CarModel>(`cars/${id}`).valueChanges();
+  }
+
+
+*/
+// public deleteDish(dish:Dish):void{
+//   this.dishCollection.doc(dish.id).delete()
+// }
+
+// public saveDish(dish: Dish): Promise<DocumentReference<Dish>> {
+//   return this.dishCollection.add(dish);
+// }
+
+// protected dishCollection: AngularFirestoreCollection<Dish> = this.db.collection<Dish>('dishes');
+
+// constructor(protected db: AngularFirestore) {}
+
+
+// public getAllDishes(): any {
+//   return this.dishCollection.get()
+// }
+
+// public getAllDishesRealTime():Observable<Dish[]> {
+//   // azt csinálja hogy az id mezőbe belemásolja a saját id-já,
+//   // és ezzel az id-val fogom majd elérni az
+//   return this.dishCollection.valueChanges({idField:'id'})
+// }
+
+// getDishById(id:string) :Observable<any>{
+//   return this.dishCollection.doc(id).get();
+// }
+
+// public updateDish(id:string,dish:Dish):Observable<void>{
+//   return defer(()=>from(this.dishCollection.doc(id).update(
+//     {
+//       imgSrc: dish.imgSrc,
+//       price: dish.price,
+//       type: dish.type,
+//       name: dish.name,
+//       description:dish.description,
+//       cuisine:dish.cuisine,
+//       isVegetarian:dish.isVegetarian,
+//       isVegan:dish.isVegan,
+//       isLactoseFree:dish.isLactoseFree,
+//       isGlutenFree:dish.isGlutenFree
+//     })))
+// }
+//--------------------------------------------------------------------------------------------------------------------------------------------------
+// Autentikáció
+// firebase odlal => autentikáció -> get started -> add new provider
+import {AngularFireAuth} from "@angular/fire/compat/firestore"
+import firebase from "firebase/compat/app"
+
+constructor(private auth: AngularFireAuth)        // így is jó //  private fireAuth: any = getAuth(); 
+async submitForm(){
+  try{
+    const userData = createUserWithEmailAndPassword(this.auth,this.regForm.value.regEmail,this.regForm.value.regPassword);
+    this.toastr.succes("sikeresen regisztráltál","(cím) Sikeres")   // külön csomag a toastr
+  }catch(e){
+    this.toastr.error("oopsz vmi hiba","(cím) Hiba")   // külön csomag a toastr
+  }
+}
+
+submitLoginForm(){
+  signInWithEmailAndPassword(this.auth,this.loginForm.value.email,this.loginForm.value.password)
+  .then((userData) =>{
+    this.toastr.succes("sikeresen bejelentkeztél","(cím) Sikeres")   // külön csomag a toastr
+  })
+  .catch((e) =>{
+    this.toastr.error("rossz felhasználónév v email","(cím) Hiba")   // külön csomag a toastr
+  })
+}
+
+// google-s
+loginWithGoogle(){
+  this.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+  .then((userData) =>{
+    console.log(userData.user?.email); // egyéb adatok
+  })
+  .catch((e) =>{console.log(e);})
+}
+
+// user adatok kinyerése
+constructor(private auth:AngularFireAuth){}
+this.auth.user.subscribe({
+  next:(user)=>{      // az user adatai vagy null ha nincs
+    if (user) {
+      console.log(user);
+    }
+  },
+  error:(e)=>{},
+  complete:()=>{}
+})                
+
+logout(){
+  this.auth.signOut()
+}
+
+// canActivate(){               // Guardnál
+//   this.auth.user.pipe(       // pipe Observable-t ad vissza
+//     map(user)=>{
+//       if (user) {
+//         return this.router.createUrlTree(['sign-in'])
+//       }else{
+//         return true
+//       }
+//     }
+//   )
+// }
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------
+// BUILDELÉS
+// ng build      // .browserslistrc ürítése ha hibát ad  // 
+// firebase login
+// firebase init
+//       Yes
+//       Hosting kell
+//       kiválasztjuk a projektet
+//       dist/mappaahovabuildelődött
+//       igen
+//       no  // github kérdés
+//       no  // felülírás
+// firebase deploy
