@@ -114,10 +114,11 @@ describe('PromiseConvert',()=>{
     })
   })
   // error tesztelés
-  test('reject, not string param return error', ()=>{
+  test('reject, not string param return error', (done)=>{
     return convertToUpperCase(10).catch(err => {
       expect(err).toBeInstanceOf(TypeError)   // ennek a klassznak a példánya e?
       // expect(err).toEqual(TypeError())
+      done()                                  // reject ág teszteléséhez kell a done
     })
   })
 })
@@ -147,3 +148,18 @@ expect.addSnapshotSerializer({
 expect(fgv('vmi')).toMatchSnapshot()
 // jest --updateSnapshot   // igy frissítem a snapshot file-t
 
+
+//--------------------------------------------------------------
+// jest.config.js  // fál könyvtárba 
+module.exports = {
+  coverageProvider: "v8",
+  testEnvironment: "node"
+}
+// package.json-ben
+// "scripts": {
+//   "start": "nodemon src/index.js",
+//   "test":"jest"
+// },
+
+
+// npm i -D jest-mock-req-res

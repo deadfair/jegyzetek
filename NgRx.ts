@@ -44,6 +44,7 @@ hogy nem lehet egymásnak ellentmondó módon elérni az adatokat, hiszen a kör
 
 //--------------------------------------------------------------------------------------------------------------------------
 // ng add @ngrx/store
+// npm install @ngrx/store-devtools
 // npm i @ngrx/effects
 
 // app.modul.ts

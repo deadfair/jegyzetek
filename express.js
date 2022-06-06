@@ -194,6 +194,261 @@ logger.error(err.statusCode,err.message)
 logger.debug(req.params.id)   // debug szibntű, csak a consolra ír
 
 //-------------------------------------------------------------------
+const mongoose = require('mongoose')    // npm i mongoose
+// https://mongoosejs.com/
+
+// database kiválasztása, connect majd kimásolni a cuccokat
+mongoose.connect("mongodb+srv://demo:<password>@cluster0.o0bcp.mongodb.net/?retryWrites=true&w=majority") // pl
+// database access nél uj password, majd kimásolni                            // testdb adatbázis
+mongoose.connect("mongodb+srv://demo:uTa3dVxV1FXH9w3o@cluster0.o0bcp.mongodb.net/testdb?retryWrites=true&w=majority") // pl
+
+
+
+mongoose
+  .connect("mongodb+srv://demo:uTa3dVxV1FXH9w3o@cluster0.o0bcp.mongodb.net/testdb?retryWrites=true&w=majority")
+  .then(() => logger.info('MongoDb connection has been established successfully.')) 
+  .catch(err => {
+    logger.error(err);
+    process.exit();
+  })
+// network accesnál add ip address és ott a saját gépemét megadni
+
+// mongodb+srv://demo:uTa3dVxV1FXH9w3o@cluster0.o0bcp.mongodb.net/testdb?retryWrites=true&w=majority ezzel csatlakozok a compasshoz is
+
+// models/person.model.js
+const mongoose = require('mongoose')
+const PersonSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
+  email: String,
+},{
+  timestamps: true      // menti a modositás idejét
+});
+module.exports = mongoose.model('Person', PersonSchema);      // igy people lesz a tábla név
+module.exports = mongoose.model('persons', PersonSchema);     // így ez lesz a tábla név
+
+// controller
+const Person = require('../models/person.model')
+
+controller.post('/', async (req, res, next) => {
+  if (!req.body["first_name"] || !req.body["last_name"] || !req.body["email"]) {
+    return next(new createError.BadRequest('Missing parameters'))
+  }
+  const newPerson = new Person({
+    firstName: req.body["first_name"],
+    lastName: req.body["last_name"],
+    email: req.body["email"]
+  })
+  try{
+    const person = await newPerson.save()     // amit kapunk az egy then éből objektum DE nem promis
+    res.status(201).json(person)
+  }catch(err){
+    logger.error(err);
+    return next(new createError.InternalServerError(err))
+  }
+})
+
+controller.get('/',async (req, res , next) => {    
+  try{
+    const persons = await Person.find()
+    res.json(persons)
+  }catch(err){
+    logger.error(err);
+    return next(new createError.InternalServerError(err))
+  }
+})
+
+controller.get('/:id', async (req, res,next) => {
+  const id = req.params.id;
+  try{
+    const person = await Person.findById(id)  // ha nem megfelelő formátumu pl hossza az id akkor hibát kapok
+    if(!person){                              // ha nicns ilyen id, de jó a formátum akkor person === null
+      return next(new createError.NotFound(`Person with ${id} not exist`))
+    }
+    res.json(person)
+  }catch(err){
+    logger.error(err);
+    return next(new createError.InternalServerError(err))
+  }
+})
+
+controller.delete('/:id', async(req, res, next) => {
+  const id = req.params.id;
+  try{
+    const person = await Person.findByIdAndDelete(id)
+    if(!person){
+      return next(new createError.NotFound(`Person with ${id} not exist`))
+    }
+    res.send({})  
+  }catch(err){
+    logger.error(err);
+    console.log(err)
+    return next(new createError.InternalServerError(err))
+  }}
+
+  controller.put('/:idd', async (req, res, next) => {
+    const id = req.params.idd;
+    if (!req.body["first_name"] || !req.body["last_name"] || !req.body["email"]) {
+      return next(new createError.BadRequest('Missing parameters'))
+    }
+    const newPerson ={
+      firstName: req.body["first_name"] ,
+      lastName: req.body["last_name"] ,
+      email: req.body["email"] 
+    }
+    try{
+      const person = await Person.findByIdAndUpdate(id,newPerson,{new:true})
+      res.status(201).json(person)
+      if (!person) {
+        return next(new createError.NotFound(`Person with ${id} not exist`))
+      }
+    }catch(err){
+      logger.error(err);
+      return next(new createError.InternalServerError(err))
+    }
+  })
+
+
+//-------------------------------------------------------------------
+// npm i dotenv
+// src/.env
+// PORT=3000
+// LOG_LEVEL_FILE=info
+// LOG_LEVEL_CONSOLE=debug
+// DB_USER=demo
+// DB PASSWORD=uTa3dVxV1FXH9w3o
+// DB_HOST=cluster0.o0bcp.mongodb.net/testdb?retryWrites=true&w=majority
+
+// index.js
+require('dotenv').config();
+const port = process.env.PORT || 3000;
+
+mongoose
+  .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}`)
+  .then(() => logger.info('MongoDb connection has been established successfully.')) 
+  .catch(err => {
+    logger.error(err);
+    process.exit();
+  })
+
+//-------------------------------------------------------------------
+// npm i config
+// fő könyvtárba, nem a src be ! =>
+
+// config/default.json
+// {
+//   "port":3000,
+//   "log_level_file":"info",
+//   "log_level_console":"debug",
+//   "database":{
+//     "host":"cluster0.o0bcp.mongodb.net/testdb?retryWrites=true&w=majority",
+//     "user":"demo",
+//     "password":"uTa3dVxV1FXH9w3o"
+//   }
+// }
+// index.js
+const config = require('config');
+const port = config.port || 3000;
+mongoose
+  // .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}`)
+  .connect(`mongodb+srv://${config.database.user}:${config.database.password}@${config.database.host}`)
+  .then(() => logger.info('MongoDb connection has been established successfully.')) 
+  .catch(err => {
+    logger.error(err);
+    process.exit();
+  })
+
+// test.json
+// {
+//   "port":3200
+// }
+
+// package.json -ba uj script kell
+// "script"{
+//   "start-test":"set NODE_ENV=test&& nodemon src/index.js"  // így felülírja amit beállítottam a test .jsonba
+// }                         // test a file neve
+
+// ezeket gitignorolni kell
+.config/*
+
+// ha nincs confog file
+if (!config.has('database')) {
+  logger.error('No database configuration found!');
+}
+
+
+
+//-------------------------------------------------------------------
+const isValidator = require('mongoose-id-validator'); //npm i mongoose-id-validator
+const mongoose = require('mongoose');     //npm i mongoose
+
+const PersonSchema = new mongoose.Schema({
+  title:{
+    type: String,
+    required: true
+  },
+  body: {
+    type: String,
+    required: true
+  },
+  author: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Person',
+    required: true
+  }
+},{
+  timestamps: true      
+});
+
+PostSchema.plugin(isValidator)
+
+module.exports = mongoose.model('Post', PersonSchema);  
+
+//-------------------------------------------------------------------
+
+const fetch = require('node-fetch');
+
+
+
+
+//-------------------------------------------------------------------
+const supertest = require('supertest') // npm i supertest -D    // teszteléshez
+//-------------------------------------------------------------------
+npm i jest-mock-req-res -D
+const {mockRequest, mockResponse} = require("jest-mock-req-res");
+
+
+
+
+
+//-------------------------------------------------------------------
+Egyébként az egységtesztek miatt szerintem érdemes lehet meghívni a Mongoose validate() metódusát 
+a controller fájlok create() és update() metódusaiban. Ez adatbáziskapcsolat nélkül leellenőrzi, hogy 
+a beérkezett adatok megfelelnek-e a Mongoose sémában definiált szabályoknak, így a service rétegbe már 
+csak validált adatok továbbítódnak.
+try {
+    await new Person(newPerson).validate();
+} catch (err) {
+    return next(new createError.BadRequest(err.message));
+}
+
+A validate() metódusnak update esetén megadható a { validateModifiedOnly: true } opció,
+ami nem követeli meg a kötelezőnek jelölt mezőket, csak a módosuló mezők értékét ellenőrzni.
+
+
+
+//-------------------------------------------------------------------
+npm install jsonwebtoken
+
+https://jwt.io/
+//-------------------------------------------------------------------
+npm i swagger-ui-express      // doksikhoz
+npm i yamljs
+const YAML = require('yamljs');
+const swaggerUi = require('swagger-ui-express');
+//-------------------------------------------------------------------
+//-------------------------------------------------------------------
+//-------------------------------------------------------------------
 
 
 
@@ -210,10 +465,7 @@ logger.debug(req.params.id)   // debug szibntű, csak a consolra ír
 
 
 
-
-
-
-
+//-------------------------------------------------------------------
 /*
 // FILE feltöltés 
 // npm install --save multer
@@ -294,6 +546,7 @@ router
   );
 
 router.get("/new", isLoggedIn, campgrounds.renderNewForm);
+
 router
   .route("/:id")
   .get(catchAsync(campgrounds.showCampground))
@@ -305,6 +558,7 @@ router
     catchAsync(campgrounds.updateCampground)
   )
   .delete(isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampground));
+  
 router.get("/:id/edit", isLoggedIn, isAuthor, catchAsync(campgrounds.renderEditForm));
 
 module.exports = router;

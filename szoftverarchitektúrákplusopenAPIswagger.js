@@ -359,4 +359,902 @@ OAuth 2
 OpenID
 */
 
+openapi: 3.0.0
+info:
+  title: FunyBook API
+  version: 1.0.0
+  description: A joke site where you can do funny things
+servers:
+  - url: http://localhost:3000
+    description: URL for local testing
 
+paths:
+  /login:
+    post:
+      tags:
+        - auth
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      email:
+                        type: string
+                      userName:
+                        type: string
+                      rank:
+                        type: integer
+        "400":
+          description: Missing parameters or Invalid Password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: User does not exist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /logout:
+    post:
+      tags:
+        - auth
+      summary: Logout user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: Successful logout
+        "401":
+          description: Missing token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /refresh:
+    post:
+      tags:
+        - auth
+      summary: Refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "201":
+          description: Successful refresh
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      email:
+                        type: string
+                      userName:
+                        type: string
+                      rank:
+                        type: integer
+        "401":
+          description: Missing token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /signup:
+    post:
+      tags:
+        - auth
+      summary: Signup user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                userName:
+                  type: string
+      responses:
+        "201":
+          description: Successful signup
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  email:
+                    type: string
+                  userName:
+                    type: string
+                  rank:
+                    type: integer
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /reaction:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - simple
+        - admin
+      summary: Add reaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userID:
+                  type: string
+                reactionType:
+                  type: string
+                jokeImageID:
+                  type: string
+      responses:
+        "201":
+          description: Successful reaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  userID:
+                    type: string
+                  reactionType:
+                    type: string
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /reaction/{reactionID}:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - simple
+        - admin
+      summary: Update reaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userID:
+                  type: string
+                reactionType:
+                  type: string
+      parameters:
+        - name: reactionID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  userID:
+                    type: string
+                  reactionType:
+                    type: string
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - simple
+        - admin
+      summary: Delete reaction
+      parameters:
+        - name: reactionID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful delete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  userID:
+                    type: string
+                  reactionType:
+                    type: string
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /keyword:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - simple
+        - admin
+      summary: Add keyword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jokeImageID:
+                  type: string
+                userID:
+                  type: string
+                keywordText:
+                  type: string
+      responses:
+        "201":
+          description: Successful keyword
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  keywordText:
+                    type: string
+                  jokeImageID:
+                    type: string
+                  userID:
+                    type: string
+                  status:
+                    type: string
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - simple
+        - admin
+      summary: Get keywords
+      responses:
+        "200":
+          description: Successful keywords
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    keywordText:
+                      type: string
+                    jokeImageID:
+                      type: string
+                    userID:
+                      type: string
+                    status:
+                      type: string
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /keyword/{keywordID}:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - simple
+        - admin
+      summary: Update keyword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jokeImageID:
+                  type: string
+                userID:
+                  type: string
+                keywordText:
+                  type: string
+                status:
+                  type: number
+      parameters:
+        - name: keywordID
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  keywordText:
+                    type: string
+                  jokeImageID:
+                    type: string
+                  userID:
+                    type: string
+                  status:
+                    type: number
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /jokeimage:
+    get:
+      summary: Get joke images
+      responses:
+        "200":
+          description: Successful joke images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    src:
+                      type: string
+                    isOriginal:
+                      type: boolean
+                    keywords:
+                      type: array
+                      items:
+                        type: string
+                    reactions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          userID:
+                            type: string
+                          reactionType:
+                            type: string
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - admin
+      summary: Add joke image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                src:
+                  type: string
+                isOriginal:
+                  type: boolean
+                keywords:
+                  type: array
+                  items:
+                    type: string
+                userID:
+                  type: string
+      responses:
+        "201":
+          description: Successful joke image
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  src:
+                    type: string
+                  isOriginal:
+                    type: boolean
+                  keywords:
+                    type: array
+                    items:
+                      type: string
+                  reactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        userID:
+                          type: string
+                        reactionType:
+                          type: string
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /comment:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - simple
+        - admin
+      summary: Get comments
+      parameters:
+        - name: jokeImageID
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    jokeImageID:
+                      type: string
+                    userID:
+                      type: string
+                    text:
+                      type: string
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - simple
+        - admin
+      summary: Add comment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jokeImageID:
+                  type: string
+                userID:
+                  type: string
+                text:
+                  type: string
+      responses:
+        "201":
+          description: Successful comment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  jokeImageID:
+                    type: string
+                  userID:
+                    type: string
+                  text:
+                    type: string
+        "400":
+          description: Missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: NotFound
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /fileUpload/jokeImage:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - admin
+      summary: Upload file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Successful file upload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url:
+                    type: string
+        "400":
+          description: Missing File
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /fileUpload/original:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - admin
+      summary: Upload file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Successful file upload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  url:
+                    type: string
+        "400":
+          description: Missing File
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: InternalServerError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+tags:
+  - name: simple
+    description: Access to SIMPLE user (rank 1)
+  - name: admin
+    description: Access to ADMIN user (rank 2)
+  - name: auth
+    description: Authentication handling
+
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - hasError
+        - message
+      properties:
+        has_error:
+          type: boolean
+        message:
+          type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+                
+                
+                
+                
+tags:
+  - name: person
+    description: Access to blog users          
+  - name: post
+    description: Access to blog posts  
+  - name: auth
+    description: Authentication handling
+        
+                          
+components:
+  schemas:
+    Person:                  
+      type: object
+      required:
+        - first_name
+        - last_name
+        - email
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        posts:
+          type: array
+          items: 
+            type: string
+    Error:
+      type: object
+      required:
+        - has_error
+        - message
+      properties:
+        has_error:
+          type: boolean
+        message:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
+
+
+SAVE as JAML
