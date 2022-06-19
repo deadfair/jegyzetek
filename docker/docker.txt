@@ -1,0 +1,171 @@
+Image:      az alaprajz:    csak olvasható fájlrendszer + metaadatok, függőségek
+Container:  a példány:      egy Image-ből létrehozott virtuális környezet irható file rendszerrel
+Volume:                     Docker által kezelt perzisztens konténerek között megosztható könyvtár
+Network:                    konténerekhez rendelt saját hálózati interfészek kezelése
+
+//----------------------------------------------------------------
+// parancssor
+
+docker images           // a gépen lévő képek
+docker info             // sok infó
+
+docker run <container neve> // a biuldelt kép (container) futtatása
+// ha lokálisan létezik akkor futtatja ha nem akkor a registryből kikeresi, lepullolja majd futtatja
+docker pull <image neve>            // kép letöltése
+docker run -it <container neve> // a command lineból indítja a containert
+docker run <container neve> ls -la // elindítja majd kilép
+
+docker ps // futó containerek listája
+docker ps -l // utoljára futó containerek 
+docker ps -a // valaha elindított parancsok 
+docker ps --format="table {{.Names}}\t{{.Image}}\t{{.Status}}"      // formázva
+
+
+docker login https://www.docker.shiwaforce.com
+docker login docker.shiwaforce.com  // krisztian.baller // passwordom       // távoli repóba belogolás
+docker logout docker.shiwaforce.com  // krisztian.baller // passwordom
+
+docker tag <image neve> docker.shiwaforce.com/docker/day1/anton/nginx:1.0  // mgejelöljük
+docker push <image neve> docker.shiwaforce.com/docker/day1/anton/nginx:1.0  // feltöltjüka repóba
+docker pull docker.shiwaforce.com/docker/day1/anton/nginx:1.0           // a megetegeltet lepulloljuk a gépünkre
+
+docker rm $(docker ps -a -q)    // minden futó cobntainer törlése
+docker rmi $(docker ps -a -q)    // minden images törlése
+
+docker run -d <image neve>  // háttérbe futtatja a képfájlt
+docker run -p 80 -d <image neve>          // kivülról random portot kap belülröl a 80 ast
+docker run -p 80:80 -d <image neve>       // 80 as porton kiajánlja
+docker run -p 88:80 -d <image neve>       // a konténer beklső 80 as portját kirakja a külsö 88 as portra
+docker run -p 127.0.0.1:80:80 -d <image neve>       // ip címet is megadhatunk
+
+docker run -v <konténeren belüli elérés> <image neve>  // valahol lokálisan azt a könyvtárat létrehozza, adatbázis
+docker run -v <konténeren belüli elérés> v <konténeren belüli elérés> <image neve>  // 2 könyvtárat
+docker run -v <külsö könnyvtár>/dir:<konténeren belüli elérés> <image neve>         // ezt használjuk az adatbázisnál
+
+docker run -w <munkakönyvtár> <image neve>
+docker run --read-only -v <külsö könnyvtár>/dir:<konténeren belüli elérés> <image neve> // a konténer read only ként jön létre
+docker run -t -i --privileged <image neve> bash
+            // terminált 
+              // interkatív
+                 // host jogokat megosztja  konténerrel
+docker run -e MYVAR1 ................. // egy környezeti változó létrehozása értéke nem definiált
+docker run --env MYVAR1=valami ....... // értéke a valami
+docker run --env-file ./env.list ..... // a fileba van benne minden környezeti változó
+
+docker run -it node:17 bash           // node js futtatása dockeresen
+
+docker logs <konténer azonosítója>
+docker logs <konténer azonosítója> -f     // folyamatosan logol
+docker stop <konténer azonosítója>
+docker start <konténer azonosítója>
+docker resstart <konténer azonosítója>
+docker attach <konténer azonosítója ami fut>  // csatlakozok egy futó containerhez
+docker exec -it <konténer azonosítója> bash
+docker top <konténer azonosítója>  // milyen processek futnak az adott konénerbe
+
+
+
+
+// ha van 1 kép azt először lekell buildelni
+docker build -t <image neve> <könyvtár neve, hogy hol a docker file>
+
+
+docker build
+-t 1.0          // tegelés
+-f Dockerfile   // dockerfile legyen a forrás
+.               // ebbe a könyvtárba keresse a Dockerfile-t
+
+
+//----------------------------------------------------------------
+Dockerfile :
+
+FROM <honnan, milyen kimageből származz le? >
+ENV <környezeti változó> <az értéke>
+ADD . /src              // mindent ahol vagyok másolj át a /src mappába
+WORKDIR  /srv           // ha futtatok bármit is az melyik könyvtárba fusson
+RUN <milyen utasításokat hajtson végre, amikor elkészíti a képet, buildelési időben>
+EXPOSE <melyik porton fusson kívülről>
+ENTRYPOINT ['/bin/ping']                            // meghatározza azt a parancsot amit alapértelmezetten végrehajtódik 
+CMD ["ha kész a kép akkor mi történjen 1", "2"]     // milegyen az ENTRYPOINT ban meghatároott parancs paramétere
+
+//----------------------------------------------------------------
+yml filok : 
+volumes: mappaki:mappabe
+depends_on: függöségei az adott dockerfilenak
+ports: portki:portbe
+links: az adott docker file melyik másik docker filera lásson rá?
+working_dir: ha elindul akkor hova "cd" zzen be
+//----------------------------------------------------------------
+docker-componse.yml
+
+docker-componse build  // a docker-componse.yml -ban leírt servicek buildelődnek le
+docker-componse up // elínditja
+docker-componse up -d // elindítja és a háttérba fut
+docker-componse -f docker-componse.yml up -d   // mi legyen a file? defaultan === docker-componse.yml
+docker-componse -f docker-componse.yml -f fajl2.yml up -d   // kiegészíti a file2.yml- el
+docker-componse ps // a futó konténerek listája, amit a yml file definiál
+docker-componse stop // leállítja a futó konténereket ami a yml fileba van
+docker-componse logs // mindegyik container logjait listázza
+docker-componse pull // mind2 őt lepullolja (ha a yaml fileba 2 db service van)
+docker-componse down // leállítja és lebontja
+
+
+//----------------------------------------------------------------
+poco.yaml
+projekt kompóz, docker kompóz orhesztációs, docker kompoze fájlokat tudunk vele menedzselni
+lényeg hogy frontend fejlesztőnek másra van szüksége mint pl egy backendesnek 
+
+plan:   // milyen kompoze fájlokat akarunk elindítani, ami a fejlesztésnél szükséges
+
+
+poco plan ls // milyen planek léteznek az adott pocom.yaml fileba
+poco down // konténerek leállítása
+poco up // demo => default => sorrend  // be indít
+
+
+//----------------------------------------------------------------
+docker tag <image neve> <user/reponév/imagenéve===tagnév>  // tagelés, azért kell mert lehet több ugyanolyan nevű is
+docker push <tagnév>
+
+// -d háttérbe fusson, pl szerver
+// --sshdname sshd  // elnevezzük amit futtatunk
+// -p 2222:22  // kifelé 2222 befelé 22
+// sshd // a docker image neve
+docker run -d --name sshdname -p 2222:22 sshd
+
+//          rm /home/bkrisz/.ssh/know_hosts
+ssh root@localhost -p 2222 // a port-ba belépek
+docker ps // mik futnak?
+docker inspect <NAMES> // adott nevü img tulajd
+docker stop <NAMES> // futó konténer leállítása
+docker rm <NAMES> // kikukázzuk, 
+
+
+//----------------------------------------------------------------
+
+
+init: true =>ha ő zombi process lesz akkor eltávolítja a docker
+
+poco catalog: leirja az összes projektet, honan kell elindítani, lokalba is eltudok indítani olyan projekthez ami sose volt csekoutolva 
+
+
+
+
+
+
+
+
+
+
+
+
+//------------------------------
+egyéb
+Van az az eset, amikor windowsból szerkesztesz dockerfile-t, és az oprendszer 0x0A 0x0D karaktereket szúr a fájl sorainak végére, 
+amit aztán a docker lévő oprendszer megpróbál értelmezni viszonylag kevés sikerrel
+
+Ha nem akarod a globális git beállításaidat szétcincálni, akkor egy 
+.gitattributes fiájlban meg lehet adni hogy az xy fájlnak például mi legyen a sorvégjel beállítása
+
+#most megadjuk
+path/to/file text eol=lf

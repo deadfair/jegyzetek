@@ -1,0 +1,56 @@
+ctr + r           // parancs keresés
+mc                // total commander linuxon
+f11               // fullscreen
+htop              // teljesitmény  // sudo apt install htop // f6 al váltunk a programban // f9 program gyilkolás // f10 kilépés
+ls                // file ok kilistázáésa
+ll                // fájlokhoz a jogok => x=== beletallozhato(mappa) v futtatható(file)
+// olvasható irható végrehajtható e // felhasználó, csoport, mindenki más
+./npmi            // npmi file futtatása
+cat mappa         // listázás, pl logo is lehet
+chmond +x ./npmi  // futtatás jog hozzáadása
+chmond -x ./npmi  // futtatás jog leszedése
+
+
+
+#!/bin/bash       // fileok elején azt jelenti hogy => milyen parancs értelmezővel legyen értelmezve? => /bin/bash
+
+// bash parancsok
+echo "valami '$(node -v)'"     // console.log("valami $(node verziója)")
+echo "valami" > ../asd.txt     // a kimenet az asd.txt be írja
+
+fgv(){            // bemenete nincs
+  kill -TERM "$child"   // megöljük ezt a folyamatot
+}
+
+trap fgv SIGTERM  // ha a SIGTERM esemény bekövetkezik akkor meghívja a fgv-t
+
+export DEBUG=sf:* // környezeti változó beállítása
+
+sleep 3           // 3 secig altatjuk a rendszert
+
+node ./js.js &    // futtasd le a node-ot  & => és küld a háttérbe 
+./node_modules/.bin/webpack -w --config webpack.exported.js &   // majd futtasd le és watchold a webpack-et webpack.exported.js (ezzel a configgal)
+node ./js.js2 & 
+child=$!        // az eggyel feletti rész folyamat azonosítóját beletettem a child változóba
+
+exitcode=$?     // $? === az előzö sor exit kódja
+
+if [ exitcode -ne 0]; then  // ha az exit kód nem egyenlő 0
+  exit 1
+fi                // if lezárása
+
+wait "$child"     // addig várjunk amig a child még fut 
+
+if ["$(pwd)" != "/user/local/app"]; then
+  cd ../..
+fi                // if lezárása
+
+// exit 1         // 0 === minden király  -127->127 ig hibakód  // kilépünk a shellből
+
+echo -n "`git rev-parse HEAD | cut -c 1-8 | tr -d '\n'` -$POM_VERSION"
+      // végére ne tegyen üres sort
+      // `` => amit kidob a parancsértelmező rakjuk be a helyére, vis mint egy interpoláció 
+      // $POM_VERSION === egy változó
+      // | === pipe
+      // cut -c 1-8 === kivágja az 1 töl 8 ig karaktereket
+      // tr === sortörés lenyesése

@@ -1,0 +1,12 @@
+
+project cmpose
+poco up plannév el indítható legyen
+localhost on elérhető legyem
+
+debugolni productionben minifiolt js kóüdot?
+milyen bill el nyithatü meg a devtools crommeba?
+idöbe több a https vs http?
+
+
+
+

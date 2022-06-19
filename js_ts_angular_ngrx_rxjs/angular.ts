@@ -91,6 +91,7 @@ export class AppComponent implements OnInit{  // app.component.ts
 {{ name }}                //  .ts  => HTML  // a name változó real time értéke, a .ts -ből                                  // interpoláció
 {{ getName() }}		        // lehet fgv.
 {{"A neve: "+ name}}		  // vagy bármilyen js kód is akár
+routerLink="./edit/{{exam._id}}"
 
 @Input('ilyenNévenKapomKivülről') props:string  // gyerekbe .ts   // dinamikusan változtathatjuk a prop értékét a szülőbe
 [prop]="value"            // szülő HTML     // .ts  => HTML       // a props: komponens inputja, a value: a .ts változója   // property bind-ing
@@ -994,6 +995,83 @@ npm i -f
 npm install @fullcalendar/interaction
 
 //------------------------------------------------------------------------------------------------------------------------------------------
+Angular oldalon proxyzás, így nem kell cors
+src/proxy.conf.json:
+{
+  "/**":{ // minden kérés ami az angul arra jön
+    "target":"http://localhost:3000",  // menjen ide
+    "secure":false,
+    "logLevel":"debug"
+  }
+}
+package.json:
+scripts:
+  "start":"ng serve --proxy-config proxy.conf.json"  // npm run start
+//------------------------------------------------------------------------------------------------------------------------------------------
+Buildelés a backendre: 
+angular.json:
+architect:{ 
+  "build":{
+    "options":{
+      "outputPath":"../backend/public",
+}
+=> ng build
+backend:
+app.use("/",exporess.static(path.join(__dirname, "../public")));
+app.get('*', (req, res) => {    // mindne végén
+  // res.redirect('/');
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+})
+angular/package.json:
+scripts: {
+  "build": "ng build --prod"    // prod build, az env.prodbol szedi a környezetu válltozókat
+}
+backenden package.json:
+scripts: { 
+  "build": cd angular && npm i && npm run build
+}
+//------------------------------------------------------------------------------------------------------------------------------------------
+Deploy // Heroku v firebase 
+// Heroku
+1. npm i -g heroku        // Heroku cli letöltése
+1.5 heroku login
+2. heroku create <appnév> --buildpack heroku/nodejs // Új heroku projekt létrehozása
+3. git push heroku main:master      // maint pusholom a masterre és nem az originra,hanem a heroku szerverére
+4. @angular dev dependenciket átkell tenni a dependencies-ek közé
+5. a dotenv filet NE pusholjuk, azt külön kulcs értékekként a Heroku oldalán kell beállítani
+5. heroku logs // express logok
+// firebase
+1. npm i -g firebase-tools
+1.5. firebase login
+2. az oldalon beállítani 
+3. firebase init   // projekt gyökerébe
+4. functions + hosting + emulators // pipa
+create new project
+projektnév => yes => js => no => yes => public => yes => no
+6. hosting + functions // emulátorok beállítása
+7. 5001 => 5000 => 4000 => y
+8. megkeresni a gépen
+9. public mappába kell buildelni az angulart
+10. functions mappa a backend
+11. dotenv configja jó helyre mutasson
+12. express: index.js:
+const functions = require('firebase-functions')
+app.listen helyett =>
+exports.expressApi = function.https.onRequest(app)
+package.json:
+main : "index.js"
+angularba: angular.json : 
+outputPat:"../public"
+13. firebase emulators:start --only functions,hosting // gyökérbe
+14. firebase.json-ba proxyzás:
+"rewrites":[
+  {
+    "source": "/api/**",        // minden ami ide jön
+    "function": "expressApi"    // ide menjen
+  }
+]
+const apiWrapper = express()
+apiWrapper.use('/api',app)    // az egész express appot is tudjuk ruteolni
 //------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------------------

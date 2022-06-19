@@ -1,0 +1,36 @@
+// editconfig file tartalma
+# EditorConfig helps developers define and maintain consistent
+# coding styles between different editors and IDEs
+# http://editorconfig.org
+ 
+root = true
+ 
+[*]
+indent_style = tab                          // tab al legyen behúzva
+indent_size = 4                             // 4 a mérete
+end_of_line = lf                            // sor végi karakter, (mivel linuxba és windowson ez más)
+charset = utf-8                             // char kódolás
+trim_trailing_whitespace = true             // a sor végi space kukázása
+insert_final_newline = true                 // file végére egy +sor,=> HA a két fejlesztő ugyanabba a fájlba dolgozik, és éppen a végén, akkor enélkül óhatatlanul is conflict lesz, viszont ha van üres sor a fájl végén, akkor jó git kliens beállitásokkal automatikusan tud mergelődni a két commit.
+ 
+[{*yml,package.json}]                       // ezekre viszont
+indent_style = space
+indent_size = 2  
+//-------------------------------------------------------------------------------------------------
+// debug kiiráshoz // debugoláshoz
+https://www.npmjs.com/package/debug
+debug tartalma, a helye (funkció szerinti) hogy hol? milyen objektet?  
+//-------------------------------------------------------------------------------------------------
+// hiba kiíráshoz console.error-t
+minden ilyen esetben 3 dolgot érdemes logolni:
+1. a hibát kiváltó körülményeket. azokat az adatokat, amik hozzájárulhattak a hiba kialakulásához. azokat, amikkel elő lehet idézni ismét a hibát
+2. egy olyan stringet ami embernek leírja hogy mi okozhatta a hibát, miért fordulhatott elő, hogy lehetne elkerülni, lehetőleg egyedi legyen a projectben hogy könnyű legyen megtalálni egy screenshot alapján is (valóban volt már ilyen hibajegy)
+3. magát a hibát. tehát amit try-catch-ben elkapsz, vagy ami a promise catch ágában van, vagy például nodejs error-first design patternes beépitett függvényeinek első paramétere.
+//-------------------------------------------------------------------------------------------------
+telefon teszteléshez
+https://wiki.shiwaforce.com/courses/playcourse.action?course=203555780&capsule=7
+https://wiki.shiwaforce.com/courses/playcourse.action?course=203555780&capsule=9
+https://wiki.shiwaforce.com/courses/playcourse.action?course=203555780&capsule=17
+//-------------------------------------------------------------------------------------------------
+documentáláshoz
+https://wiki.shiwaforce.com/courses/playcourse.action?course=203555780&capsule=18

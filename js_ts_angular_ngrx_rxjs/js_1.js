@@ -648,29 +648,29 @@ const vmiObj = {};function vmifgv(){};
 export {vmifgv,vmiObj};                     // így objektumként exportálom
 // =>
 // Becenevek
-import {vmifgv as fgv,vmiObj as objektum} from './file.js'    // becenevek 1
+import {vmifgv as fgv,vmiObj as objektum} from './file.js.js.js'    // becenevek 1
 fgv()       
 // VAGY
 export {vmifgv as fgv,vmiObj as objektum};                    // becenevek 2
 // =>
-import {fgv,objektum} from './file.js'
+import {fgv,objektum} from './file.js.js.js'
 fgv()                                       // az új névvel hívom meg
 
 // mindent importálunk egy objektként
-import * as module1 from './file.js'        
+import * as module1 from './file.js.js.js'        
 module1.fgv()
 
 // export default                   // Akkor használjuk, ha az adott fájl csak egy class-t, objectet stb. tartalmaz.
 export default fgv1                         // ha csak 1 vmit szeretnénk importálni     // csak 1 lehet 1 fileba, illik a file végére tenni 
 // =>
-import bármimás from "./xxx.js"             // a neve itt mind1 mi 
+import bármimás from "./xxx.js.js.js"             // a neve itt mind1 mi 
 bármimás.fgv1()
 
 // export default + export
 export {a,b}
 export default c
 // =>
-import c, {a,b} from './file.js'            // c az ELSŐ !!!
+import c, {a,b} from './file.js.js.js'            // c az ELSŐ !!!
 //----------------------------------------------------------------------------------------------------------------
 // objektum            MINDIG legyen const
 // for(let value of Object.values(obj)) // az értékein végigiterálhatunk
@@ -1699,7 +1699,7 @@ async function liginAndFetchUsers(body) {
 }
 
 //----------------------------------------------------------------------------------------------------------------
-// Date //24 hours = 86 400 000 milliseconds // 0 time = January 01, 1970 00:00:00 UTC.
+// Date //24 hours = 86 400 000 milliseconds // 0 time = January 01, 1970 00:00:00 UTC.     // day.js => külsö könyvtár
 let D_0 = new Date();           // aktuális idő Object 
 let D_1 = new Date(year, month, day, hours, minutes, seconds, milliseconds);  // (év,0-11,1-31,0-24,0-59,0-59,0-999)
 let D_2 = new Date(milliseconds);
@@ -2004,3 +2004,5 @@ S_1.search(/\bLO/); //      7
 // az elemhez scrollolás 30 px el felé...
 window.scroll({top:element.offsetTop - 30,behavior: 'smooth'});
 window.location.replace("masik.html")   // navigálunk ide
+
+event.stopPropagation() // event terjedésének leállítása

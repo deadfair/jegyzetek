@@ -1,0 +1,214 @@
+https://sqlbolt.com/
+https://www.w3schools.com/sql/exercise.asp?filename=exercise_insert1
+MYSQL
+
+-- megjegyzés 
+# ez is
+/* megjegyzés */
+------------------------------------------------------------------------------------------------------------------------------------------------------
+szabájok:
+1,minden táblába legyen 1 elsődleges kulcs
+2,minden idegen kulcs egy másik táblába elsődleges kulcs ez köti össze a 2 táblát
+
+1, mi az az 1 dolog amit a tábla leír?
+2, mit kell kinyerni belőle? hogyan fogom használni?
+3, hogyan fogom lekérdezni a táblát?
+
+1, atomi adatokat tartalmazzanak és az oszlopok ne függjenek egymástól
+
+
+normalizálás:
+1NF: öszetartozó adatokat külön tábla, minden táblába legyen elsődleges kulcs. 
+1 oszlopba 1 egyednek 1 értéke legyen
+2NF: a duplikált adatok külön táblába szervezése
+3NF
+4NF
+5NF
+------------------------------------------------------------------------------------------------------------------------------------------------------
+//Típusok:
+CHAR 				mindig x hosszú
+VARCHAR				rugalmas
+
+DATE				dátumok 				YYYY-MM-DD					
+TIME				óra
+DATETIME  			időpontok date + time	YYYY-MM-DD HH:MI:SS			
+TIMESTAMP			kisseb tartomány		YYYY-MM-DD HH:MI:SS
+YEAR 										YYYY | YY
+
+BLOB				nagy bináris	
+TEXT				nagy szövegek	
+
+BIT					0,1
+TINYINT				-127...128
+SMALLINT			-2**15...
+INT					-2**31...
+DEC 		 		x db tizedes érték -2**38...
+BIGINT				-2**63...
+
+ENUM('csak','ezek','az','értékek','lehetnek')
+
+SHA('pass')		#VARCHAR(40) lesz... titkosítva
+------------------------------------------------------------------------------------------------------------------------------------------------------	
+CREATE DATABASE adatbázis;
+
+USE adatbázis;
+
+CREATE TABLE tábla(
+	oszlopnév1 típus(hosz) kulcsszók,
+	.....
+	oszlopnévn típus2(hosz2) kulcsszók,
+	[tábla szintű megkötések]
+	);
+		
+DESCRIBE tábla;																	#infó kérés a tábláról
+
+DROP TABLE tábla;																#tábla törlése
+
+DROP DATABASE adatbázis;	// adatbázis törlése
+------------------------------------------------------------------------------------------------------------------------------------------------------
+// kulcsszavak:				oszlopnév típus(hosz) kulcsszók,
+NOT NULL
+UNIQUE									különböző értékek NULL is lehet
+PRIMARY KEY								különböző értékek, NULL nem lehet
+DEFAULT									alapértelmezett	érték
+FOREIGN KEY								idegen kulcs
+CHECK ()								ellenörzés
+INDEX
+AUTO_INCREMENT							pl id.. a kövi 1 el nagyobb
+
+
+CHECK:
+CREATE TABLE tábla (...,Age int,CHECK (Age>=18));    // muszáj 18 évnél idősebbnek lennie
+CREATE TABLE tábla (...,Age int,City varchar(255),CONSTRAINT CHK_Person CHECK (Age>=18 AND City='Sandnes'));
+
+FOREIGN KEY: (a CREATE végére... <= külsö összetett kulcs, táblaszintű megkötés)
+CREATE TABLE tábla (..., CONSTRAINT FK_neve FOREIGN KEY (aID,bID) REFERENCES tábla2(aID,bID));
+------------------------------------------------------------------------------------------------------------------------------------------------------
+// tábla módosítások: 		
+// kulcsszavak:		FIRST(első oszlop lesz) 	AFTER o1(az o1 utáni oszlop lesz)
+
+// ADD:				ALTER TABLE <táblanév> ADD <új oszlop> <típus> <megkötés1,megkötés2>					// új oszlop
+					ALTER TABLE <táblanév> ADD CONSTRAINT <FK_név> FOREIGN KEY (...) REFERENCES tábla2(...)	// Új kényszer
+ALTER TABLE tábla ADD id INT NOT NULL AUTO_INCREMENT FIRST,	ADD PRIMARY KEY (id);	// új az első oszlop lesz...		
+
+// DROP:			ALTER TABLE <táblanév> DROP COLUMN <oszlopnév>   										// oszlop törlése
+					ALTER TABLE <táblanév> DROP FOREIGN KEY <FK_név>										// kényszer törlése
+
+//CHANGE:			ALTER TABLE <táblanév> CHANGE <oszlopnév> <új oszlopnév> <új típus> <új megkötések>		// modosítás
+------------------------------------------------------------------------------------------------------------------------------------------------------
+// a tábla értékeinek a manipulációja
+INSERT INTO (elem beszúrás)
+INSERT INTO tábla (o1,o2) VALUES('o1_értéke','o2_értéke');
+
+UPDATE ... SET (elem felülírása)
+UPDATE tábla SET o1='valami1',o2='valami2' WHERE feltétel			// ha a feltétel igaz akkor o1 értéke módosul // feltétel 99% ba ID
+
+DELETE FROM (elem törlése)
+DELETE FROM tábla WHERE feltétel1 OR feltétel2 LIMIT 1;				// sorok törlése feltétellel, max 1 törlés
+------------------------------------------------------------------------------------------------------------------------------------------------------
+SELECT (lekérdezés) 
+SELECT [DISTINCT] * | <oszlopnévlista> FROM <táblanév>  [WHERE feltétel] [GROUP BY oszloplista] [HAVING feltétel] [ORDER BY oszloplista ASC | DESC];
+		
+DISTINCT: 				csak a különböző értékű elemeket adja vissza
+WHERE: 	 				"az if ág"
+GROUP BY:   			csoportosítás => az oszlop értékei szerinti csoportok, egy kalap alá veszi az azonos értékűeket 
+HAVING:					"csoportos if ág"
+ORDER BY o1 ASC|DESC:	rendezés (növekvö|csökkenő)
+
+SELECT COUNT(CustomerID), Country FROM Customers GROUP BY Country HAVING COUNT(CustomerID) > 5 ORDER BY COUNT(CustomerID) DESC;
+az ugyanazon Country-kból mennyi db van ez a db>5 és csükkenő sorrendbe írjuk ki
+
+Bárminek adhatunk becenevet => 	oszlopnév AS 'becenév'		
+
+MIN(o1) 
+MAX(o1) 
+COUNT(o1) 	// db sor 			SELECT COUNT (DISTINCT Város) FROM <táblanév>  => megszámolja hogy mennyi különböző Város van 
+AVG(o1) 	// átlag
+SUM(o1) 	// összeg
+
+LIMIT 3;	          // az első 3...
+LIMIT 3 OFFSET 2;	  // első 3 de 2 őt kihagy!!!
+IFNULL (<érték>, <érték NULL helyett>)  // a NULL helyett mi jelenjen meg
+(SELECT ...) UNION (SELECT ...)			// pl 2 filmnek az adatait akarjuk kilistázni táblába.., CSAK 1x jelenik meg minden adat
+(SELECT ...) UNION ALL (SELECT ...)	    // annyiszor jelennek meg amennyiszor létezik
+char_length(o1), 	// visszaadja a hosszát, karakterhossz..
+UPPER(o1), 			// nagy betűs lesz
+LOWER(o1)			// kisbetű lesz 
+
+SELECT o1, CONCAT(o2,', ',o3,', ',o4,', ',o5) AS 'becenév' FROM tábla;	// és oszlopnevek CONCAT-ja lesz a becenév 	
+------------------------------------------------------------------------------------------------------------------------------------------------------
+Operátorok:
+Aritmetikai: 	+  -  *  /  %
+				+=  -=  *=  /=  %= 
+bit: 			&  |  ^
+				&=  ^-=(kizáró vagy)  |*=(vagy)
+Logikai: 		AND, OR, NOT, IN (), LIKE, BETWEEN AND,	SOME (), EXISTS (), ALL ()
+														ANY ()
+összehasonlító:	=(egyenlő)   <   >   >=   <=   <>(nem egyenlő)  
+...WHERE o1 "összehasonlítóOperátor";
+...WHERE o1 IS NULL;   ...WHERE o1 IS NOT NULL;	
+...WHERE o1 BETWEEN 50 AND 60;												// (50 és 60 között)
+...WHERE o1 NOT BETWEEN 'Carnarvon Tigers' AND 'Mozzarella di Giovanni';	// leghet abc közt is, dátum is...
+...WHERE o1 IN ('érték1','érték2');				// azokat válassza ki amik megeggyeznek az érték1 vagy érték2-vel
+...WHERE o1 IN (SELECT o2 FROM tábla2);			// azokat akik benne vannak a tábla2 o2 értékei között (o2 egyenlő is lehet o1 el)
+...WHERE o1 LIKE 'valami'						
+...WHERE EXISTS (lekérdezés...)	// csak akkor fut le a WHERE elötti lekérdezés, ha a zárójelbe lévő létezik(is letud futni)
+
+valami:
+% 		==	0 vagy bármennyi bármilyen karaktert
+_ 		==	1 bármilyen karaktert
+[0-4]   ==  tartomány 0,1,2,3,4
+[^a-d]	==  ezt a tartományt kivéve kivéve
+[ab]	==	a és b lehet csak
+
+
+SELECT * FROM Products...
+...WHERE Price > SOME (SELECT Price FROM Products WHERE Price > 20);  // CSAK amire igaz azt adja vissza
+...WHERE Price > ANY (SELECT Price FROM Products WHERE Price > 20);  // CSAK amire igaz azt adja vissza
+...WHERE Price > EXISTS (SELECT Price FROM Products WHERE Price > 20); // AZ ÖSSZESET KILISTÁZZA HA IGAZ A ()-es rész
+...WHERE Price > ALL (SELECT Price FROM Products WHERE Price > 500); // AZ ÖSSZESET KILISTÁZZA HA összérték nagyobb mint 500
+------------------------------------------------------------------------------------------------------------------------------------------------------
+https://www.codeproject.com/Articles/33052/Visual-Representation-of-SQL-Joins
+...JOIN...ON...	(-ok) az ON utáni feltétel, megfeleltetés, az összekapcsolás logika, hogy 2 táblánál mi mivel legyen egyenlő
+SELECT [DISTINCT] * | <oszlopnévlista> FROM <táblanév2> INNER|LEFT OUTER|RIGHT OUTER|FULL OUTER JOIN <táblanév2> ON <feltétel>
+
+
+INNER JOIN:			// a közös találatok, metszet egymás mellé tesszük a 2 táblát ON al kapcsolom össze
+(itt a probléma, ha a 'második' táblából egy sor se szerepel az 'első' táblában lévő A elemre, akkor az nem fog megjelenni eredményként)
+(ilyenkor jön jól a kövi 3 JOIN, ezeknél megjelenik és "üres" értéket vesz fel)
+(pl.: ha van 2 tábla, a dolgozók és a kifizetések, és a még kinem fizetett dolgozókat is megakarjuk jeleníteni)
+LEFT OUTER JOIN:	// INNER JOIN + a maradék tábla1 // lesznek NULL téglalapok
+RIGHT OUTER JOIN:	// INNER JOIN + a maradék tábla2
+FULL OUTER JOIN:	// a teljes tábla1 és tábla2 is
+
+összekapcsol 2 táblát egy összekapcsoló tábla segítségével 
+SELECT * t1,t2,t3 WHERE t1.t1id=t2.t1id AND t2.t2id=t3.t3id
+SELECT * t1 INNER JOIN t2 ON t1.t1id=t2.t1id INNER JOIN t3 ON t2.t2id=t3.t3id
+ugyanaz a 2 lekérdezés  
+
+van 2 tábla: a és b 
+
+inner join => az "a" tábla kulcsait keresi a "b" táblában, ha talált akkor a "b" táblában lévő adatokat jerleníti meg
+left join => -||- + azokat is amik csak az "a" -ban vannak
+right join =>
+full outer join => azt is ami a másikban szerepel
+natural join => 2 azonos oszlopnevű táblából, csak azt ami mind2 be szerepel
+
+USING (o1) ennek az oszlopnak az értékeit hasonlítja össze a másik táblában lévő oszlopokkal
+------------------------------------------------------------------------------------------------------------------------------------------------------
+// Gyakran használt lekérdezések elnevezése beceneve..
+CREATE VIEW <nézet neve> AS <lekérdezés>
+DROP VIEW <nézet neve> 
+ALTER VIEW <nézet neve> AS <új lekérdezés> 
+használata:
+SELECT * FROM <nézet neve>
+------------------------------------------------------------------------------------------------------------------------------------------------------
+// date műveletek
+str_to_date(’12,12,2012','%d,%m,%Y');						=> str konvertálása
+now() 														=> mostani idő  		2012-12-12 12:34:56 
+curdate() 													=> mostani idő			2012-12-12 
+date_format(curdate(), ’%d/%m/%y’) 							=> formázás
+datediff(’2012-12-12’, ’2012-12-11’) 						=> napok száma
+timediff(’2012-12-12 12:12:12’, ’2012-12-11 13:13:13’)   	=> eltelt ora/perc/sec
+------------------------------------------------------------------------------------------------------------------------------------------------------
+

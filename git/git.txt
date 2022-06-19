@@ -1,0 +1,101 @@
+git config --global --list    // global adatok kilistázás
+
+git status		     // kilistázza a változtatásokat
+
+git add .		// minden file felrakása a repoba
+git add index.html	// csak ezt
+git add --patch
+
+git commit -m "komment hogy mi történt"	// mentés
+git commit -am "hiba"	// hibát mentettünk véletlen
+
+git log --oneline	// milyen commitok történtek
+
+gitk		// változtatások vizuális nézet
+
+
+git checkout elsősorazonosítószámok index.html // index.html tartalmát visszaállítja egy régebbi vűltozatra
+
+
+2d7741f (HEAD -> master) Első commit a csillagokig
+
+git reset HEAD index.html  // a teljesen a legelejére megyünk
+git checkout -- . 	   // add ellentettje
+
+git checkout HEAD~1   // headhez képest 1 el
+
+git checkout -b 'uj-ag' // elágaztatjuk a projektet 
+
+git merge korabbi-ag	// összefésülés
+git rebase korabbi-ag	// ez is 1esével
+git merge --continue   // fojtatja	
+
+git rm törölnikivántfile.txt   // törlés NE DELETÉVAL EZZEL
+
+git checkout -B master // a master mozgatása ide!! vigyázat!!4
+
+git my styles/styles.cc css/style.css
+
+git diff HEAD HEAD~9	// visszafele?
+git diff HEAD~9 HEAD  // időben mitz csináltunk?
+
+git reset --soft HEAD~1   1 el vissza
+
+git add css/*		// mindne css hozzááadása ami ebbe a mappába vna
+
+ a gitignore file-t nem veszi figyelembe
+
+
+git push -u origin main  // felrakás githubra
+
+
+
+
+
+git status 		// állapot lekérdezése? milyen változások történtek milyen állapotba vannak
+git fetch		// milyen változások történtek 
+git pull		// minden lehúzása
+
+
+
+
+githubon=> HTTPS másolása
+git clone <HTTPSmásolat>
+
+main-ra click bal alul a vsc ben.. => create new breanch => breanche név	// uj breanch
+git ikon bal oldalt => commit név a szövegmezőbe => + jel			// commit
+bal also 2. ikon egy felhő							// push
+
+
+
+
+
+
+git branch <branch-name>
+
+git checkout <name-of-your-branch>		// branch váltás
+
+git status					// adott branchről infók
+
+git add <file-name>				// a kövi commitba melyik fileokat rakjuk?
+git commit -m "commit message"
+git push <remote> <branch-name>
+
+git pull <remote>				// git merge és a git fetch kombinációja,
+
+git log --oneline				// Ezután a commit hash kódját felhasználva vissza tudunk állni egy korábbi verzióra.
+git revert 1234567				// -1 commit?
+
+git checkout dev				// Mergelés előtt frissítsd a dev branchet
+git fetch		
+git merge <branch-name>				// a fő ágba küldjük a mi branch ünket
+					
+
+
+
+
+
+
+
+
+

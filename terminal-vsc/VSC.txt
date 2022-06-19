@@ -1,0 +1,14 @@
+code . 			    // VSC megnyitása arra a mappára ahol vunk
+node index.js 		// az index.js lefuttattása a VSC-vel, ott írja ki a console dolgokat
+ctr + shift +p 		// parancsok
+ctr + p 		    // file elérés
+F2			        // a változó minden előfordulásának átírása jobb mint a ctr + h
+ctr + F2			 // a változó minden előfordulásának átírása jobb mint a ctr + h
+ctr + k + c		    // x db sor kikommentelése
+ctr + k + u		    // vissza
+ctr + ü			    // oda vissza is
+shift + tab         	// befele tabol vissza, inverz tab
+Ctrl + D 		// a szöveg következő előfordulásának a kijelöléshez adása
+Alt + up/down 		// az aktív sor mozgatása felfelé vagy lefelé
+Alt + Shift + up/down   //az aktív megduplázása felfelé vagy lefelé
+ctr + space        // tippek feladása

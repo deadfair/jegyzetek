@@ -163,3 +163,8 @@ module.exports = {
 
 
 // npm i -D jest-mock-req-res
+
+//--------------------------------------------------------------
+// de egységtesztelésnél a mockolt metódusok használatakor érdemes elhelyezni a 
+jest.clearAllMocks() 
+// hívást a beforeEach-be vagy az afterEach-be, különben az egyes tesztek hatással lesznek egymásra.
