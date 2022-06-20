@@ -7,6 +7,13 @@ debugolni productionben minifiolt js kóüdot?
 milyen bill el nyithatü meg a devtools crommeba?
 idöbe több a https vs http?
 
+2/7  3/4
+4/2,6,7
+6/1
 
-
-
+1/1
+5/4
+7/3
+8/5
+9/2
+10/4

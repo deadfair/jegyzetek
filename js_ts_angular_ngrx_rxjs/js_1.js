@@ -62,7 +62,6 @@ const a;    // block {} nem változtatható értékű        // Objektum esetén
 // var a;   // fgv      // window.a  // => hozzá van kötve a window objektumhoz, a let és const NINCS
 // var a;   // létezik a deklaráció elött is, undefined az értéke + lehet ujradeklarálni ugyanabba a blockba
 // a;       // globális
-
 //----------------------------------------------------------------------------------------------------------------
 // primitívek Immutable: az objektumon nem végezhető módosítás, helyette a műveletek egy új, objektumot adnak vissza.
 // primitívek a stack-ben                       // typeof valtozo;   // Típusvizsgálat eredménye string:

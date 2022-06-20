@@ -150,12 +150,34 @@ poco catalog: leirja az összes projektet, honan kell elindítani, lokalba is el
 
 
 
+//----------------------------------------------------------------
+.bashrc fájl végére és a következő terminál már tudni fogja a parancsot:
+Windows : 
+Edit the system environment → Environment Variables → System variables panelen Path kiválasztása, majd Edit → New gomb, majd az útvonal megadás.
+Linux : 
+nano ~/.bashrc  
+beírni
+source ~/.bashrc 
+
+alias dps='docker ps --format="table {{.Names}}\t{{.Image}}\t{{.Status}}"'
+alias servethis='servethis_function(){ if [[ "$1" == "" ]]; then USED_PORT=80; else USED_PORT=$1; fi; docker run --rm -p $USED_PORT:80 -v $(pwd):/usr/share/nginx/html nginx; };servethis_function'
 
 
+alias npmi='npmi_function(){ if [[ "$1" == "" || "$2" == "" ]]; then echo "Usage: npmi <CONTAINER_NAME> [PACKAGE_DIR] <PACKAGE_TO_BE_INSTALL>";exit; fi; if [[ "$3" == "" ]]; then PACKAGE_DIR='/usr/local/app/frontend'; PACKAGE_TO_BE_INSTALL=$2; else PACKAGE_DIR=$2; PACKAGE_TO_BE_INSTALL=$3; fi; CONTAINER_NAME=$1; docker exec -w $PACKAGE_DIR $CONTAINER_NAME /bin/bash -c "echo \"Now install $PACKAGE_TO_BE_INSTALL into $CONTAINER_NAME...\";npm install $PACKAGE_TO_BE_INSTALL --save-exact --save;"; } ; npmi_function'
+alias npmr='npmr_function(){ if [[ "$1" == "" || "$2" == "" ]]; then echo "Usage: npmr <CONTAINER_NAME> [PACKAGE_DIR] <PACKAGE_TO_BE_INSTALL>";exit; fi; if [[ "$3" == "" ]]; then PACKAGE_DIR='/usr/local/app/frontend'; PACKAGE_TO_BE_REMOVE=$2; else PACKAGE_DIR=$2; PACKAGE_TO_BE_REMOVE=$3; fi; CONTAINER_NAME=$1; docker exec -w $PACKAGE_DIR $CONTAINER_NAME /bin/bash -c "echo \"Now remove $PACKAGE_TO_BE_REMOVE  from $CONTAINER_NAME...\";npm remove  $PACKAGE_TO_BE_REMOVE  --save;"; } ; npmr_function'
+ 
+_npmi_completion() {
+  COMPREPLY+=($(compgen -W "$(docker ps --format {{.Names}})" -- "${COMP_WORDS[1]}"))
+}
+complete -F _npmi_completion npmi
+_npmr_completion() {
+  COMPREPLY+=($(compgen -W "$(docker ps --format {{.Names}})" -- "${COMP_WORDS[1]}"))
+}
+complete -F _npmr_completion npmr
 
-
-
-
+Használata: npmi <tab> kiválasztod a konténer nevét, aztán beirod a telepitendő csomag nevét. ugyanez npmr és az eltávolitandó csomag neve.
+=> nodejs csomagokat a futó projectben managelni, hozzáadni, eltávolítani. análkül, hogy a hostgépre feltennél nodejs-t
+//----------------------------------------------------------------
 
 
 

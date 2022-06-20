@@ -108,6 +108,7 @@ fgvgyerek(value:string){this.clickEvent.emit(value)}              // gyerekbe .t
 // így valós időbe változik a props, ha változik az input értéke, típusa string  // ngModel-hez kell a FormsModul                                  
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // Pipe-ok => az eredeti adatot nem módosítja, csak a megjelenést!
+// Pipe-ok-at csak formázásra használjuk, a filter és sort erőforrás igényes
 {{     | json}}                   // JSON formába alakít
 {{     | async}}                  // Observable-t alakít értékre amikor emmittálódik +++ Observable<T> | Subscribable<T> | Promise<T>
 {{name | titlecase}}              // nagybetűvel kezdődik

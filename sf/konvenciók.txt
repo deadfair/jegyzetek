@@ -2,9 +2,9 @@
 # EditorConfig helps developers define and maintain consistent
 # coding styles between different editors and IDEs
 # http://editorconfig.org
- 
+
 root = true
- 
+
 [*]
 indent_style = tab                          // tab al legyen behúzva
 indent_size = 4                             // 4 a mérete
@@ -12,14 +12,14 @@ end_of_line = lf                            // sor végi karakter, (mivel linuxb
 charset = utf-8                             // char kódolás
 trim_trailing_whitespace = true             // a sor végi space kukázása
 insert_final_newline = true                 // file végére egy +sor,=> HA a két fejlesztő ugyanabba a fájlba dolgozik, és éppen a végén, akkor enélkül óhatatlanul is conflict lesz, viszont ha van üres sor a fájl végén, akkor jó git kliens beállitásokkal automatikusan tud mergelődni a két commit.
- 
+
 [{*yml,package.json}]                       // ezekre viszont
 indent_style = space
-indent_size = 2  
+indent_size = 2
 //-------------------------------------------------------------------------------------------------
 // debug kiiráshoz // debugoláshoz
 https://www.npmjs.com/package/debug
-debug tartalma, a helye (funkció szerinti) hogy hol? milyen objektet?  
+debug tartalma, a helye (funkció szerinti) hogy hol? milyen objektet?
 //-------------------------------------------------------------------------------------------------
 // hiba kiíráshoz console.error-t
 minden ilyen esetben 3 dolgot érdemes logolni:
@@ -34,3 +34,41 @@ https://wiki.shiwaforce.com/courses/playcourse.action?course=203555780&capsule=1
 //-------------------------------------------------------------------------------------------------
 documentáláshoz
 https://wiki.shiwaforce.com/courses/playcourse.action?course=203555780&capsule=18
+//-------------------------------------------------------------------------------------------------
+ESLINT
+https://wiki.shiwaforce.com/pages/viewpage.action?pageId=53119413
+https://www.npmjs.com/package/eslint-config-client-shiwaforce
+https://www.npmjs.com/package/eslint-config-server-shiwaforce
+//-------------------------------------------------------------------------------------------------
+npm install -g stylelint
+Stylelint extension
+.stylelintrc file a gyökérbe
+https://www.npmjs.com/package/stylelint-config-shiwaforce
+//-------------------------------------------------------------------------------------------------
+https://wiki.shiwaforce.com/pages/viewpage.action?pageId=179602218
+
+//-------------------------------------------------------------------------------------------------
+extensions:
+Gitlens
+Docker
+Prettier
+Stylelint
+Bracket Pair Colorizer
+GitLens
+PostCSS Sorting
+PostCSS Syntax Highlighting
+//-------------------------------------------------------------------------------------------------
+// npm 5 alatt :
+npm config set save-exact true			// minden mpm i után 1x
+^10.0.1 => 10.0.1 						// ettől a package.jsonba, vis a konkrét verzó lesz minden
+//-------------------------------------------------------------------------------------------------
+https://wiki.shiwaforce.com/courses/playcourse.action?course=142052044&capsule=5
+//-------------------------------------------------------------------------------------------------
+// fgv kommentelés + dokumentálás =>
+https://wiki.shiwaforce.com/courses/playcourse.action?course=153258248&capsule=21
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------
+
