@@ -41,91 +41,196 @@ Az előnye ennek a folyamatnak az, hogy szabványos, előre leírt módon érjü
 hogy nem lehet egymásnak ellentmondó módon elérni az adatokat, hiszen a körforgás révén mindig ugyanabban az irányban mennek.
 
 */
-
 //--------------------------------------------------------------------------------------------------------------------------
 // ng add @ngrx/store
-// npm install @ngrx/store-devtools
+// npm i @ngrx/store
+// npm i @ngrx/store-devtools
 // npm i @ngrx/effects
+
 
 // app.modul.ts
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 
-imports: [
-    StoreModule.forRoot({ users: UserReducer }),  // honnan kapja az adatot a store?
-    EffectsModule.forRoot([ UserEffect ]),        // az összes effekt, azért tömb
-  ],
+// imports: [
+//     StoreModule.forRoot({ users: UserReducer, comment:commentReducer, }),  // honnan kapja az adatot a store?
+//     EffectsModule.forRoot([ UserEffect, CommentEffects, ]),                // az összes effekt, azért tömb
+//   ],
 
 //-------------------
 // Actions =>
-// app/store/XXX/XxxActions.ts
-import { createAction, props } from '@ngrx/store';
-import { Xxx } from 'src/app/model/xxx';
+// app/store/xxx/xxx.actions.ts
 
-export const getItems = createAction('[Xxx] get items');                              // '[Xxx] get items' az esemény neve                  
-export const loadItems = createAction('[Xxx] load items',props<{items: Xxx[]}>());    // props: mire hívjam meg?
-export const errorItem = createAction('[Xxx] error items',props<{message: string}>());
+import { createAction } from '@ngrx/store';
+
+export const ADD_COMMENT = '[COMMENT] Add';
+export const ADD_COMMENT_SUCCESS = '[COMMENT] Add success';
+export const ADD_COMMENT_ERROR = '[COMMENT] Add error';
+
+export const addComment = createAction(ADD_COMMENT,(text: string) => ({ text }));
+export const addCommentSuccess = createAction(ADD_COMMENT_SUCCESS,(comment: Comment) => ({ comment }));
+export const addCommentError = createAction(ADD_COMMENT_ERROR,(error: any) => ({ error }));
+
+
 //-------------------
 // Efefects =>
-// app/store/XXX/XxxEffects.ts                  // services és az actions között a kapcsolat
-import {Injectable} from '@angular/core'
-import { Actions, ofType, createEffect } from '@ngrx/effects';
-import { Action } from '@ngrx/store';
-import {XxxService} from ''
+// app/store/xxx/xxx.effects.ts                  // services és az actions között a kapcsolat
+
+// get    => exhaustMap
+// create => concatMap
+// update => concatMap
+// delete => mergeMap
+
+
+import { Injectable } from '@angular/core';
+import { createEffect, Actions, ofType } from '@ngrx/effects';
 @Injectable()
-export class XxxEffect {
-    constructor(
-      private actions$: Actions,    // a 2 irányú kapcsolat miatt ugye..
-      private xxxService: XxxService,
-    ) { }
-    loadItems$ = createEffect( (): Observable<Action> => {
-      this.actions$.pipe(                           // this.actions$ egy Observable-t ad vissza,
-        ofType(getItems),                           // akkor fusson csak le ha getItems a típus..       
-        switchMap( () => this.xxxService.get() ),   // lekéri az összes adatot..           
-        switchMap( users => of({ type: '[Xxx] load items', items: users })),       // olyan formátumra alakítom amit az Actions megkövetel
-        catchError( error => of({ type: '[Xxx] error item', message: error })),    // ha hiba volt akkor az errorActions-t triggerelem
-      )};
-};
-//-------------------
-// Reducer =>
-// app/store/XXX/XxxReducers.ts 
-export interface State {
-  xxxs: { items: Xxx[], error: string };
+export class CommentEffects {
+
+  addComment$ = createEffect(() =>
+    this.action$.pipe(
+      ofType(CommentActions.addComment),
+      withLatestFrom(this.authStore.select(getUserSelector),this.imageStore.select(getCurrentImageIDSelector)),
+      concatMap(([{text},user,jokeImageID]) => this.commentCrudService.addComment(text,jokeImageID,user._id).pipe(
+          map((comment) => {
+            const newComment = {
+              ...comment,
+              userName: user.userName,
+              userID: user._id
+            }
+            return CommentActions.addCommentSuccess(newComment);
+          }),
+          catchError((error) => {
+            this.toast.showError("Hiba", "Hozzászólás közbeni fking hiba történt :'(");
+            return of(CommentActions.addCommentError(error));
+          })
+        )
+      )
+    )
+  );
+  constructor(
+    private action$: Actions,
+    private commentCrudService: CommentCrudService,
+  ) {}
 }
 
-export const initialState: State = {
-  xxxs: { items: [], error: '' }
+//-------------------
+// Reducer =>
+// app/store/xxx/xxx.reducers.ts 
+import { createReducer, on } from '@ngrx/store';
+import * as ComponentActions from '../actions/comment.action';
+import { Comment } from '../../models/comment.model';
+
+export interface CommentState {
+  items: ReadonlyArray<Comment>;
+  error: any;
+}
+const initialState: CommentState = {
+  items: [],
+  error: null,
 };
 
-export const XxxReducer = createReducer(
+export const commentReducer = createReducer(
   initialState,
-  on(loadItems, (state, action) => ({   // ha a loadItems esemény megtörténik akkor átadja a state-et
+  on(ComponentActions.getCommentsByImageIDSuccess, (state, { comments }) => ({
     ...state,
-    items: action.items
+    items: [...comments],
   })),
-  on(errorItem, (state, action) => ({
+  on(ComponentActions.getCommentsByImageIDError, (state, error) => ({
     ...state,
-    error: action.message
+    error: error,
+  })),
+  on(ComponentActions.addCommentSuccess, (state, { comment }) => ({
+    ...state,
+    items: [...state.items, comment],
+  })),
+  on(ComponentActions.addCommentError, (state, error) => ({
+    ...state,
+    error: error,
   })),
 );
 
-export const selectItems = (state: State) => state.users.items;
-export const selectError = (state: State) => state.users.error;
+//-------------------
+// selectors =>
+// app/store/xxx/xxx.selector.ts 
+
+import { createFeatureSelector, createSelector } from '@ngrx/store';
+import { ImageState } from '../reducers/image.reducer';
+
+export const getImageState = createFeatureSelector<ImageState>('image');
+
+// sima
+export const isDisplayedAllImagesSelector = createSelector(
+  getImageState,
+  (state: ImageState) => state.items.length === state.displayedImagesCount
+)
+// ha vmitől függ, pl id
+export const getImageByIDSelector = (imageIDString:string) => createSelector(
+  getImageState,
+  (state: ImageState) => state.items.find(item => item._id === imageIDString)
+)
+
+// kombinált, 2 storeból kapom meg
+import { createFeatureSelector, createSelector } from '@ngrx/store';
+
+import { AuthState } from '../reducers/auth.reducer';
+import { ImageState } from '../reducers/image.reducer';
+
+export const getAuthState = createFeatureSelector<AuthState>('auth');
+export const getImageState = createFeatureSelector<ImageState>('image');
+
+export const getImageReactionIDSelector = createSelector(
+  getImageState,
+  getAuthState,
+  (imageState: ImageState, authState: AuthState) => {
+    return imageState.items.find(image=> image._id === imageState.curentImageID)
+    ?.reactions.find(reaction=> reaction.userID === authState.user._id)?._id || "";
+  }
+);
 //-------------------
 // Xxx.component.ts
-constructor(private store:Store<any>){}   // itt vannak az adatok
-list$:Observable<Xxx|Xxx[]>
+constructor(private storeComment: Store<Comment>,){}   // itt vannak az adatok
+public comments$ = this.storeComment.pipe(select(getCommentsSelector))
 ngOnInit(): void {
-  this.store.dispatch(getItems());        // az action
-  this.list$ = this.store.pipe( select(selectItems) );
+  this.storeComment.dispatch(getCommentsByImageID(imgID));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //--------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 // Ü a felső a ROSSZ
 // export const musiciansReducer = createReducer(
 //   on(musiciansPageActions.search, (state, { query }) => {
@@ -155,9 +260,6 @@ ngOnInit(): void {
 //     query,
 //   }))
 // );
-
-
-
 
 
 
@@ -452,3 +554,61 @@ onAddPost(){
 }
 
 
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+import { createAction, props } from '@ngrx/store';
+import { Xxx } from 'src/app/model/xxx';
+
+export const getItems = createAction('[Xxx] get items');                              // '[Xxx] get items' az esemény neve                  
+export const loadItems = createAction('[Xxx] load items',props<{items: Xxx[]}>());    // props: mire hívjam meg?
+export const errorItem = createAction('[Xxx] error items',props<{message: string}>());
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+import {Injectable} from '@angular/core'
+import { Actions, ofType, createEffect } from '@ngrx/effects';
+import { Action } from '@ngrx/store';
+import {XxxService} from ''
+@Injectable()
+export class XxxEffect {
+    constructor(
+      private actions$: Actions,    // a 2 irányú kapcsolat miatt ugye..
+      private xxxService: XxxService,
+    ) { }
+    loadItems$ = createEffect( (): Observable<Action> => {
+      this.actions$.pipe(                           // this.actions$ egy Observable-t ad vissza,
+        ofType(getItems),                           // akkor fusson csak le ha getItems a típus..       
+        switchMap( () => this.xxxService.get() ),   // lekéri az összes adatot..           
+        switchMap( users => of({ type: '[Xxx] load items', items: users })),       // olyan formátumra alakítom amit az Actions megkövetel
+        catchError( error => of({ type: '[Xxx] error item', message: error })),    // ha hiba volt akkor az errorActions-t triggerelem
+      )};
+};
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+export interface State {
+  xxxs: { items: Xxx[], error: string };
+}
+
+export const initialState: State = {
+  xxxs: { items: [], error: '' }
+};
+
+export const XxxReducer = createReducer(
+  initialState,
+  on(loadItems, (state, action) => ({   // ha a loadItems esemény megtörténik akkor átadja a state-et
+    ...state,
+    items: action.items
+  })),
+  on(errorItem, (state, action) => ({
+    ...state,
+    error: action.message
+  })),
+);
+
+//-------------------
+// Xxx.component.ts
+constructor(private store:Store<any>){}   // itt vannak az adatok
+list$:Observable<Xxx|Xxx[]>
+ngOnInit(): void {
+  this.store.dispatch(getItems());        // az action
+  this.list$ = this.store.pipe( select(selectItems) );
+}

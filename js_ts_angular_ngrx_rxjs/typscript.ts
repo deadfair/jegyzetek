@@ -3,6 +3,12 @@
 // tsc typescript.ts -t es2016  // ha hiba van
 // npm init                 
 // tsc --init               // => most a tsc parancsal már mindent fordít az adott mappába, + létrehozott egy tsconfig.json filet
+
+// package.json             // scriptek közé irni hogy              
+// ts:"tsc -w" 
+// "start":"node ./dist/index.js"   // => npm run start                 // a js filet futtatja
+// "start": "lite-server"           // npm i --save-dev lite-server     // fasza live szerver
+
 // tsconfig.json            // hasznos opciók: =>
 // ,"exclude": [                                    // a sconfig.json file végére
 //  "node_modules",                                 // mappát ne fordítsa, defaultba benne van, akkor kell csak ha exclude-ot felvesszük
@@ -20,11 +26,6 @@
 // "ScriptHost"
 // ],   
 // "sourceMap" true                                 // debugolásra, megkapja a böngésző a ts file-t is egy map file segítségével, és debugolhatom
-
-// package.json             // scriptek közé irni hogy              
-// ts:"tsc -w" 
-// "start":"node ./dist/index.js"   // => npm run start                 // a js filet futtatja
-// "start": "lite-server"           // npm i --save-dev lite-server     // fasza live szerver
 //------------------------------------------------------------------------------------------------------------------------------------------------
 let Never:never;        // sohase ér a végére a fgv, pl throw a fgv-en belül // KIKELL RAKNI MINDIG
 // :void => a void a default viszatérési érték, értéke "undefined" v. "null"       
@@ -46,16 +47,6 @@ let fgv_2: (a:number, b:number) => number;  // a fgv_2 csak olyan fgv lehet ami 
 const undefinedReturn = (): undefined => {return};  // kötelező kiírni a return-t
 const voidReturn = (): void => {};                  // elhagyható a return, de mind2 returnja undefined
 // void: nem veszi figyelembe a returnt, ha van, ignorálja és engedi hogy akár legyen, de nem tér vissza semmivel, nem érdekli mi a return
-//------------------------------------------------------------------------------------------------------------------------------------------------
-// létrehozás + érték adásnál a typescript maga megadja a típust ne irjuk ki
-let number_1: number = 5;		// bad practice
-let number_2: number;				// good practice
-let number_3 = 5;						// good practice
-let person_1:{name:string}={name:"kiki"};   // bad practice     // Ha van Tuple az objektumba, akkor muszáj így!!!
-let person_2={name:"kiki"};                 //good practice     // érték adásnál a typescript maga megadja a típust ne irjuk ki
-const add = (number_1: number, number_2: number): number => number_1 + number_2;    // BAD practice
-const add2 = (number_1: number, number_2: number) => number_1 + number_2;           // GOOD practice
-const printResult = (number: number): void => {console.log('Result: ' + number);};  // VOID-nál GOOD practice
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // Readonly
 class Ember {readonly id: number;}      // csak olvasható, mint a const DE csak Interface v Class property-je lehet, CSAK konstruktorba kap értéket
@@ -140,7 +131,6 @@ defaultertekBemenet(); // van alapértelmezettbemenet   // default érték a fgv
 declare function tombmegadasa(o:number,...values:string[]):void;        // ha tömböt vár, a tömb mindig az utolsó bemenete a fgv-nek
 tombmegadasa(2,"212","1321","...");
 function sohanemérvégetfgv():never{throw new Error();}
-
 
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // Interface    tulajdonságai és metódusai(csak neve) is lehetnek. ígéreteket feltételeket adunk

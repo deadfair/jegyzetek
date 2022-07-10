@@ -17,28 +17,10 @@ ng g directive <DirectiveNév>
 
 ng g m products --route products --module app.module  // generál egy modult a products mappába, +route ami bekötve a fő route-ba, +app module is frissítve
 
-cd .\MyApp\        	// mappa váltás
-cd..                // 1 mappával feljebb
 ng			// összes parancs eflsorolása
 ng update @angular/cli @angular/core
 
 https://angular.io/cli
-
-/*------------------------------------------------------------------------------------------------------------------------------------------
-src\main.ts		        // program idulásának a helye
-src\assets\		        // képek + szerverről letöltött dolgok
-src\environments\	    // környezetek
-src\app\		          // ide írunk
-src\app\models		    // class,interface modellek
-src\app\store         // NgRx		    
-src\app\services		    
-src\app\modules		    
-src\app\components		        // + külön komponens a termékeknek,
-src\app\components\get		    // azon bellűl külön komponens pl kilisázva, 
-src\app\components\delete		  // delete termék oldalnak,   
-src\app\components\create		  // create terméknek stb.  
-src\app\components\update		    
-angular.json                  // "styles":["ide kell betenni a bootstrap elérését"]
 //------------------------------------------------------------------------------------------------------------------------------------------
 // Konvenciók, good vs bad practice https://angular.io/guide/styleguide
 
@@ -59,10 +41,9 @@ public props, private props, constructor, public methods, private methods
 komponensbe minél kevesebb logika legyen
 output propertík NE "on"-al kezdődjenek
 a logika a ts-be legyen NE a htmlbe => {{totalPowers / heroes.length}} helyett => {{avgPower}}
-inputnak adjunk kezdőértéket
-/*------------------------------------------------------------------------------------------------------------------------------------------
+inputnak adjunk kezdőértéket */
+//------------------------------------------------------------------------------------------------------------------------------------------
 app.module.ts =>
-*/
 @NgModule({                 // ö egy annotáció ő mondja meg hogy a AppModule egy Module
   declarations: [	          // komponensek helye  
     AppComponent
@@ -80,21 +61,19 @@ export class AppModule{}
 /*------------------------------------------------------------------------------------------------------------------------------------------
 app.component.ts =>*/
 import {Component} from '@angular/core';
-
 @Component({
-  selector: 'app-root',  		            // <app-root></app-root>      <= az index.html-ben a HTML tag neve mi legyen?
-//selector: '.app-root',                // <div class="app-root"></div>
+  selector: 'app-root',  		            // <app-root></app-root>      
+//selector: '.app-root',                // <div class="app-root"></div>     // NE IGY
+//selector: '[app-root]',               // <div app-root></div>             // NE IGY      
   templateUrl: './app.component.html',  // melyik html-t töltse be? 
 //template: '<h1>Hello World</h1>',     // vagy így is lehet helyben megcsinálni
   styleUrls: ['./app.component.css']	  // milyen style.ok tartozzanak hozzá?
+//  styles: ['h1 { font-weight: normal; }']
 })
 export class AppComponent implements OnInit{  // app.component.ts
   constructor(/*service importok */){}       
   ngOnInit():void{}                     // akkor fut le amikor betölt a komponens
 }
-/*------------------------------------------------------------------------------------------------------------------------------------------
-// HTML 
-<app-root></app-root>           // a componensek szelektora     // az angular program belépő pontja a HTML-ben  
 //------------------------------------------------------------------------------------------------------------------------------------------
 // Lifecycle Hooks:         // minden komponensnek KELL lennie életciklusnak
 
@@ -109,12 +88,12 @@ export class AppComponent implements OnInit{  // app.component.ts
 // ngAfterViewChecked()     // Az ngAfterViewInit() és minden ezt követő ngAfterContentChecked() után hívódik.
 // ngOnDestroy()            // Közvetlenül azelőtt hívódik, hogy az Angular megsemmisíti a direktívát vagy a komponenst.
 /*------------------------------------------------------------------------------------------------------------------------------------------
-{{ name }}                //  .ts  => HTML  // a name változó real time értéke, a .ts -ből                                  // interpoláció
-{{ getName() }}		        // lehet fgv.
-{{"A neve: "+ name}}		  // vagy bármilyen js kód is akár
-routerLink="./edit/{{exam._id}}"
+{{ name }}                          //  .ts  => HTML  // a name változó real time értéke, a .ts -ből                        // interpoláció
+{{ getName() }}		                  // lehet fgv.
+{{"A neve: "+ name}}		            // vagy bármilyen js kód is akár
+routerLink="./edit/{{exam._id}}"    // lehet de inkáb prop bindingal az ilyet !!!
 
-@Input('ilyenNévenKapomKivülről') props:string  // gyerekbe .ts   // dinamikusan változtathatjuk a prop értékét a szülőbe
+@Input('ilyenNévenKapomKivülről') props:string  // gyerekbe .ts   // dinamikusan változtathatjuk a prop értékét a szülőbe(kerülendő, csak akkor ha muszáj)
 [prop]="value"            // szülő HTML     // .ts  => HTML       // a props: komponens inputja, a value: a .ts változója   // property bind-ing
 [name]="fruit"      or name="{{fruit}}"                           // valós idejű 1 irányú kötés   // .ts  => HTML
 [attr.name]="fruit" or attr.name="{{fruit}}"  
@@ -126,10 +105,21 @@ fgv(value.string){this.valami=value}            // szülő .ts      // a this.va
 fgvgyerek(value:string){this.clickEvent.emit(value)}              // gyerekbe .ts                                           
 
 [(ngModel)]="prop" // HTML <=>  .ts   // a props: Ez a komponens változója, pl input komponensre kötjük, 
-// így valós időbe változik a props, ha változik az input értéke, típusa string  // ngModel-hez kell a FormsModul                                  
+// így valós időbe változik a props, ha változik az input értéke, típusa string  // ngModel-hez kell a FormsModul      
+/*------------------------------------------------------------------------------------------------------------------------------------------
+// Default, beépített Angular Események, eventek
+(click)="fgv()"	            // click eseményre meghívjuk a fgv()-t ami az akt. komponensbe van
+(keyup.enter)="fgv()"       // enter lenyomása után, a fgv() lefut
+(change)="fgv()"            // érték változáskor lefut a fgv
+(dblclick)="fgv()"
+(ngSubmit)="fgv()"          // form submit esemény
+(btncClick)="fgv()"
+
+<input #x (keyup)="0">                   // érzékeli a gomb lenyomását de nem hív meg fgv-t => olyankor jó, ha 
+{{x.value}}                              // vhol megakarjuk jeleníteni amikor változik  
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // Pipe-ok => az eredeti adatot nem módosítja, csak a megjelenést!
-// Pipe-ok-at csak formázásra használjuk, a filter és sort erőforrás igényes
+// Pipe-ok-at csak formázásra használjuk, a filter és sort erőforrás igényes NE
 {{     | json}}                   // JSON formába alakít
 {{     | async}}                  // Observable-t alakít értékre amikor emmittálódik +++ Observable<T> | Subscribable<T> | Promise<T>
 {{name | titlecase}}              // nagybetűvel kezdődik
@@ -158,46 +148,34 @@ export class MyPipe implements PipeTransform{
     return `${prefix} ${value}`;
   }
 }
-
-// HTML:
-// select   =>  [(ngModel)] = "szelekt"
-// inputba  =>  [(ngModel)] = "szürőszöveg"
+//---------------------------
+// ERŐFORRÁS IGÉNYES, LEHET DE FILTER ÉS SORTOT NE PIPE-AL !!!
+// HTML:  // select   =>  [(ngModel)] = "szelekt" // inputba  =>  [(ngModel)] = "szürőszöveg"
 // táblázat =>  *ngFor= let rows of list | szűrő :szürőszöveg: szelekt
-@Pipe({name:'szűrő'})      // Pipe neve
-export class MyPipe implements PipeTransform{
-  transform(value:any[],phrase:string ="",key:string=""):any{       // ide az ngModel value értekei fognak becsöppenni
-    if (!phrase) {return value}
-    phrase = phrase.toLowerCase()
-    return value.filter(val=>{
-      if (!key || key==="notset") {
-        let isOk:boolean =false;
-        for (const k in val) {
-          let check = val[k].toString().toLowerCase()
-          if (check.indexOf(phrase)>-1) {
-            isOk = true;
-          }
-        }
-        return isOk;
-      }else{
-        let check = val[key].toString().toLowerCase()
-        return check.indexOf(phrase)>-1
-      }
-    })
-  }
-}
+// @Pipe({name:'szűrő'})      // Pipe neve
+// export class MyPipe implements PipeTransform{
+//   transform(value:any[],phrase:string ="",key:string=""):any{       // ide az ngModel value értekei fognak becsöppenni
+//     if (!phrase) {return value}
+//     phrase = phrase.toLowerCase()
+//     return value.filter(val=>{
+//       if (!key || key==="notset") {
+//         let isOk:boolean =false;
+//         for (const k in val) {
+//           let check = val[k].toString().toLowerCase()
+//           if (check.indexOf(phrase)>-1) {
+//             isOk = true;
+//           }
+//         }
+//         return isOk;
+//       }else{
+//         let check = val[key].toString().toLowerCase()
+//         return check.indexOf(phrase)>-1
+//       }
+//     })
+//   }
+// }
 // => csak azokat jeleníti meg ami szerepel a beírt szövegnek
-/*
-/*------------------------------------------------------------------------------------------------------------------------------------------
-// Események
-<li (click)="fgv()"></li>		    // click eseményre meghívjuk a fgv()-t ami az akt. komponensbe van
-<li (keyup.enter)="fgv()"></li> // enter lenyomása után, a fgv() lefut
-    (change)="fgv()"            // érték változáskor lefut a fgv
-    (dblclick)="fgv()"
-    (ngSubmit)="fgv()"          // form-ba kell beletenni, a submit esemény
-    (btncClick)="fgv()"
-
-<input #x (keyup)="0">                   // érzékeli a gomb lenyomását de nem hív meg fgv-t => olyankor jó, ha 
-{{x.value}}                              // vhol megakarjuk jeleníteni amikor változik
+// Az App componentben =>
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // Direktívák // a * jelöli azt hogy a direktíva struktúlális vagyis elem megjelenítéséért felel
 // a motorháztető alatt az történik hogy 
@@ -205,27 +183,28 @@ export class MyPipe implements PipeTransform{
 <ng-template [ngIf]='feltétel'>       // ezzé
   <div></div>
 </ng-template>
-//-------------
-// *ngIf i
+//------------------------------------------------------------------------------------------------------------------------------------------
+// *ngIf 
 // <div hidden></div>                  // a div nem jelenik meg, OTTVAN de css property miatt nem látszik
 // <div [hidden]="feltétel1()"></div>  // ha a feltétel1() igaz => akkor lesz hidden => nem látszik
 // AZ *ngIf JOBB NAGYOBB FÁKON !!! =>
 
-<div *ngIf="feltétel()"></div>                                // így a divre értendő az IF
-<div *ngIf="feltétel(); then igazAg else nemIgazAg"></div>    // CSAK AZ EGYIK LÉTEZIK
-  <ng-template #igazAg></ng-template>                         // ha a feltétel igaz, akkor ez LÉTEZIK, 
-  <ng-template #nemIgazAg></ng-template>                      // ha a feltétel nem Igaz, akkor ez az element LÉTEZIK
-/*------------------------------------------------------------------------------------------------------------------------------------------
+<div *ngIf="feltétel()"></div>                                    // így a divre értendő az IF
+<div *ngIf="feltétel(); else nemIgazAg"></div>                
+<div *ngIf="feltétel(); then igazAg else nemIgazAg"></div>        // CSAK AZ EGYIK LÉTEZIK
+  <ng-template #igazAg></ng-template>                             // ha a feltétel igaz, akkor ez LÉTEZIK, 
+  <ng-template #nemIgazAg></ng-template>                          // ha a feltétel nem Igaz, akkor ez az element LÉTEZIK
+//------------------------------------------------------------------------------------------------------------------------------------------
 // ngSwitch
 <div [ngSwitch]="egyVáltozó">   // azért jó, mert NEM csak true és false eseteket tudunk lekezelni
   <div *ngSwitchCase="'Béla'"> Ha az egyVáltozó==='Béla', akkor ez jelenik meg </div>  
   <div *ngSwitchCase="'Jani'"> Ha az egyVáltozó==='Jani', akkor ez jelenik meg </div>  
   <div *ngSwitchDefault>       Default ág </div>  
 </div> 
-/*------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------
 // *ngFor
 <ul>
-	<li *ngFor="let user of users; index as i; let f = first">	// for ciklussal kiírjuk a tömb elemeit
+	<li *ngFor="let user of users; index as i; let f = first">	    // for ciklussal kiírjuk a tömb elemeit
 		{{user.name}} ({{user.age}}) - {{i}}      // "as" kulcsszóval importálhatunk a HTML-be értékeket, pl az indexet <= a tömb indexei !!!
 	</li>
 </ul>
@@ -235,66 +214,37 @@ first:boolean =>  true, ha ez az első elem a tömbben
 last:boolean  =>  true, ha ez az utolsó a tömbben
 even:boolean  =>  true, ha ez akt elem páros indexű a tömbben
 odd:boolean   =>  true, ha az akt elem páratlan indexű a tömbben
-
-attr.aria-valuenow="{{skills.values[i]}}" // speciális attribútumnak így kell értéket adni for-ba
-[src]="sklill.imgUrl"                     // így érem el az attribútumot            
-/*------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------
 // ngClass => dinamikus értékeket amiket felvehet => string, array, object, komponens fgv
 [ngClass]="változó"   pl az one az a komponens css-ébe van benne  .one{}
 [ngClass]="['változó', 'változó2']"
-[ngClass]="{'one':false, 'two':true}"   //  two van beállítva, a one az nincs
-[ngClass]="fgv()"                       // a fgv visszatérési az elözö 3 variáció egyike:string,array,object
+[ngClass]="{'one':false, 'two':true}"                               //  two van beállítva, a one az nincs
+[ngClass]="fgv()"                                                   // a fgv visszatérési az elözö 3 variáció egyike:string,array,object
 fgv(){return {'one':this.változó3.változó4=="valami", 'two':true}}  // feltételhez is köthető
-// XXX.component.ts be =>  változó='one'; változó2='two' // .scss-ben => .one{} .two{},  ezeket dinamikusan változgathatjuk...
-/*------------------------------------------------------------------------------------------------------------------------------------------
+// XXX.component.ts be =>  változó='one'; változó2='two'            // .scss-ben => .one{} .two{},  ezeket dinamikusan változgathatjuk...
+//------------------------------------------------------------------------------------------------------------------------------------------
 // ngStyle
 [ngStyle]="{'background-color':'green'}"
 [ngStyle]="{'background-color':'green','color':'black'}"
-[ngStyle]="{'background-color': változó}"     // dinamikusan változtathatjuk
+[ngStyle]="{'background-color': változó}"                           // dinamikusan változtathatjuk
 [ngStyle]="{'width': skills.values[i] + '%'}"
-[ngStyle]="{'background-color': változó==='valami'?'blue' : 'red'}"     // feltétel
+[ngStyle]="{'background-color': változó==='valami'?'blue' : 'red'}" // feltétel
 [ngStyle]="fgv()"     // visszatér egy object el
-/*----*-------------------------------------------------------------------------------------------------------------------------------------
-[class.one]="isSpecial"                           // ha isSpecial igaz akkor a .one{} class hozzáadódik
-[style.font-size]="isSpecial ? '10px':'30px' "    // ugyanaz
-/*------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------
+// Alternatív DE NE
+[class.one]="isSpecial"                                             // ha isSpecial igaz akkor a .one{} class hozzáadódik
+[style.font-size]="isSpecial ? '10px':'30px' "                      // ugyanaz
+//------------------------------------------------------------------------------------------------------------------------------------------
 // Saját Directíva => delay.directive.ts
-// ng g d dnév
-import {Directive} from '@angular/core'
-@Directive({selector:'[appDelay]'})
-expot class DelayDirective{
-  constructor(private vc: ViewContainerRef, private tr: TemplateRef<any>){}
-  @Input() set appDelay(time){
-    let delayTimeout=setTimeout(()=>{
-      clearTimeout(delayTimeout);           // memóriábol eltávolítjuk a felesleges timeoutot
-      this.vc.createEmbeddedView(this.tr)   // hozzáadjuk a viewhoz az elementet
-    },time);
-  }
-}
-===>      <p *appDelay="5000">5 sec mulva jelenik meg</p>
 
-import {Directive} from '@angular/core'
-@Directive({selector:'[appHighlight]'})
-expot class HighlightDirective{
-  colors:string[]=["red","yellow","purple"]
-  @HostListener('click') onMouseClick(){              // Direktívában lévő eventlistener
-    let index=Math.floor(Math.random() * this.colors.length)
-    this.changeColor(this.colors[index])  
-  }
-  constructor(private el:ElementRef){                 // csak itt, mert nincs input elem mint a másik esetben
-    this.changeColor("yellow")
-  }
-  changeColor(color:string){
-    this.el.nativeElement.style.backgroundColor=color;
-  }
-  @Input() set appHighlight(color){
-    this.changeColor(color)
-  }
-}
-===>    <p *appHighlight>sárga háttér leszek</p>                // kattintásra változik a háttér    // INPUT NÉLKÜL
-===>    <p [appHighlight]="'red'">red háttér leszek</p>         // HA VAN INPUT
+// constructor bemenetei
+constructor(private elRef: ElementRef) {}                                   // => this.elementRef.nativeElement.style.backgroundColor = 'green';
+constructor(private renderer:Renderer2, private elementRef:ElementRef) {}   // => this.renderer.setStyle(this.elementRef.nativeElement,'background-color','blue')
+struktúrális '*' =>
+constructor(private tr: TemplateRef<any>, private vc: ViewContainerRef){}   // => this.viewContainerRef.createEmbeddedView(this.templateRef)
+//                      mit?                          hova?
 
-// Az App componentben =>
+// HostListener // esemény halgatására
 class AppComponent {
   counter = 0;
   @HostListener('window:keydown', ['$event'])       // mit halgasson?   
@@ -303,39 +253,36 @@ class AppComponent {
   }
 }
 
+// HostBinding // dinamikusan lehet változtatni, hogy egy class v style létezzen e az elemen (true, false)
 @HostBinding('style.color') color;    // ez arra jó, hogy változót kötünk a komponens stlyle.color értékéhez pl. DIREKTÍVÁBA
 Igy majd a direktíva bemeneteivel tudjuk kontrolálni az elem style értékét
 
-//-------------
-@Directive({
-  selector: '[appBasicHighlightDirective]',
-})
-export class BasicHighlightDirectiveDirective implements OnInit {
+// Direktíva Inputai
+@Input() defaultColor: string = 'transparent';
+@Input('defaultátnevezettColor') defaultColor: string = 'blue';  // az inputot átneveznu így kell, pl magára a direktíva nevére
+@Input() set time(time){}                                        // setterrel szebb
+//------------------------------------------------------------------------------------------------------------------------------------------
+// Saját Directíva példák =>
+//---------------------------
+@Directive({selector: '[appBasicDirective]'})                       // <p appBasicDirective> I have appBasicDirective</p>
+export class BasicDirective implements OnInit {
   constructor(private elementRef: ElementRef) {}
-
   ngOnInit(): void {
     this.elementRef.nativeElement.style.backgroundColor = 'green';
   }
 }
-// =>
-<p appBasicHighlightDirective> I have appBasicHighlightDirective</p>
-//-------------
-// ez a jobb megoldás, a másik bogulhat
-@Directive({
-  selector: '[appBetterHighlightDirective]'
-})
-export class BetterHighlightDirectiveDirective {
-
-  constructor(private renderer:Renderer2,private elementRef:ElementRef) { }
+//---------------------------
+// ez a jobb megoldás =>
+@Directive({selector: '[appBetterDirective]'})                      // <p appBetterDirective> I have appBetterDirective</p>
+export class BetterDirective {
+  constructor(private renderer:Renderer2, private elementRef:ElementRef) { }
   ngOnInit(): void {
     this.renderer.setStyle(this.elementRef.nativeElement,'background-color','blue')
   }
 }
-//-------------
-@Directive({
-  selector: '[appBetter2HighlightDirective]'
-})
-export class Better2HighlightDirectiveDirective {
+//---------------------------
+@Directive({selector: '[appHostListenHostBindingDirective]'})       // <p appHostListenHostBindingDirective> I have appHostListenHostBindingDirective</p>
+export class HostListenHostBindingDirective {
   @HostBinding('style.backgroundColor') backgroundColor: string = "transparent";
   constructor() {}
   ngOnInit(): void {}
@@ -346,19 +293,16 @@ export class Better2HighlightDirectiveDirective {
     this.backgroundColor = 'transparent';
   }
 }
-//-------------
+//---------------------------
 // dinamikus adatátadás
-@Directive({
-  selector: '[appBetterInputHighlightDirective]',
-})
-export class BetterInputHighlightDirectiveDirective {
+@Directive({selector: '[appDinamicDirective]'})  <p [appDinamicDirective]="'yellow'" [defaultColor]="'red'"> I have appDinamicDirective </p>
+export class DinamicDirectiveDirective {
   @Input() defaultColor: string = 'transparent';
-  @Input('appBetterInputHighlightDirective') highlightColor: string = 'blue';
-
+  @Input('appDinamicDirective') highlightColor: string = 'blue';
   @HostBinding('style.backgroundColor') backgroundColor: string = this.defaultColor;
   constructor() {}
   ngOnInit(): void {
-    this.backgroundColor = this.defaultColor; // default beállítása fontos, hogy az input utáni adat kerüljön ide
+    this.backgroundColor = this.defaultColor;               // default beállítása fontos, hogy az input utáni adat kerüljön ide
   }
   @HostListener('mouseenter') mouseover(event: Event): void {
     this.backgroundColor = this.highlightColor;
@@ -367,76 +311,51 @@ export class BetterInputHighlightDirectiveDirective {
     this.backgroundColor = this.defaultColor;
   }
 }
-// =>
-<p [appBetterInputHighlightDirective]="'yellow'" [defaultColor]="'red'"> I have appBetter2HighlightDirective </p>
-
-//-------------
+//---------------------------
 // strukturális direktíva pl egy ngIf ujracsinálása
-@Directive({
-  selector: '[appStructuralDirective]'
-})
+@Directive({selector: '[appStructuralDirective]'})          // <p *appStructuralDirective="isOdd">Ha isOdd true megjelenek</p>
 export class StructuralDirectiveDirective {
-  @Input() set appStructuralDirective(condition: boolean){ // itt mindig boolean jön mert  kondiciót adunk át
+  @Input() set appStructuralDirective(condition: boolean){ 
     if (!condition) {
       this.viewContainerRef.createEmbeddedView(this.templateRef)
     }else{
       this.viewContainerRef.clear();
     }
   }
-  // mit? hova?
-  constructor(private templateRef:TemplateRef<any>,private viewContainerRef:ViewContainerRef ) { }
+  constructor(private templateRef:TemplateRef<any>,private viewContainerRef:ViewContainerRef ) { }  // mit? hova?
 }
-<div class="row" *appStructuralDirective="isOdd">
-    <div class="col">
-      <p [ngStyle]="{ color: getColor() }"
-        *ngFor="let number of getFilteredNumbers()">
-        {{ number }}
-      </p>
-    </div>
-  </div>
-
-//-------------
-  @Directive({
-	selector: '[appDropdown]',
-})
+//---------------------------
+@Directive({selector:'[appStructuralDirective2]'})          // ===> <p *appStructuralDirective2="5000">5 sec mulva jelenik meg</p>
+expot class StructuralDirective2{
+  @Input() set appStructuralDirective2(time){
+    let delayTimeout=setTimeout(()=>{
+      clearTimeout(delayTimeout);                           // memóriábol eltávolítjuk a felesleges timeoutot
+      this.vc.createEmbeddedView(this.tr)                   // hozzáadjuk a viewhoz az elementet
+    },time);
+  }
+  constructor(private tr: TemplateRef<any>, private vc: ViewContainerRef){}
+}
+//---------------------------
+// valós probléma, dropdown: 
+@Directive({selector: '[appDropdown]'})
 export class DropdownDirective {
 	@Input('appDropdown') defaultValue: '' | 'show' = '';
-
-	@HostBinding('class.show') isShow?: boolean;
-	constructor() {}
-	ngOnInit(): void {
-		if (this.defaultValue === 'show') {
-			this.isShow = true;
-		} else {
-			this.isShow = false;
-		}
-	}
-	@HostListener('click') click(event: Event): void {
+	@HostBinding('class.show') isShow?: boolean;              // az elemre amire rakjuk a direktívát a ".show" class létezik e neki?
+	@HostListener('click') click(event: Event): void {        // clickre fel, le szedjök a show class-t
 		this.isShow = !this.isShow;
 	}
-}
-//-------------
-@Directive({
-  selector: '[appDropdown]'
-})
-export class DropdownDirective {
-  @HostBinding('class.open') isOpen = false;
-  @HostListener('document:click', ['$event']) toggleOpen(event: Event) {
-    this.isOpen = this.elRef.nativeElement.contains(event.target) ? !this.isOpen : false;
+  @HostListener('document:click', ['$event']) toggleOpen(event: Event) {      // ha máshova kattintunk zárja be a dropdown-ot
+    this.isShow = this.elRef.nativeElement.contains(event.target) ? !this.isShow : false;
   }
   constructor(private elRef: ElementRef) {}
+  ngOnInit(): void {
+    if (this.defaultValue === 'show') {
+      this.isShow = true;
+    } else {
+      this.isShow = false;
+    }
+  }
 }
-
-/*------------------------------------------------------------------------------------------------------------------------------------------
-Angular ikonok
-angular-fontawesome... ng add @fortawesome/angular-fontawesome
-=> minden ikont külön kell importálni, amelyik kell csak azt.. és CSAK oda ahol használjuk
-button.component.ts:
-import {faTimes} from '@fortawesome/free-solid-svg-isons'
-változó=faTimes;
-// button.component.html:
-<fa-icon [icon]="változó"></fa-icon>
-// vagy berakjunk az angularconfog css részéhez a fontawesome elérési útját és ezután régi normális módon működik => // <i></i>
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // Template reference, változó
 <input #firstname (keyup)="0"></input>    // (keyup)="0"    =>   triggereli a billentyűt ha leütjük, vis frissít egyből
@@ -449,7 +368,7 @@ public selectedCustomer?:string;
 
 // ElementRef
 ViewChild("elementRef") private element?:ElementRef
-// .ts
+// .ts =>
 this.element.nativeElement.setAttribute('style','color:red')
 this.element.nativeElement.value                // stb
 
@@ -763,32 +682,44 @@ ng generate module app-routing --flat --module=app        // ha nincs routing mo
 //                                  // a router-outlet UTÁN jön létre a komponens, NEM BELE   */
 //-------------
 // app-routing.module.ts:         
-// ngModule({  imports:RouterModule.forRoot(routes)   // routes -es változó a app-routing.modul.ts-ben
-// VAGY               RouterModule.forChild(routes)  // lazy loading
-//             exports: [RouterModule]	             // így exportáljuk az app.module.ts-be, majd ott importáljuk AppRoutingModule néven 
+// ngModule({ imports:[
+// RouterModule.forRoot(routes)                   // routes -es változó a app-routing.modul.ts-ben
+// RouterModule.forRoot(routes, {useHash: true})  // => berak egy # jelet, a szerver miatt, hogy 1 helyen legyen elérhető
+// localhost:4200/home => localhost:4200/#/home
+// RouterModule.forChild(routes)                  // lazy loading
+// exports: [RouterModule]	                      // így exportáljuk az app.module.ts-be, majd ott importáljuk AppRoutingModule néven 
+
 const routes: Routes = [          // sorrendbe fut le lefele
   {
     path:'myCompt',               // localhost:4200/myComp => töltse be a
 //  path:'post/:id',              // id alapján  pl.: localhost:4200/post/1
+//  path:'post/:id/:name          // id és név   pl.: localhost:4200/post/1/Max
 //  path:'**',                    // nem létező route ra mi történjen? pl. fő oldal
     component: MyCompComponent,   // MyCompComponent-st <router-outlet></router-outlet> UTÁN
    	                              // HTML-be elérni => <a routerLink="/myComp"></a> 
     redirectTo:'myCompt',         // átirányítás => a localhost:4200/myComp -ra
     pathMatch:'full'              // átirányításkor típusa 
     // full === akkor irányít át ha nincs más tartalom az elérési útban
-    // default === prefix === urlbe megadott útvonal KEZDŐDIK e a megadott útvonalba =>
+    // default === prefix === urlbe megadott útvonal KEZDŐDIK e a megadott útvonalba? =>
     // ha "" ezt akarjuk átirányítani akkor ez mindig át fog mert minden útvonal ezzel kezdődik
-    canActivate: [AuthGuardService],
-    data: {                       // statikus adat olyan oldalaknak akik várnak statikusan adatot és ujrahasznosítanánk, pl hibaüzenetek megjelenítése 
+    canActivate: [AuthGuardService], 
+    data: {                        // statikus adat olyan oldalaknak akik várnak statikusan adatot és ujrahasznosítanánk, pl hibaüzenetek megjelenítése 
 			message: 'Page nottt found', // this.route.snapshot.data['message']; így szedem ki, vagy this.route.data.subscribe()
 		},
     resolve: { resolvernekaneve: ServerResolverService },
-  },    
-    
-  RouterModule.forRoot(appRoutes, {useHash: true}) // => berak egy # jelet, a szerver miatt, hogy 1 helyen legyen elérhető
-  // localhost:4200/home => localhost:4200/#/home
-
+    children: [                    // nested routes =>  ha pl a ServersComponent-ben is van egy router-outlet
+      {
+        path: ":id/edit",          // localhost:4200/myCompt/10/edit
+        component: EditServerComponent,
+      },
+      {
+        path: ":id",
+        component: ServerComponent,
+      },
+    ],
+},]    
   
+
 // admin.module.ts :  // KELL ADMIN MODULE aminek vannak ROUTE-s jai, amik ezek!! =>
 ngModule({ import:RouterModule.forChild(routes), exports: [RouterModule]})export class AdminModule {}
 const routes: Routes = [
@@ -805,45 +736,34 @@ const routes: Routes = [
 // ígymár ujrahaznosítható az admin module
 ];
 
-// nested routes =>  ha a ServersComponent-ben is van egy router-outlet
-// {
-//   path: "servers",
-//   component: ServersComponent,
-//   children: [
-//     {
-//       path: ":id/edit",                         // servers/10/edit
-//       component: EditServerComponent,
-//     },
-//     {
-//       path: ":id",
-//       component: ServerComponent,
-//     },
-//   ],
-// },
 //-------------
-// routerLink           // navigáció a navbaron
+// routerLink           // navigáció a HTML-ben
 // lehetőleg mindig abszolút út kell !! => '/valami'  // nem pedig relatív 'valami' === './valami' , a relatív az aktuális eléréshez írja hozzá
-// <a routerLink="/myComp"></a>	// routerlinkeket ÍGY ÉRÜNK EL TILOS A href !!!
-//    routerLink="/post/1"  => localhost:4200/post/1 -rt tölti be
-//  [routerlink]="['/post/',2,3,4]"      => localhost:4200/post/2/3/4 -et   // több paraméter esetén
-//  [routerlink]="['/post',follower.id]" => localhost:4200/post/X           // X===follower.id
-//  [routerlink]="['/post/',1]" [queryParams]="{userId:'1',id:'2'}" => localhost:4200/post/1?userId=1&id=2
-//  [routerlink]="['/admin/users']"      => childrenes    ???????????????????????????????????????????????????????????????
+//<a routerLink="/myComp"></a>	// routerlinkeket ÍGY ÉRÜNK EL TILOS A href !!!
+//   routerLink="/post/1"  => localhost:4200/post/1 -rt tölti be
+//  [routerlink]="['/post',2,3,4]"      => localhost:4200/post/2/3/4 -et   // több paraméter esetén
+//  [routerlink]="['/post',follower.id]" => localhost:4200/post/X          // X===follower.id
+//  [routerlink]="['/post',1]" [queryParams]="{userId:'1',id:'2'}"  // => localhost:4200/post/1?userId=1&id=2
+//  [routerlink]="['/post/',1]" [fragment]="'loading'"              // => localhost:4200/post/1#loading
 //-------------
 // az aktív linkre css rakás :
 // <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/elso"></a></li>
-// <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/masodik"></a></li>
 //  routerLinkActive="active current"         // ha ezen az elemen vunk akkor a navbáron lévü li, kap egy active és current css osztályt
 // [routerlinkActiveOptions]="{exact:true}"   // csak teljes eggyezésnél lesz aktív
-// ha nem lenne beállítva az {exact:true}, akkor "/" és "/elso" re is active lenne egyszerre mert nem telejs eggyezést néz
+// ha nem lenne beállítva az {exact:true}, akkor "/" és "/elso" re is active lenne egyszerre mert nem teljes eggyezést néz
+
 //-------------
-// Router               // navigáció al/más komponensekből (click)=navigateX(i)
-constructor(private router: Router, private aroute: ActivatedRoute) {}
+// Router                 // navigáció ts-ben               
+constructor(private router: Router, private actRoute: ActivatedRoute) {}
 navigateX(id):void{
   this.router.navigate(["/items"])      //       /items           // absolute
   this.router.navigate(["items"])      //        /items           // absolute  // alapból így mindig abszolút 
-  this.router.navigate(["items"], { relativeTo: this.aroute });   // így már relatív lesz
+  this.router.navigate(["items"], { relativeTo: this.actRoute }); // így már relatív lesz
   this.router.navigate(["/items",id])   //        /items/id       // absolute
+  this.router.navigate(["/servers", id, "edit"], {queryParams: { allowEdit: "i" }, fragment: "loading",}); // + query + fragment
+  this.router.navigate(['edit'], { relativeTo: this.route, queryParamsHandling: 'preserve' });
+  // queryParamsHandling: 'preserve' // megtartja az össze eddigi queryparamot
+  // queryParamsHandling: 'merge'    // az ujakat megtartja és mergeli a régivel
 }
 // ha azt akarjuk hogy pl a headerbe, egy komponens ne jelenjen meg ha épp pl az about pagen vunk
 //<app-button *ngIf="hasRoute('/items')""  // ha most a /items en vunk akkor megjelenik
@@ -855,45 +775,25 @@ hasRoute(route:string){               // kell a Router, hogy lecsekkoljuk melyik
 // root: ActivatedRoute = state.root
 //-------------
 
-const routes: Routes = [{path:'items/:id/:name', ...}]  // lehet több változó is => /items/2/Max
 // ActivatedRoute:      // megadja hogy melyik Route-n vunk épp 
 constructor(private activatedRoute: ActivatedRoute) {}                       
 // activatedRoute.url.map(segments => segments.join(''))    // url    => az útvonal url-je
 // activatedRoute.data.map(d=>d.user)                       // data   => a komponensnek átadott adatok
 ngOnInit(): void {this.subsRouter = this.activatedRoute.paramMap.subscribe(paramMap => this.index = paramMap.get('index'))}
 const routes: Routes = [{path:'items/:index', ...}]                            // <= itt az index a felettem lévő index
-// activatedRoute.snapshot  // activatedRoute.ParamMap
-// 1x fut le                // folyamatosan figyeli
-//.get("index")             //.get("index")      // return az "index" nevü paraméter értéke mint string | null
+
+// 1x fut le                                    // folyamatosan figyeli, OBSERVER
+// activatedRoute.snapshot                      // activatedRoute.ParamMap
+//.get("index")                                 //.get("index")      // return az "index" nevü paraméter értéke mint string | null
 this.router.navigate(['/items', { index: ['bar', 'baz'] } ]);
-//.getAll("index")          //.getAll("index")   // -||- string tömbbe adja vissza az index értékeit (HA több értéke is van..ezt kell használni get helyett) 
+//.getAll("index")                              //.getAll("index")   // -||- string tömbbe adja vissza az index értékeit (HA több értéke is van..ezt kell használni get helyett) 
 this.router.navigate(['/items', index]); 
-//.has("index")             //.has("index")      // => true ha van olyan paraméternév hogy "index"
-//.keys                     //.keys              // string tömbben adja vissza az összes paraméter értékét
+//.has("index")                                 //.has("index")      // => true ha van olyan paraméternév hogy "index"
+//.keys                                         //.keys              // string tömbben adja vissza az összes paraméter értékét
+// this.activatedRoute.snapshot.params['id']    // this.activatedRoute.params.subscribe()          // mint a ParamMap
+// this.activatedRoute.snapshot.queryParamMap   // this.activatedRoute.queryParams.subscribe()
+// this.activatedRoute.snapshot.fragment        // this.activatedRoute.fragment.subscribe()
 
-// activatedRoute.queryParamMap: az egyéb globális paramétereket is átadja, pl.: user/:id?tab=edit => a "tab"-ot
-// VAGY html.ben [queryParams]-al , json formátumba 
-// [routerlink]="['/post/',1]" [queryParams]="{userId:'1',id:'2'}"
-// => localhost:4200/post/1?userId=1&id=2         => (queryparaméterek: userId=1, id=2)
-[fragment]="'loading'"  // localhost:4200/post/1?userId=1&id=2#loading
-
-this.activatedRoute.params            // OBSERVER
-
-this.router.navigate(["/servers", id, "edit"], {
-  queryParams: { allowEdit: "i" },
-  fragment: "loading",
-});
-// kiszedni
-console.log(this.route.snapshot.queryParamMap);
-console.log(this.route.snapshot.fragment);
-this.route.queryParams.subscribe()
-this.route.fragment.subscribe()
-
-this.router.navigate(['edit'], { relativeTo: this.route, queryParamsHandling: 'preserve' });
-queryParamsHandling: 'preserve' // megtartja az össze eddigi queryparamot
-queryParamsHandling: 'merge'    // az ujakat megtartja és mergeli a régivel
-
-this.activatedRoute.queryParams.subscribe(p=>this.id= p['id'])// DEPRECATED SOON
 //-------------
 /*
 // ROUTER ESEMÉNYEK=> router.events.subscribe(e=>{if(event instanceof NavigationStart{})})
@@ -906,12 +806,30 @@ this.activatedRoute.queryParams.subscribe(p=>this.id= p['id'])// DEPRECATED SOON
 // NavigationEnd(a navigáció sikeres befejezése után aktivált esemény)
 
 //------------------------------------------------------------------------------------------------------------------------------------------
-ha akarnéánk az adatot mielött megejelenítenénk 
+// Guardok                      // sima service-k, csak más a nevük
+
+CanActivate                     // egy interface, amit majd  implements-elni kell           // rámehetünk e az oldalra?
+CanActivateChild                // egy vmi-guard.service védheti a CanActivateChild és CanActivate- et is egyszerre, csak majd a routerbe jü  helyre kell berakni
+CanDeactivate<LoginComponent>   // védi a LoginComponent, hogy elnavigálhatunk e az oldalról?
+Resolve                         // ha akarnéánk az adatot mielött megejelenítenénk 
+CanLoad
+
+// router objektbe =>
+canActivate: [AuthGuardService],
+canActivateChild: [AuthGuardService],
+canDeactivate:[DeactivateGuardService]
+resolve: { resolvernekaneve: ServerResolverService },
+
+//---------------------------------------------------------
+Resolve  // ha akarnéánk az adatot mielött megejelenítenénk 
+
+// routingba:
+resolve: { resolvernekaneve: ServerResolverService },
 
 //component:
-		this.route.data.subscribe((data) => {
-			this.server = data['resolvernekaneve']
-		})
+this.route.data.subscribe((data) => {
+	this.server = data['resolvernekaneve']
+})
 
 // serverresolverservice:
 interface Server {
@@ -926,25 +844,13 @@ interface Server {
 export class ServerResolverService implements Resolve<Server> {
 	constructor(private serversService:ServersService) {}
 	resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Server | Observable<Server> | Promise<Server> {
-		return this.serversService.getServer(+route.params['id'])
+		return this.serversService.getServer(+route.params['id']) // a server kell nekünk mielött megjelenítjük a komponenset 
 	}
 }
-// routingba:
-resolve: { resolvernekaneve: ServerResolverService },
 
+//---------------------------------------------------------
+CanActivate
 
-//------------------------------------------------------------------------------------------------------------------------------------------
-// Guardok
-CanActivate                     // egy interface, amit majd  implements-elni kell           // rámehetünk e az oldalra?
-CanDeactivate<LoginComponent>   // védi a LoginComponent, hogy elnavigálhatunk e az oldalról?
-Resolve
-CanLoad
-CanActivateChild                // egy vmi-guard.service védheti a CanActivateChild és CanActivate- et is egyszerre, csak majd a routerbe jü  helyre kell berakni
-// router objektbe =>
-canActivate: [AuthGuardService],
-canActivateChild: [AuthGuardService],
-
-1. // kikell service-be tenni
 CanActivateGuardService implements CanActivate{
   canActivate(route:ActivatedRouteSnapshot,state:RouterStateSnapshot){
     if(!this.auth.loggedInUser){
@@ -953,10 +859,56 @@ CanActivateGuardService implements CanActivate{
     return true       // mehetek // aktiválódik a guard
   }
 } 
-2. // router
-path:'xxx',component:xxxComponent,canActivate:[CanActivateGuardService]
+//---------------------------------------------------------
+class canActivateAdminUser implements CanActivate {
+  public user$ = this.store.pipe(select(getUserSelector));
+  private user?:User;
+  private loginDone$ = this.store.pipe(select(getLoginDoneSelector));
+  private loginDone = false;
+  constructor(
+    private store: Store<AuthState>,
+    private toast: ToastService,
+    private router: Router
+  ) {
+    this.user$.subscribe((user) => {
+      this.user = user;
+    });
+    this.loginDone$.subscribe((loginDone) => {
+      this.loginDone = loginDone;
+    })
+  }
 
-1.
+  canActivate(route: ActivatedRouteSnapshot,state: RouterStateSnapshot):|Observable<boolean | UrlTree>| Promise<boolean | UrlTree>| boolean| UrlTree {
+    if(this.loginDone){     // ha befejeződött a login akkor az adatok megvannak
+      return this.user ? this.isEligible(this.user) : false;
+    }else{                  // ha nem akkor várjuk
+      return this.user$.pipe(
+        skip(1), // az első nem érdekel minket az a default érték // refreshnél minden esetbe 1x ujratöltöm a reducerbe az usert
+        map(user => this.isEligible(user))
+        )
+    }
+  }
+
+  private isEligible(user: User):boolean{
+    if(!this.isAdmin(user)){
+      this.authorizationFaild();
+    }
+    return this.isAdmin(user)
+  }
+  private authorizationFaild():void{
+    this.toast.showError(
+      'Autentikációs hiba!',
+      'Be kell jelentkezned, hogy a tartalomhoz hozzáférj!'
+      );
+      this.router.navigate(['/']);
+  }
+  private isAdmin(user:User):boolean{
+    return user.rank === UserRank.ADMIN
+  }
+}
+//---------------------------------------------------------
+CanDeactivate
+
 DeactivateGuardService implements CanDeactivate<LoginComponent>{
   canDeactivate(component:RegFormComponent,currentRoute:ActivatedRoute){
     if(component.loginForm.dirty && component.loginForm.value){
@@ -966,10 +918,8 @@ DeactivateGuardService implements CanDeactivate<LoginComponent>{
     }
   }
 }
-2.
-path:'xxx',component:xxxComponent,canDeactivate:[DeactivateGuardService]
-
-
+//---------------------------------------------------------
+CanDeactivate jobb megoldás:
 
 // ezt az interfacet a komponensnek implementálnia kell és a guardnak is, 
 export interface CanComponentDeactivate {
@@ -1002,8 +952,7 @@ export class CanDeactivateGuardService implements CanDeactivate<CanComponentDeac
 		}
 	}
 
-
-
+//---------------------------------------------------------
 Angularban a Guardokat arra használjuk, hogy megadjuk azt, hogy a felhasználó át tud-e navigálni egy adott útvonalra, vagy el tud-e navigálni a jelenlegi útvonalról.
 Láttuk a Routingnál, hogy meghatározhatjuk, milyen részekre tud navigálni a felhasználó az applikációnkon belül, de célszerű korlátozni, 
 illetve bizonyos feltételekhez kötni (pl. login) azt, hogy a felhasználó mely részeket érheti el.A Route Guardok erre a célra jöttek létre.
@@ -1013,6 +962,7 @@ megkérdezhetjük a felhasználót, hogy biztos el akarja-e hagyni az adott olda
 bizonyos felhasználóknak adhatunk hozzáférést az app bizonyos részeihez
 az elérési út paramétereinek validálása
 HTTP kérések lefuttatása az adott részelem megjelenítése előtt
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 // HTTP kérések: szükséges modulok:       // stateles-ek vis nem szükséges leiratkozni róluk, 1x lefutnak azt jól van
 app.module.ts : HttpClientModule
@@ -1237,7 +1187,16 @@ constructor(@Optional() @Inject(API_BASE_URL) baseUrl?:string){
 
 // enviroments.ts:
   apiRoot:'https://abc.asdasd.com';      // VAGY EZ 002
-
+//------------------------------------------------------------------------------------------------------------------------------------------
+Angular ikonok
+angular-fontawesome... ng add @fortawesome/angular-fontawesome
+=> minden ikont külön kell importálni, amelyik kell csak azt.. és CSAK oda ahol használjuk
+button.component.ts:
+import {faTimes} from '@fortawesome/free-solid-svg-isons'
+változó=faTimes;
+// button.component.html:
+<fa-icon [icon]="változó"></fa-icon>
+// vagy berakjunk az angularconfog css részéhez a fontawesome elérési útját és ezután régi normális módon működik => // <i></i>
 //------------------------------------------------------------------------------------------------------------------------------------------
 // JSON SZERVER:
 // npm i json-server

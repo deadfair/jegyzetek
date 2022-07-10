@@ -1,3 +1,5 @@
+cd .\MyApp\        	// mappa váltás
+cd..                // 1 mappával feljebb
 ctr + r                       // parancs keresés
 ctr + insert                  // terminálból másolás
 shift + insert                // terminálba illesztés

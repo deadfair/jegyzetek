@@ -50,62 +50,416 @@ hot.subscribe((data)=>console.log(data));       // => így 1x írja ki vis mind 
 */
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
-// --0--1--2--3--4--5--6--7--8--9...
 //-----------------------------------------------------------------------------------------------------------------------------------
-// valami => Observable
-// ajax bindCallback bindNodeCallback defer empty from fromEvent fromEventPattern generate interval of range throwError timer iif
+// valami => Observable     // ajax bindCallback bindNodeCallback defer from fromEvent fromEventPattern generate interval of range throwError timer iif
+// !!! defer 'of' és 'from' esetén kell, lazy kötés, akkor készül csak el az obs, ha feliratkoznak rá!!!
+
 // --------- of ---------
 // valami = érték (lehet Object is)
-of(1,2,3,4,5).subscribe(data => console.log(data))    // 1 2 3 4 5      // (12345|)     // "szinkron", mintha az observable nextjébe pakolnánk egyesével az értékeket
-of('world').subscribe(data => console.log(data))      // world
-of([1,2,3,4,5]).subscribe(data=> console.log(data))   // [1,2,3,4,5]
-
-const person:Person = {name:'david'};
-const personObs:Observable<Person>=of(person);      
-personObs.subscribe(data => console.log(data))
+of(1,2,3,4,5).subscribe(data => console.log(data))      // 1 2 3 4 5      // (12345|)   // "szinkron szerü", mintha az observable nextjébe pakolnánk egyesével az értékeket
+of('world').subscribe(data => console.log(data))        // world
+of([1,2,3,4,5]).subscribe(data=> console.log(data))     // [1,2,3,4,5]
+of({name:'david'}).subscribe(data => console.log(data)) // {name:'david'}
 
 // --------- from ---------
 // valami = iterálható = tömb v string v Promise
 from('world').subscribe(data=> console.log(data))     // w o r l d 
-from([1,2,3,4,5]).subscribe(data=> console.log(data)) // 1 2 3 4 5              //
+from([1,2,3,4,5]).subscribe(data=> console.log(data)) // 1 2 3 4 5              
+from([1,2,3,4,5], asyncScheduler);                    // async lesz tőle
+defer(() => from(Promise.resolve({name:'david'}))).subscribe(data => console.log(data))  
 
-const person:Person ={name:'david'};const personPromise:Promise<Person> = Promise.resolve(person);
-const personObs:Observable<Person>=defer(() =>from(personPromise))     
-personObs.subscribe(data => console.log(data))        // kell +1 lépés promissá alakítás
-
-// --------- fromEvent ---------
+// --------- fromEvent, fromEventPattern(extra dolgokra képes)---------
 // valami = event
 fromEvent(document, 'click').subscribe(() => console.log('Clicked!'));    // ez helyett => document.addEventListener('click', () => console.log('Clicked!'));
 
-// --------- interval ---------
+// --------- interval, timer ---------
 // valami = időnkénti 
 interval(1000).subscribe(data => console.log(data))     // 1 secenként => 0 1 2 3 4 ...
-
-
 timer(3000,1000).subscribe(data => console.log(data))   // 3 sec-es késleltetéssel, 1 secenként
 timer(new Date(new Date().getTime()+3000),1000).subscribe(data => console.log(data))   // 3 sec-es késleltetéssel, 1 secenként
 
+// --------- ajax ---------
+// ajax kéréseket indíthatunk GET,POST,PUT...
+// https://rxjs.dev/api/ajax/ajax
+
+// --------- EMPTY ---------
+import { EMPTY } from 'rxjs';   // üres Observable, nincs next(), egyből complete()-re fut, átmappolásra.
+const EMPTY: Observable<never>;
+
+// --------- generate ---------
+generate(0, x => x < 3, x => x + 1, x => x * 1000); // 0 1000 2000  // 0===0*1000 1000===(0+1)*1000 2000===(0+1+1)*1000
+generate({initialState: 0, condition(value) { return value < 3; }, iterate(value) { return value + 1; },resultSelector(value) { return value * 1000; }});
+
+// --------- range ---------
+range(1, 10);  // 1 2 3 4 5 6 7 8 9 10
+
+// --------- iif ---------
+let subscribeToFirst;
+const firstOrSecond = iif(
+  () => subscribeToFirst,
+  of('first'),            // ha subscribeToFirst true akkor ez az observable lesz létrehozva
+  of('second')            // Ha false, akkor ez lesz
+);
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+// Scheduler // setTimeout speckó feltuningolt megfelelelője
+
+// Refactoring of 'of' and 'from'
+//of([1, 2, 3], asyncScheduler).subscribe((x) => console.log(x));
+// => erre
+scheduled([1, 2, 3], asyncScheduler).subscribe((x) => console.log(x));
+
+
+// Refactoring of 'merge', 'concat', 'combineLatest', 'startWith' and 'endWith'
+// concat(of('hello '), of('World'), asyncScheduler).subscribe((x) => console.log(x));
+// => erre
+scheduled([of('hello '), of('World')], asyncScheduler).pipe(concatAll()).subscribe((x) => console.log(x));
+
+// With combineLatest, you will want to use combineLatestAll
+combineLatest(of('hello '), of('World'), asyncScheduler).subscribe(console.log);
+// => erre
+scheduled([of('hello '), of('World')], asyncScheduler).pipe(combineLatestAll()).subscribe((x) => console.log(x));
+
+//---------------------
+// asyncScheduler
+asyncScheduler.schedule(() => console.log('it works!'), 2000);
+// After 2 seconds logs:          
+// "it works!"
+
+function task(state) {
+  console.log(state);
+  this.schedule(state + 1, 1000); // `this` references currently executing Action,
+                                  // which we reschedule with new state and delay
+}
+asyncScheduler.schedule(task, 3000, 0);
+// Logs:
+// 0 after 3s
+// 1 after 4s
+// 2 after 5s
+// 3 after 6s
+
+//---------------------
+// asapScheduler    // vmi geci gyors asyncScheduler
+asyncScheduler.schedule(() => console.log('async'));  // macro task
+asapScheduler.schedule(() => console.log('asap'));    // mikro task
+// "asap"
+// "async"
+
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
-// OPERÁTOROK       a .pipe -ba kell csomagolni őket
-// filter 
-.filter(callback())
-//------------------------------
-// map          
-.map(callback())
-//------------------------------
+// eggyesítő operátorok
+//----------------------------------------------
+// merge    // nem operátor   // OR     
+// akkor kell, ha több observabelre akarunk feliratkozni 
+// és egyszerre akarjuk kezelni őket, Mint ha OR operátor lenne, midn2 eseményre ugyaanazt akarjuk
+
+// ----0-----1-----2-----3|
+// --0--1--2--3--4--5|
+//          merge 
+// --0-01--2-13--4-25----3|
+merge(observable1,observable2).subscribe()              
+
+//----------------------------------------------
+// ZIP      // nem operátor,  // akkor kell, ha össze akarunk egyesíteni az obs-ökből valami újat
+// az triggerek, ideje nem számít, bevárják egymást
+
+// ----0----1----2----3----4----5----
+// ---0---1---2---3---4---5|
+//     zip
+// ----0----1----2----3----4----5|
+// ----0----1----2----3----4----5|
+
+// zip(observable1,observable2).pipe(.....)       => 1 2 1 2                 
+// .subscribe(                   // 
+// list=> console.log(list))     // [observable1Value,observable2Value]     
+// ha az observable1Value egy tömb akkor egy tömbbe 2 tömb jött meg
+
+let age$ = of(27, 25, 29);let name$ = of('Foo', 'Bar', 'Beer');let isDev$ = of(true, true, false);
+zip(age$, name$, isDev$).pipe(
+  map(([age, name, isDev]) => ({ age, name, isDev }))
+)
+.subscribe(x => console.log(x));
+// { age: 27, name: 'Foo', isDev: true }
+// { age: 25, name: 'Bar', isDev: true }
+// { age: 29, name: 'Beer', isDev: false }
+
+//----------------------------------------------
+// combineLatest  // AND 
+// egyenrangúak, minden triggernél, triggerelődik a másik(ak) utsó értékével
+
+// ----0-----1-----2-----3|
+// --0--1--2--3--4--5|
+//          combineLatest 
+// ----00--0-11--1-22----3|
+// --0-01--2-23--4-45|   5
+combineLatest([obs_1$,obs_2$]).pipe(map(([w, h]) => w / (h * h)));
+
+//----------------------------------------------
+// withLatestFrom() // AND  
+// összemappelünk 2 v több observable-t úgy hogy van egy trigger az obs_1$ és a 
+// (többinek) obs_2$ nek mindig csak az utolsó értékei érdekel minket  
+
+// ----H----e----l----l----o|     // obs_1$
+// --0--1--2--3--4--5|            // obs_2$
+//
+obs_1$.pipe(withLatestFrom(obs_2$));    
+
+//----------------------------------------------
+// partition  // Observable szétszedése egy logika mentén 2-re, mint a filter,
+const [evens$, odds$] = partition(of(1, 2, 3, 4, 5, 6), value => value % 2 === 0);
+odds$.subscribe(x => console.log('odds', x));
+evens$.subscribe(x => console.log('evens', x));
+
+//----------------------------------------------
+// forkJoin   // csak az observabelek complete utáni utsó értékei számítanak
+forkJoin({foo: of(1, 2, 3, 4),bar: Promise.resolve(8),baz: timer(4000)});
+// { foo: 4, bar: 8, baz: 0 } after 4 seconds
+
+forkJoin([of(1, 2, 3, 4),Promise.resolve(8),timer(4000)]);
+// [4, 8, 0] after 4 seconds
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+// magasabbrendű Observable egyesítő operátorok
+//----------------------------------------------
+// combineLatestAll() // mint a combineLatest
+
+const clicks = fromEvent(document, 'click');
+const higherOrder = clicks.pipe(
+  map(() => interval(Math.random() * 2000).pipe(take(3))),
+  take(2)
+);
+const result = higherOrder.pipe(combineLatestAll());
+
+//----------------------------------------------
+// concatAll()      // összefűz egymás után observable őket, EGYMÁS UTÁN ha complet ágba jutott, akkor jön a kövi
+
+const clicks = fromEvent(document, 'click');
+const higherOrder = clicks.pipe(
+  map(() => interval(1000).pipe(take(4)))
+);
+const firstOrder = higherOrder.pipe(concatAll()); // azér kell me ugye ha klikkelek akkor 0-1-2-3,
+// ha eközbe klikkelek akkor bevárja ezt a 4 sec-et és utánna fog a kövi klikk bekövetkezni
+firstOrder.subscribe(x => console.log(x));
+
+// one click = 1000ms-> 0 -1000ms-> 1 -1000ms-> 2 -1000ms-> 3
+
+//----------------------------------------------
+// exhaustAll()     // összefűz egymás után HA nincs aktív timer, vagyis amíg fut a belső addig nem klikkelhetek
+
+const clicks = fromEvent(document, 'click');
+const higherOrder = clicks.pipe(
+  map(() => interval(1000).pipe(take(5)))
+);
+const result = higherOrder.pipe(exhaustAll());
+
+//----------------------------------------------
+// mergeAll()       // mint a merge ... 
+
+const clicks = fromEvent(document, 'click');
+const higherOrder = clicks.pipe(map(() => interval(1000)));
+const firstOrder = higherOrder.pipe(mergeAll());
+firstOrder.subscribe(x => console.log(x));
+
+const clicks = fromEvent(document, 'click');
+const higherOrder = clicks.pipe(map(() => interval(1000).pipe(take(10))));
+const firstOrder = higherOrder.pipe(mergeAll(2)); // csak 2 egyidejü időzítő (mergelés) engedélyezett
+firstOrder.subscribe(x => console.log(x));
+
+//----------------------------------------------
+// switchAll()      // átkapcsol egy másik Observable-re
+
+const clicks = fromEvent(document, 'click').pipe(tap(() => console.log('click')));
+const source = clicks.pipe(map(() => interval(1000)));    // klikkre elindul a számolás
+
+source.pipe(switchAll()).subscribe(x => console.log(x));  // viszont minden clikknél ujraindul
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+// buffer-ek, arra valók hogy bizonyos mennyiségü értéket tároljanak, pl 2- esével tárolják egy obs next értékeit
+// obs_0$.pipe(buffer....)
+//----------------------------------------------
+bufferCount(3,2)                // 3 értéket tárol és 2 értékenként proccol  
+bufferCount(3)                  // === bufferCount(3,3)  // defaultan a 2. érték egyenlő az elsővel
+// ----a----b----c----d----e----f
+// bufferCount(3,2)
+// -------------[a,b,c]----[c,d,e]
+
+//----------------------------------------------
+bufferTime(2000, 5000)          // 5 sec-enként a kövi 2 secben megtörtént dolgokat procolja
+bufferTime(2000)                // 2sec-enként proccol és összeszedi ami addig jött abba a 2 secbe
+// ----a----b----c----d----e----f---|
+// bufferTime(2000) 
+// ----------[a,b]----------[c,d,e]-[f]    
+
+//----------------------------------------------
+buffer(obs_2$)                  // a buffert egy observable zárja le
+// ----a----b----c----d----e----f---|   // obs_1$
+// -------0--------0----0-----0|        // obs_2$
+// buffer(obs_2$) 
+// -------[a]-----[b,c]-[d]---[e]|
+
+//----------------------------------------------
+bufferToggle(obs_1$, obs_2$)    // obs_1$ megnyitja a buffert, obs_2$ bezárja => nem állandó a buffer méret
+
+//----------------------------------------------
+bufferWhen(obs_1$)              // az obs_1$ bezárja a buffert, majd ujra megismétli amíg jön az eredeti observable-ből adat
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+// Map-ek
+// egy observable hatására egy másik observable lefut, visszatér egy observable-el
+concatMap()     // a belsőket bevárja és egymás után füzi
+exhaustMap()    // amíg a belső benem fejeződöt, addig tiltja a külsőt
+switchMap()     // ha jün egy új külső trigger, akkor vált
+mergeMap()      // totális Map (merge), nincs semmi a fentiek közt, minden trigger megjön
+
+map()           // egy observable van és annak értékeit mappeljük
+//-----------------------------------------------------------------------------------------------------------------------------------
+// concatMap()
+// vagy pl.: a többdimenziós tömböt (egy zip-et) egy observable-be vetíti, és a gyümölcsöket egyenként adja vissza. 
+
+//----------------------------------------------
+// exhaustMap()
+// amíg a belső observable fut addig hiába jön click azok kukába mennek
+const clicks = fromEvent(document, 'click');
+const result = clicks.pipe(exhaustMap(() => interval(1000).pipe(take(5))));
+
+//----------------------------------------------
+switchMap()           
+// mindegyik új bezárja az előzőt => csak az utsó van életbe
+fromEvent(document,'click').pipe(
+    switchMap(()=>interval(1000))   // 1 sec-enként kiírjuk az értéket ami 0 1 2 3 4 5 6 ....
+)                                   // click eseményre restartoljuk 0 rol indulunk
+
+of(1, 2, 3).pipe(
+    switchMap((x) => of(x, x ** 2, x ** 3)) // 1 1 1 2 4 8 3 9 27
+)       
+// vis úgy mappol hogy ha elfogy a feladat "of(x, x ** 2, x ** 3)" akkor ujraindul a kövivel előröl
+
+postsObs.pipe(
+    switchMap(posts => {                    // bezárjuk a postObs-t ha elfogytak 
+        return commentObs                   // és visszatérünk a commentObs-al       
+            .pipe(
+                tap(comments=>{
+                    console.log(comments);
+                    console.log(posts)      // így elérjük mind2 őt egy helyen
+            })
+        )
+    })
+)
+//----------------------------------------------
+mergeMap()  
+// pl.: minden szín inputra elindítasz egy stoppert azon színnel
+// a lényeg hogy a belső obs-t akarjuk manipulálni egy esemény kapcsán
+const carColorObs:Observable<Color>=this.getColor();
+const carDriverObs:Observable<Driver>=this.getDriver();
+
+const carObs : Observable<Car>=carColorObs.pipe(
+    mergeMap(color=>{               // kombináltuk a 2 Obs-t eggyé
+        return carDriverObs.pipe(
+            map(driver =>{
+                const car:Car={
+                    driver:driver,
+                    color:color
+                };
+                return car;
+            })
+        )
+    })
+).subscribe(data=>console.log(data))
+
+of('a', 'b', 'c').pipe(                     // átadjuk az elemeket egyesével
+    mergeMap(x => interval(1000).pipe(      // 1 secenként mapolunk
+            map(i => x+i))),
+).subscribe(x => console.log(x));           // a0 b0 c0 a1 b1 c1 ...
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+// min, max, count, reduce, scan, mergeScan, switchScan
+//----------------------------------------------
+// min, max
+max()
+min((a, b) => a.age < b.age ? -1 : 1) // mi alapján rendezzen
+
+//----------------------------------------------
+// count
+count()                       // mennyi db next volt?
+count(i => i % 2 === 1)       // mennyi db next volt amire igaz a feltétel?
+
+//----------------------------------------------
 // reduce       // complet()-nél adja vissza az összeget
 //----1----2----3----4----5--|
 // reduce((total,x)=> total + x,0)
 //---------------------------(15|)
-of(1,2,3,4,5).reduce((total,x)=> total + x,0).subscribe(console.log)                        
-//------------------------------
+of(1,2,3,4,5).reduce((total,x)=> total + x,0).subscribe(console.log)      
+
+//----------------------------------------------
 // scan         // olyan mint a reduce, de ez minden next()-nél triggerel
 //----1----2----3----4----5--|
 // scan((total,x)=> total + x,0)
 //----1----3----6----10---15-|
-of(1,2,3,4,5).scan((total,x)=> total + x,0).subscribe(console.log)     
+of(1,2,3,4,5).scan((total,x)=> total + x,0).subscribe(console.log) 
+
+//----------------------------------------------
+// mergeScan
+mergeScan((acc, one) => of(acc + one), seed)
+// Olyan, mint a scan, de az akkumulátor által visszaadott Observable-ket a külső Observable-be olvasztjuk.
+
+//----------------------------------------------
+// switchScan
+switchScan((acc, one) => of(acc + one), seed)
+// Olyan, mint a mergeScan, de csak az akkumulátor által visszaadott 
+// legfrissebb Observable kerül beolvasztásra a külső Observable-be.
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+// groupBy pairwise expand
+//----------------------------------------------
+// groupBy
+// csoportokat hoz létre egy logika alapján és ezeket a csoportokat dobja tovább külön külön
+// amit tovább ad csoportokat, az is observable
+// 2. paramétere a projekció, hogy az az observable objektum mely mezőit passzolja tovább
+groupBy(p => p.id)
+groupBy(p => p.id, { element: p => p.name }),
+
+//----------------------------------------------
+// pairwise
+// az observable érékeit 2 es csoportoba doja tovább
+//----1----2-----3-------4------|
+// pairwise()
+//---------[1,2]-[2,3]---[3,4]--|
+obs_1$.pipe(pairwise()).pipe(map(([first, second]) => {}))
+
+//----------------------------------------------
+// expand
+// Olyan mint a mergeMap, de az expand rekurzív vagyis ha a külső observable triggerelődik, 
+// akkor indít egy új belsőt, ujra és ujra és ujra, ezeket mergeli,
+// de minden egyes belső újra lefuttatja a belsőt magán, => kell kilépési feltétel, vagy take()
+
+expand(x => of(2 * x).pipe(delay(1000))),
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+// OPERÁTOROK       a .pipe -ba kell csomagolni őket
+// filter 
+.filter(callback())
+
 //------------------------------
 // tap              // ugyanaz mint a MAP de ő a manipuláció elötti értéket adja tovább és NEM manipulálja az adatot
 fromEvent(document,'click').pipe(
@@ -138,7 +492,7 @@ of(1, 2, 3).pipe(
 // distinct
 // --a--b--A-----2|
 .distinct((p: Person) => p.name)// mindenből max 1 name propertyt figyel !!!
-.distinct(({ name }) => name,$obs_2) // amikor az $obs_2 triggerelődik akkor üríti a buffert vagyis az 'a' jöhet ujra..
+.distinct(({ name }) => name,obs_2$) // amikor az obs_2$ triggerelődik akkor üríti a buffert vagyis az 'a' jöhet ujra..
 .distinct((a,b) => a.toLowerCase() === b.toLowerCase())
 .distinctUnitChanged()          // egymás után nem lehet 2 egyform // filter vagy esemény rate csökkentésre
 
@@ -191,63 +545,8 @@ export class XXXComponent extends BaseComponent implements OnInit{
     .subscribe(x=> this._x=x)
   }
 }
-//-----------------------------------------------------------------------------------------------------------------------------------
-// switchMap           // egy observert bezár és elindít egy másikat // vagy esemény hatására RESTART, ujraindít egy adatfolyamot
-// ugyanaz mint a mergeMap CSAK a switch a legutolsó obs-t hagyja csak életbe
-fromEvent(document,'click')
-.pipe(
-    switchMap(()=>interval(1000))   // 1 sec-enként kiírjuk az értéket ami 0 1 2 3 4 5 6 ....
-)                                   // click eseményre restartoljuk 0 rol indulunk
-.subscribe(console.log)    
 
-of(1, 2, 3).pipe(
-    switchMap((x) => of(x, x ** 2, x ** 3)) // 1 1 1 2 4 8 3 9 27
-).subscribe(console.log);           // vis úgy mappol hogy ha elfogy a feladat "of(x, x ** 2, x ** 3)" akkor ujraindul a kövivel előröl
 
-postsObs=this.getPosts();
-commentObs=this.getComments();
-postsObs.pipe(
-    switchMap(posts => {                    // bezárjuk a postObs-t ha elfogytak 
-        return commentObs                   // és visszatérünk a commentObs-al       
-            .pipe(
-                tap(comments=>{
-                    console.log(comments);
-                    console.log(posts)      // így elérjük mind2 őt egy helyen
-            })
-        )
-    })
-)
-//-----------------------------------------------------------------------------------------------------------------------------------
-// mergeMap  
-// külső + belső observable => 
-// amint a külső obs kibocsájt egy eseményt elindíthatsz ennek kapcsán egy belsőt (funkcionális megfelelője a flatMap)
-// pl.: minden szín inputra elindítasz egy stoppert azon színnel
-// a lényeg hogy a belső obs-t akarjuk manipulálni egy esemény kapcsán
-const carColorObs:Observable<Color>=this.getColor();
-const carDriverObs:Observable<Driver>=this.getDriver();
-
-const carObs : Observable<Car>=carColorObs.pipe(
-    mergeMap(color=>{               // kombináltuk a 2 Obs-t eggyé
-        return carDriverObs.pipe(
-            map(driver =>{
-                const car:Car={
-                    driver:driver,
-                    color:color
-                };
-                return car;
-            })
-        )
-    })
-).subscribe(data=>console.log(data))
-
-of('a', 'b', 'c').pipe(                     // átadjuk az elemeket egyesével
-    mergeMap(x => interval(1000).pipe(      // 1 secenként mapolunk
-            map(i => x+i))),
-).subscribe(x => console.log(x));           // a0 b0 c0 a1 b1 c1 ...
-//-----------------------------------------------------------------------------------------------------------------------------------
-concatMap()
-// minden elemből csinál egy adatfolyamot, bevárja mindegyik csináltat és összefűzi öket egymás után egy adatfolyammá
-// vagy pl.: a többdimenziós tömböt (egy zip-et) egy observable-be vetíti, és a gyümölcsöket egyenként adja vissza. 
 //-----------------------------------------------------------------------------------------------------------------------------------
 // share        // ha van egy adatfolyam amire feliratkoznak többen =>
 const source = interval(1000)
@@ -314,12 +613,6 @@ auditTime(1000) // 1 secenként dobálja az addigi utsó adatot
 // throttleTime(1000)
 // ----0----1----3---
 
-//-----------------------------------------------------------------------------------------------------------------------------------
-// bufferCount              // buffereli az adatokat
-fromEvent(document, 'click')            
-.pipe(
-    bufferCount(20)                 // 20 as length-ű tömböket ad vissza
-).subscribe(x => console.log(x));
 
 //-----------------------------------------------------------------------------------------------------------------------------------
 // concatWith       sorosan egymás mögé teszi a 2 Obs-t, az elsőnek kell lennie completednek
@@ -357,110 +650,10 @@ forkJoin({
     next: value => console.log(value),                      // { foo: 4, bar: 8, baz: 0 } after 4 seconds
     complete: () => console.log('This is how it ends!'),    // "This is how it ends!" immediately after
 });
-//-----------------------------------------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------------------------------------
-// merge    // nem operátor   // akkor kell, ha több observabelre akarunk feliratkozni és egyszerre akarjuk kezelni őket, Mint ha OR operátor lenne, midn2 eseményre ugyaanazt akarjuk
-
-// ----0-----1-----2-----3|
-// --0--1--2--3--4--5|
-//          merge 
-// --0-01--2-13--4-25----3|
-merge(observable1,observable2).subscribe()              
-//----------------------------------------------
-// combineLatest // ÉS
-// ----0-----1-----2-----3|
-// --0--1--2--3--4--5|
-//          combineLatest 
-// ----00--0-11--1-22----3|
-// --0-01--2-23--4-45|   5
-combineLatest([$obs_1,$obs_2]).pipe(
-    map(([w, h]) => w / (h * h)),
-);
-//----------------------------------------------
-withLatestFrom()  // összemappelünk 2 observable-t úgy hogy az egyiknek csak az utolsó értéke érdekel minket  // ÉS stílus
-// ----H----e----l----l----o|     // $obs_1
-// --0--1--2--3--4--5|            // $obs_2
-//
-$obs_1.pipe(withLatestFrom($obs_2));    // minden egyes $obs_1 cuppanáskor megkapjuk az utolsó $obs_2 es értékét és az $obs_1 értékét is és az cuppan
-//----------------------------------------------
-// ZIP      // nem operátor,  // akkor kell, ha össze akarunk egyesíteni az obs-ökből valami újat
-
-// ----0----1----2----3----4----5----
-// ---0---1---2---3---4---5|
-//     zip
-// ----0----1----2----3----4----5|
-// ----0----1----2----3----4----5|
-
-// zip(observable1,observable2).pipe(.....)       => 1 2 1 2                 
-// .subscribe(                   // 
-// list=> console.log(list))     // [observable1Value,observable2Value]     // ha az observable1Value egy tömb akkor egy tömbbe 2 tömb jött meg
-
-let age$ = of(27, 25, 29);let name$ = of('Foo', 'Bar', 'Beer');let isDev$ = of(true, true, false);
-zip(age$, name$, isDev$).pipe(
-  map(([age, name, isDev]) => ({ age, name, isDev }))
-)
-.subscribe(x => console.log(x));
-// { age: 27, name: 'Foo', isDev: true }
-// { age: 25, name: 'Bar', isDev: true }
-// { age: 29, name: 'Beer', isDev: false }
-//-----------------------------------------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------------------------------------
-// SUBJECT     
-const subject= new Subject()
-const observer1 = subject.subscribe({
-    next:data => console.log(data),
-    error:err=>console.log(err),
-    complete:()=>console.log('completed')})   // ez önmagábha nem fut le mert megkell neki mondani hogy next
-subject.next('az első üzenet elment')         // most írja ki ezt de csak az első observer 
-const observer2=subject.subscribe(
-    data => console.log(data))
-subject.next('az 2. üzenet elment')           // először az 1. majd a 2. observer
-subject.next('az 3. üzenet elment')           // ezt is
-observer2.unsubscribe()
-subject.next('az 4. üzenet elment')           // ezt csak az első mert a 2. már leiratkozott
-
-lastPickedCharacter = new Subject<Model>();
-lastPickedCharacter.next(m:Model)             // aki feliratkozott rá az megkapja majd az "m" -et
 
 
-$obs_1.subscribe(subject)             // az első triggereli a subjektet
-subject.subscribe($obs_2)             // így mind2 ugyanarra iratkozik fel 
-subject.subscribe($obs_3)
-//----------------------------------------
-const behaviorsubject= new BehaviorSubject("First") // az egyesnek ő lesz az első default elküldött értéke DE
-//                                              DE a 2 es observer-nek az elötte lévő next lesz a default első vagyis => 'az első üzenet elment'
-//                                              az érték tárolódik, nem csak sugározuk, pl kosárnál használhatjuk 
-//----------------------------------------
-const replaySubject= new ReplaySubject(2)       // a 2 es observer-nek a 2 vel elötte lévő lesz az első vagyis => 'az első üzenet elment' elötti, ha lenne :)
-const replaySubject= new ReplaySubject(30,200)  // a 2 es observer-nek a 30 al elötte lesz az első next ÉS 200 milisecundummal elöttelévő   
-//----------------------------------------
-const asyncSubject= new AsyncSubject()   // csak az utolsó érték lesz elküldve, a complete() elötti, HA VAN complete()
-//                                       // megvárja a completet, és az utolsó érték sugárzódik ki
-//-----------------------------------------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------------------------------------------------
-// buffer-ek, arra valók hogy bizonyos mennyiségü értéket tároljanak, pl 2- esével tárolják egy obs next értékeit
-bufferCount(3,2)    // 3 értéket tárol és 2 értékenként proccol   // defaultan a 2. érték egyenlő az elsővel
-// ----a----b----c----d----e----f
-// bufferCount(3,2)
-// -------------[a,b,c]----[c,d,e]
 
 
-// -------
-bufferTime(2000, 5000)  // 5 sec-enként a kövi 2 secben megtörtént dolgokat procolja
-bufferTime(2000)        // 2sec-enként proccol és összeszedi ami addig jött abba a 2 secbe
-// ----a----b----c----d----e----f---|
-// bufferTime(2000) 
-// ----------[a,b]----------[c,d,e]-[f]    
-
-// -------
-buffer($obs_2)          // a buffert egy observable zárja le
-// ----a----b----c----d----e----f---|   // $obs_1
-// -------0--------0----0-----0|        // $obs_2
-// buffer($obs_2) 
-// -------[a]-----[b,c]-[d]---[e]|
 
 //-----------------------------------------------------------------------------------------------------------------------------------
 // Error kezelésre
@@ -477,8 +670,40 @@ catchError(err => {throw 'error in source. Details: ' + err; }) // vagy hibát d
 //-------------------
 retry()  // ujrapróbálkozik, ha hiba van
 retry(2) // ujrapróbálkozik, ha hiba van 2x
-//-----------------------------------------------------------------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+// SUBJECT     // olyan observer aki observable is, triggerelhetünk next-et és fel is lehet iratkozni rá
+
+const subject = new Subject<Model>();
+subject.next(m:Model)             // aki feliratkozott rá az megkapja majd az "m" -et
+
+
+obs_1$.subscribe(subject)             // az obs_1$ triggereli a subjektet
+subject.subscribe(obs_2$)             // így mind2 ugyanarra iratkozik fel 
+subject.subscribe(obs_3$)
+// ha nem így csinálnánk, hanem közvetlen az obs_1$ -re iratkoznánk fel az obs_2$-vel és obs_3$-al is akkor
+//----------------------------------------
+// BehaviorSubject // tárolja az utsó értéket
+
+const behaviorsubject= new BehaviorSubject("First") // az egyesnek ő lesz az első default elküldött értéke DE
+//                                              DE a 2 es observer-nek az elötte lévő next lesz a default első vagyis => 'az első üzenet elment'
+//                                              az érték tárolódik, nem csak sugározuk, pl kosárnál használhatjuk 
+//----------------------------------------
+// ReplaySubject   // ideőbeli eltolásokhoz
+
+const replaySubject= new ReplaySubject(2)       // a 2 es observer-nek a 2 vel elötte lévő lesz az első vagyis => 'az első üzenet elment' elötti, ha lenne :)
+const replaySubject= new ReplaySubject(30,200)  // a 2 es observer-nek a 30 al elötte lesz az első next ÉS 200 milisecundummal elöttelévő   
+//----------------------------------------
+// AsyncSubject   // complete után kapom csak meg az értéket
+
+const asyncSubject= new AsyncSubject()   // csak az utolsó érték lesz elküldve, a complete() elötti, HA VAN complete()
+//                                       // megvárja a completet, és az utolsó érték sugárzódik ki
+
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
 // Operator Explanation
 // Before we look at when to use each of the operators, lets look at what each of the operators does.
 
@@ -494,21 +719,6 @@ retry(2) // ujrapróbálkozik, ha hiba van 2x
 // exhaustMap: non-parameterized queries
 // switchMap: parameterized queries
 // By following these recommendations on usage, you will avoid race conditions within your effects.
-
-
-
-//-----------------------------------------------------------------------------------------------------------------------------------
-concatAll()      // összefűz egymás után observable őket, EGYMÁS UTÁN ha complet ágba jutott, akkor jön a kövi
-
-const clicks = fromEvent(document, 'click');
-const higherOrder = clicks.pipe(
-  map(() => interval(1000).pipe(take(4)))
-);
-const firstOrder = higherOrder.pipe(concatAll()); // azér kell me ugye ha klikkelek akkor 0-1-2-3 , ha eközbe klikkelek akkor bevárja ezt a 4 sec-et és utánna fog a kövi klikk bekövetkezni
-firstOrder.subscribe(x => console.log(x));
-
-// one click = 1000ms-> 0 -1000ms-> 1 -1000ms-> 2 -1000ms-> 3
-
 //-----------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -541,6 +751,18 @@ firstOrder.subscribe(x => console.log(x));
 
 
 
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
