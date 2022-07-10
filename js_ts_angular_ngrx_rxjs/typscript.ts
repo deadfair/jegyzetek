@@ -1,25 +1,61 @@
-// npm i -g typescript      // globális telepítés
-// tsc typescript.ts -w     // auto fordítás js re      // tsc typescript.ts    // csak fordít 1x   
+// npm i -g typescript          // globális telepítés
+// tsc typescript.ts -w         // auto fordítás js re      // tsc typescript.ts    // csak fordít 1x   
 // tsc typescript.ts -t es2016  // ha hiba van
 // npm init                 
-// package.json             // scriptek közé irni hogy              ts:"tsc -w" 
-// tsc --init               // => most a tsc parancsal már fordít
-// tsconfig.json            // {"rootdir":"./src"   "outdir":"./dist"}             // honnan hova fordítson beállítás
-// package.json             // scriptek közé irni hogy              start:"node ./dist/index.js" 
-// npm run start            // a js filet futtatja
+// tsc --init               // => most a tsc parancsal már mindent fordít az adott mappába, + létrehozott egy tsconfig.json filet
+// tsconfig.json            // hasznos opciók: =>
+// ,"exclude": [                                    // a sconfig.json file végére
+//  "node_modules",                                 // mappát ne fordítsa, defaultba benne van, akkor kell csak ha exclude-ot felvesszük
+// 	"analytics.ts",	                                // ezt a file-t nem fordítja
+// 	"*.dev.ts",                                     // minden file ami erre végződik
+// 	"**/*.dev.ts"								    // minden mappa benne minden file amierre végződik
+// ],"include":[                                    // az itt található file-okat fordítja csak
+// 	"app.ts",	                            
+// ],"files":[]                                     // direktbe mik legyenek fordítva?
+// {"rootdir":"./src"   "outdir":"./dist"}          // honnan hova fordítson beállítás
+// "lib": [                                         // ide lehet irni explicite hogy milyen apikat akarunk
+// "DOM",                                           // ez a 4 az ES6 default settings-e
+// "ES6",
+// "DOM.Iterable",
+// "ScriptHost"
+// ],   
+// "sourceMap" true                                 // debugolásra, megkapja a böngésző a ts file-t is egy map file segítségével, és debugolhatom
+
+// package.json             // scriptek közé irni hogy              
+// ts:"tsc -w" 
+// "start":"node ./dist/index.js"   // => npm run start                 // a js filet futtatja
+// "start": "lite-server"           // npm i --save-dev lite-server     // fasza live szerver
 //------------------------------------------------------------------------------------------------------------------------------------------------
-let Never:never;        // sohase ér a végére a fgv, pl throw a fgv-en belül
+let Never:never;        // sohase ér a végére a fgv, pl throw a fgv-en belül // KIKELL RAKNI MINDIG
 // :void => a void a default viszatérési érték, értéke "undefined" v. "null"       
-let A_0:any;            // bármi
+let A_0:any;            // bármi    DE!!! => // S_0= A_0  // <= ez jó, DE // S_0 = U_0 // <= ez nem jó 
+let U_0:unknown;        // ismeretlen tipus, nem tudjuk előre milyen, megkell mondani neki hogy kezelje ugy mint "as", akkor használjuk ha nemtudjuk mi a típus
 let S_0:string="valami";
 let B_0:boolean=true;
 let N_0:number=22;      // N_0=0xf; => hexa forma, 15    // 0b => binális    // 0o => octal     // 6.7 => float     // 6 => decimal
 var L_0:bigint=100n;    // long // js be is van
-let U_0:unknown;        // ismeretlen tipus, nem tudjuk előre milyen, megkell mondani neki hogy kezelje ugy mint "as"
 let U_1:undefined;      // visszatérési értéknél van értelme
 let N_1:null;           // -||-
 let NU_1:null | undefined;  
 let V_0:"vagyez" | "vagyaz";
+let object1: object;     // ez csak egy objekt
+let object2:{}           // === mint ez
+let person: object = {name:"kiki"}; console.log(person.name);   // fordítás idejü HIBA
+let fgv_1: Function;                        // a fgv_1 bármilyen fgv lehet 
+let fgv_2: (a:number, b:number) => number;  // a fgv_2 csak olyan fgv lehet ami vár 2 numbert és visszatér egy numberrel
+const undefinedReturn = (): undefined => {return};  // kötelező kiírni a return-t
+const voidReturn = (): void => {};                  // elhagyható a return, de mind2 returnja undefined
+// void: nem veszi figyelembe a returnt, ha van, ignorálja és engedi hogy akár legyen, de nem tér vissza semmivel, nem érdekli mi a return
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// létrehozás + érték adásnál a typescript maga megadja a típust ne irjuk ki
+let number_1: number = 5;		// bad practice
+let number_2: number;				// good practice
+let number_3 = 5;						// good practice
+let person_1:{name:string}={name:"kiki"};   // bad practice     // Ha van Tuple az objektumba, akkor muszáj így!!!
+let person_2={name:"kiki"};                 //good practice     // érték adásnál a typescript maga megadja a típust ne irjuk ki
+const add = (number_1: number, number_2: number): number => number_1 + number_2;    // BAD practice
+const add2 = (number_1: number, number_2: number) => number_1 + number_2;           // GOOD practice
+const printResult = (number: number): void => {console.log('Result: ' + number);};  // VOID-nál GOOD practice
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // Readonly
 class Ember {readonly id: number;}      // csak olvasható, mint a const DE csak Interface v Class property-je lehet, CSAK konstruktorba kap értéket
@@ -41,9 +77,12 @@ let employee = (U_0 as Employee)                // LEHET objektummá is, akkor
 employee = (<Employee> U_0);                    // LEHET objektummá is, akkor
 employee.name = "John"; employee.code = 123;    // Majd értéket KELL adni
 //------------------------------------------------------------------------------------------------------------------------------------------------
-// Típus létrehozás     // Literal típus
-type Mybool="igen" | "nem";
-let enboolom:Mybool="igen";
+// Típus létrehozás     // Literal típus  // tisztább lesz a kód a | típusok helyett
+type MyType="igen" | "nem" | number ;
+let enboolom:MyType="igen";
+type User = { name: string; age: number };  // mint az interface???
+function fgv(user: User) {}
+const u1: User = { name: 'Max', age: 30 }; 
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // Tömbök
 let SA_0:string[]=["szöveg1","szoveg2"];    // VAGY => let SA_1:Array<string>=["szöveg1","szoveg2"];
@@ -56,11 +95,17 @@ let SA_3:{name:string, email:string}[]=[{name:"kiki",email:"bb@freemail.hu"}];  
 // Tuple, ez egy tömb ami megmondja hogy, hogy következnek egymás után az elemek típus szerint
 // akkor használjuk, ha egy fügvénynek van sok bemenete és ezt a tuple-t adjuk át a fgv bemenetére fgv(...tuple)
 let Tuple: [number, string] = [1, "Steve"];
-Tuple.push(2, "Bill");  // [1, 'Steve', 2, 'Bill']      // így növelhetem a méretét, amúgy csak 2 hósszú lehet értékadásnál
-Tuple.push(true);       // DE ÍGY NEM JÓ !!!
+Tuple.push(2, "Bill");      // [1, 'Steve', 2, 'Bill']      // így növelhetem a méretét, amúgy csak 2 hósszú lehet értékadásnál
+Tuple.push(true);           // DE ÍGY NEM JÓ !!!
+Tuple[1]=10;                // DE ÍGY NEM JÓ !!!
+Tuple = [2,'author','admin']// DE ÍGY NEM JÓ !!!
+Tuple.push("true");         // ÍGY SAJNOS JÓ NEM SZÓL
+
 // Tuple Array
 let TupleArray: [number, string][];
 TupleArray = [[1, "Steve"], [2, "Bill"], [3, "Jeff"]];
+
+const addd = (...numbers:[number, number, number]) =>{} // ha tudom hogy 3 paraméter lesz, de nem akarom kiirogatni, ez így szebb
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // ENUM     // értékek: string vagy szám vagy mind2
 enum Szinek{                                
@@ -123,6 +168,8 @@ interface Fgv{                    // => Az interface fgv is lehet
 } 
 let mFgv_1:Fgv = function(id:string,value:number):boolean{return false;}
 let mFgv_2:Fgv =         (id:string,value:number):boolean => false;
+let myFgv_3:Fgv = (id: string, value: number) => id === '1' && value === 2;
+
 //--------------------------------
 
 interface Counter{              // ez vajon mire jó?
@@ -145,7 +192,7 @@ cc.i=5;console.log(cc);               // [Function: c] { i: 5, reset: [Function 
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // Abstract Class
 abstract class Emlős {                // nem példányosítható !!!
-  abstract hangotAd():void;           // abstract fgv-ei lehetnek  => egy leszármazott osztájba definiálunk 
+  abstract hangotAd():void;           // abstract fgv-ei lehetnek  => egy leszármazott osztájba definiálunk, muszáj minden leszármazottban definiálni
   mozog():void{console.log("fut")}    // és nem abstract is
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------
@@ -172,8 +219,9 @@ class Circle {
   // a kor opcionális, nem kötelező paraméter, de a bemenetek végén legyen mindíg az összes ilyen opcionális paraméter
   // egyböl létrehozza a public és privat szavakkal a public és privat fieldeket
   
-  get age():number {return this._age}
-  set radius(radius){this._radius = radius}
+  // setter és getterbe komplex logikákat szokás tenni, pl érték validálás
+  get age():number {return this._age}           // console.log(circle.age)
+  set radius(radius){this._radius = radius}     // circle.radius = radius
 
   static calculateArea(radius:number):number {  // lehet fgv is static
       return this.pi * radius * radius;
@@ -182,6 +230,9 @@ class Circle {
   getId2:()=>string;                            // így megadhatom hogy mi legyen a return 
   getId3=():string=>{return "id";};             // nyíl fgv
   korKiiras():void{console.log(this.kor)}       // normál fgv
+  describe(this:Circle) {                       // így védem le, azt hogy, aki meghívná ezt a fgv-t az BIZTOSAN Circle legyen, vis a this típusa Circle
+    console.log('Department: ' + this.pi);
+}
 }
 Circle.pi; // returns 3.14
 let circleObj:Circle = new Circle(23);     
@@ -208,9 +259,34 @@ class textQuestion extends Question{
     }
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------
+// privát konstruktor, akkor kell ha azt akarjuk hogy 1 Classból csak eggyetlen egy példány létezzen
+class AccountingDepartment  {
+    private constructor(id: string) {}
+    private static instance:AccountingDepartment;
+    static getInstance(){
+        if (AccountingDepartment.instance){
+            return this.instance
+        }
+        this.instance = new AccountingDepartment('id');
+        return this.instance;
+    }
+}
+const accountingDepartment = AccountingDepartment.getInstance();
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
 // generikus osztályok
 function mygen<T>(input:T):T{
     return input;
+}
+function merge<T, U>(object_1:T,object_2:U){
+	return Object.assign(object_1,object_2);
+}
+const mergedObject = merge({name:"Max"},{age:20}) // generikusság nélkül ő cask egy object lesz
+console.log(mergedObject.age);                    // így érti a ts hogy van neki age
+const mergedObject_2 = merge<string,number>("string",20)    // vagy direktbe megis mondhatjuk neku hogy mit adunk a merge-be
+// szigorítást teszünk, hogy a T meg az U mik lehetnek
+function merge2<T extends number | string, U extends object>(object_1: T, object_2: U) {
+	return Object.assign(object_1, object_2);
 }
 interface MyGenInterface<T>{
     lista:Array<T>;
@@ -238,6 +314,53 @@ function create2<T extends MyClass1>(myClass:{new():T}):T{
     return c;   // olyan T-t vár aki extendálja a MyClass1-t , csinál dolgokat majd visszaadja 
 }               // amivel utánna mi csinálunk dolgokat a fgv en kivül
 
+interface Lengthy{
+	length: number;
+}
+// olyan elementeket adhatunk cask át, aminek van length propertíje
+function countAndPrint<T extends Lengthy>(element:T):[T,string]{
+	let descriptionText = "Got no value.";
+	if (element.length === 1) {
+		descriptionText = "Got 1 element.";
+	} else if(element.length >1) {
+		descriptionText = `Got ${element.length} elements.`
+	}
+	return [element, descriptionText];
+}
+
+// U extends keyof T => U a T kulcsai közül való legyen
+function extractAndConvert<T extends object, U extends keyof T>(obj:T,key:U){
+	return obj[key];
+}
+class DataStorage<T>{
+	private data:T[] = [];
+	addItem(item:T){
+		this.data.push(item);
+	}
+	removeItem(item:T){
+		this.data.splice(this.data.indexOf(item), 1);
+	}
+	getItems(){
+		return [...this.data];
+	}
+}
+const textStorage = new DataStorage<string>();
+
+interface CourseGoal{
+	title:string;
+	description:string;
+	completeUntil:Date;
+}
+
+function createCourseGoal(title:string, description:string, date:Date):CourseGoal{
+	let courseGoal:Partial<CourseGoal> = {};  // az interface minden elemére megmondjuk hogy opcionális
+	courseGoal.title = title;
+	courseGoal.description = description;
+	courseGoal.completeUntil = date;
+	return courseGoal as CourseGoal;
+}
+
+const names:Readonly<string[]> = ["Max", 'Anna']
 //------------------------------------------------------------------------------------------------------------------------------------------------
 // Dekorátorok ????
 //------------------------------------------------------------------------------------------------------------------------------------------------
@@ -397,3 +520,424 @@ interface Point2 extends PartialPointX2 { y: number; }                    type P
 
 // Use interface for all object types where using type is not required (see above)
 // Use interface when you want to take advatange of declaration merging.
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// TYPE GUARD
+
+function size(input: string | number) {
+    if (typeof input === 'string') {        // primitívek esetén typeof
+        return input.length;
+    }
+    return input;
+    }
+//--------------------------
+interface Admin {
+	name: string;
+	privileges: string[];
+}
+
+interface Employee {
+	name: string;
+	startDate: Date;
+}
+type UnknowEmloyee = Employee | Admin;
+
+function printEmployeeInformations(employee: UnknowEmloyee){
+	if ('privileges' in employee) {
+		console.log('Privileges: '+employee.privileges);
+	}
+}
+
+//--------------------------
+class Car{
+	drive(){
+		console.log("Driving");
+	}
+}
+class Truck{
+	drive(){
+		console.log("Driving a truck");
+	}
+	loadCargo(amount:number){
+		console.log("Loading cargo..." + amount);
+	}
+}
+
+type Vehicle = Car | Truck;
+
+const vehiicle_1 = new Car();
+const vehiicle_2 = new Truck();
+
+function useVehicle(vehicle:Vehicle) {
+	vehicle.drive();
+	if (vehicle instanceof Truck) {         // ha a vehicle a Truck egyik példánya akkor, CSAK CLASSOKNÁL SZBAD Interfaceknél NEM, 
+		vehicle.loadCargo(10000)            // mert interface, az csak  Typescript specifikus cucc nem fordul semmire, amíg a class igen
+//                                          // és az instanceof az js specifikus cucc
+	}
+}
+//--------------------------
+interface Bird{
+	type:'bird';
+	flyingSpeed: number;
+}
+
+interface Horse{
+	type:'horse',
+	runningSpeed: number;
+}
+
+type Animal = Bird | Horse;
+
+function moveAnimal(animal: Animal) {
+	let speed: number;
+	switch (animal.type) {
+		case 'bird':
+			speed=animal.flyingSpeed;
+			break;
+		case 'horse':
+			speed=animal.runningSpeed;
+	}
+	console.log('Moving at speed: ' + speed);
+}
+
+moveAnimal({type:'bird',flyingSpeed:200})
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+interface ErrorContainer{
+	[prop: string]:string;			// nemtudom a propertyk nevét csak hogy a tipusa string és az értéke is
+	// id:string,	 	 // ilyet lehet
+	// id:number,	     // ilyet nem
+}
+const errorBag:ErrorContainer={
+	email:"Not a Valid email!",
+	userName: "Must start with a capital character"
+}
+//---------------------------------
+type Combinable = string | number;
+// function add1(a: number) :number;
+function add1(a: number, b: number) :number;
+function add1(a: Combinable, b: Combinable) {
+	if (typeof a === 'string' || typeof b === 'string') {
+		return a.toString() + b.toString();
+	}
+	return a + b;
+}
+
+const result = add1(1,5)		// azt akarom hogy tudja a forító, hogy a result number legyen, a kasztolással minden helyen kell kasztolni, => megoldás
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+console.log(fetchUserData?.job?.title);                         // === a kövi sorral => 
+console.log(fetchUserData.job && fetchUserData.job.title);	    // csekkolás
+////
+
+const userInput ='';
+const storedData_1 = userInput || 'DEFAULT';  	// falsy 				=> DEFAULT
+const storedData_2 = userInput ?? 'DEFAULT';    // ha null v undefined  => DEFAULT
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// Dekorátorok, akkor futnak le amikor magához a classhoz rendeljük, nem a class példányosításakor
+// a tsconfigba konfigolni kell
+
+function Logger(constructor:Function){
+	console.log('Logging');
+	console.log(constructor);
+}
+
+@Logger
+class Person{
+	name = 'Max';
+	constructor(){
+		console.log("creating person object...");
+	}
+}
+//-----------------------------
+// adat passzolása a dekorátornak
+function Logger(logString:string){
+	return function(constructor:Function){
+		console.log(logString);
+		console.log(constructor);
+	}
+}
+
+@Logger("LOGGING - PERSON")
+class Person{
+	name = 'Max';
+	constructor(){
+		console.log("creating person object...");
+	}
+}
+
+//-----------------------------
+function WithTemplate(template: string, hookID: string) {
+	return function (_: Function) {    // _ === tudom hogy itt van egy paraméter amit nem használok, de nem is akarom
+		const hookEl = document.getElementById(hookID);
+		if (hookEl) {
+			hookEl.innerHTML = template;
+		}
+	};
+}
+
+@WithTemplate('<h1>My Person Object</h1>', 'app')
+class Person {
+	name = 'Max';
+	constructor() {
+		console.log('creating person object...');
+	}
+}
+//-----------------------------
+function WithTemplate(template: string, hookID: string) {
+	return function (constructor: any) {    // _ === tudom hogy itt van egy paraméter amit nem használok, de nem is akarom
+		const hookEl = document.getElementById(hookID);
+		const p = new constructor();
+		if (hookEl) {
+			hookEl.innerHTML = template;
+			hookEl.querySelector('h1')!.textContent = p.name;
+		}
+	};
+}
+@WithTemplate('<h1>My Person Object</h1>', 'app')
+class Person {
+	name = 'Max';
+	constructor() {
+		console.log('creating person object...');
+	}
+}
+
+//-----------------------------
+function Logger(){
+	console.log("1. lefutás");
+	return function(_:Function){
+		console.log("5.lefutás");
+	}
+}
+
+function WithTemplate() {
+	console.log('2. lefutás');
+	return function (constructor: any) {    
+		console.log("3. lefutás");
+        const p = new constructor();
+	};
+}
+@Logger()
+@WithTemplate()
+class Person {
+	name = 'Max';
+	constructor() {
+		console.log("4.lefutás");       // mert meghívom az egyik dekorátorba a construktort
+	}
+}
+//-----------------------------
+function Log(target: any, propertyName: string | Symbol): void {
+	console.log('Property decorator!');
+	console.log(target, propertyName);
+}
+
+function Log2(target:any, name:string,descriptor:PropertyDescriptor){
+	console.log("Accessor decorator!");
+	console.log(target);
+	console.log(name);
+	console.log(descriptor);	// pár infó: konfigurálható? enumerálható? get, set
+}
+
+function Log3(target:any, name:string | Symbol, descriptor:PropertyDescriptor){
+	console.log("Method decorator!");
+	console.log(target);
+	console.log(name);
+	console.log(descriptor);	// pár infó: konfigurálható? enumerálható? amire raktuk, írható e?
+}
+
+function Log4(target:any, name:string | Symbol, position:number){
+	console.log("Parameter decorator!");
+	console.log(target);		// a class prototypja
+	console.log(name);			// fgv neve?
+	console.log(position);		// hanyadik paraméter?
+}
+
+class Product {
+	@Log					// akkor futnak le amikor a klasszt definiálja a javascript
+	title: string;
+
+	@Log2
+	set price(value: number) {
+		if (value > 0) {
+			this._price = value;
+		} else {
+			throw new Error('price must be greater than 0');
+		}
+	}
+	constructor(title: string, private _price: number) {
+		this.title = title;
+	}
+
+	@Log3
+	getPriceWithTax(@Log4 tax: number) {
+		return this._price * (1 + tax);
+	}
+}
+
+
+//-----------------------------
+function WithTemplate(template: string, hookID: string) {
+	return function <T extends {new(...args: any[]): {name:string}}> (originalConstructor: T) {
+		return class extends originalConstructor{
+			constructor(..._: any[]){	// így már akkor fut le amikor példányosítom a klasszt amire raktam
+				super();
+				const hookEl = document.getElementById(hookID);
+				if (hookEl) {
+					hookEl.innerHTML = template;
+					hookEl.querySelector('h1')!.textContent = this.name;
+				}
+			}
+		}
+	};
+}
+
+@Logger('Hy')
+@WithTemplate('<h1>My Person Object</h1>', 'app')
+class Person {
+	name = 'Max';
+	constructor() {
+		console.log('creating person object...');
+	}
+}
+
+//-----------------------------
+function Autobind(_:any, _2:string, descriptor:PropertyDescriptor){
+	const originalMethod = descriptor.value; // eredeti vghez való hozzáférés
+	const adjDescriptor:PropertyDescriptor ={
+		configurable: true,
+		enumerable:false,
+		get(){
+			const boundFunction = originalMethod.bind(this);
+			return boundFunction;
+		}
+	}
+	return adjDescriptor
+}
+
+class Printer {
+	message = 'This works!';
+
+	@Autobind
+	showMessage(){
+		console.log(this.message);
+	}
+}
+const p = new Printer();
+const button = document.querySelector('button')!;
+// button.addEventListener('click', p.showMessage.bind(p))
+button.addEventListener('click', p.showMessage)         // dekorátorral bindoltuk a thist nem kell a híváskor
+
+
+//-----------------------------
+interface ValidatorConfig{
+	[property: string]: {
+		[validatableProperty: string]:string[]       // ['required', 'positive']
+	}
+}
+
+const registerValidators : ValidatorConfig = {}
+
+
+function Required(target:any,propName:string){
+	registerValidators[target.constructor.name] = {
+		...registerValidators[target.constructor.name],
+		[propName]: [...(registerValidators[target.constructor.name]?.[propName] ?? []), 'required']
+    };
+}
+
+function PositiveNumber(target:any,propName:string){
+	registerValidators[target.constructor.name] = {
+		...registerValidators[target.constructor.name],
+		[propName]: [...(registerValidators[target.constructor.name]?.[propName] ?? []), 'positive']
+    };
+}
+
+function validate(obj:any){
+	const objValidatorConfig = registerValidators[obj.constructor.name];
+	if (!objValidatorConfig) {
+		return true
+	}
+	let isValid = true;
+	for (const prop in objValidatorConfig) {
+		for (const validator  of objValidatorConfig[prop]) {
+			switch (validator){
+				case 'required':
+					isValid = isValid && !!obj[prop];
+					break;
+				case 'positive':
+					isValid = isValid && obj[prop] > 0;
+					break;
+			}
+		}
+	}
+	return isValid
+}
+
+
+class Course {
+	@Required
+	title:string;
+	@PositiveNumber
+	price:number;
+	constructor(title:string, price:number) {
+		this.title = title;
+		this.price = price;
+	}
+}
+
+const courseForm = document.querySelector('form')!;
+courseForm.addEventListener('submit', (event) => {
+	event.preventDefault();
+	const titleElement = document.getElementById('title') as HTMLInputElement;
+	const priceElement = document.getElementById('price') as HTMLInputElement;
+	const title = titleElement.value;
+	const price = +priceElement.value;
+	const createdCourse = new Course(title, price)
+	console.log(createdCourse);
+	if(!validate(createdCourse)) {
+		alert('Invalid input, pls try again')
+		return true
+	}
+
+})
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// namespace, nem tökéletes => helyette ES Modules
+// namespace spec komment
+/// <reference path="drag-drop-interfaces.ts"/>
+/// <reference path="project-model.ts"/>
+//    "outFile": "./dist/boundle.js",  	// az összes namespace-t eggyesítse 1 db file-á
+//    "module": "amd", 					// ez is kell mellé plusz infó
+namespace App {}
+// másik fileba =>
+
+namespace App {
+	export enum ProjectStatus {
+		ACTIVE,
+		FINISHED,
+	}
+}
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+// webpack
+// npm i --save-dev webpack webpack-cli webpack-dev-server typescript ts-loader
+
+
+
+//------------------------------------------------------------------------------------------------------------------------------------------------
+var GLOBAL = "Globális változó"	// ez van vhol globálisan
+declare const GLOBAL:any;				// ez van a mi ts fileunkba
+
+"devDependencies": {
+	"@types/lodash": "^4.14.182",		// olyan függőségek amik pl egy js filnak a ts dolgait adják
+}
+
+
+
+// UTILITY TÍpusok
+https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype

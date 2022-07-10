@@ -20,6 +20,7 @@ echo "valami"                 // valami kiírása
 echo "valami" > ./ujfile.txt  // beleírjuk az ujfile.txt-be azt hogy "valami"
 cat ujfile.txt                // kiirja a tartalmát az uj filenak
 xxd ujfile.txt                // kiirja a file tartalmát kódolását is
+sudo chown krisztianballer mappa // magamra húzom a mappát ami után már törölhetem
 
 #                             // komment, kivéve ha #!
 #!/bin/bash                   // fileok elején azt jelenti hogy => milyen parancs értelmezővel legyen értelmezve? => /bin/bash

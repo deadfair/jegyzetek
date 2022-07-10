@@ -7,13 +7,43 @@ debugolni productionben minifiolt js kóüdot?
 milyen bill el nyithatü meg a devtools crommeba?
 idöbe több a https vs http?
 
-2/7  3/4
-4/2,6,7
-6/1
 
-1/1
-5/4
-7/3
-8/5
-9/2
-10/4
+1,2
+2,5
+3,2   rossz
+4,1
+5,1
+6,1
+7,2
+8,236710,11,12 13
+9,2
+10,5,9
+
+
+
+1 2
+2 4
+3 3
+4 4
+5 2
+7 7
+8 1
+9 3
+
+
+6 3 5
+10 7
+
+
+1 2
+2 5
+			3,1567     57
+44
+56
+6			 5
+7	     3
+83
+98
+10 4
+
+xss ellen mi véd  script tag törlése,
