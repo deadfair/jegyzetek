@@ -152,7 +152,10 @@ export class MyPipe implements PipeTransform{
 // ERŐFORRÁS IGÉNYES, LEHET DE FILTER ÉS SORTOT NE PIPE-AL !!!
 // HTML:  // select   =>  [(ngModel)] = "szelekt" // inputba  =>  [(ngModel)] = "szürőszöveg"
 // táblázat =>  *ngFor= let rows of list | szűrő :szürőszöveg: szelekt
-// @Pipe({name:'szűrő'})      // Pipe neve
+// @Pipe({
+//   name:'szűrő'  // Pipe neve
+//   pure:false    // minden adatváltozáskor ujrahívódik, vis asyncron szerüvé teszi
+// })      
 // export class MyPipe implements PipeTransform{
 //   transform(value:any[],phrase:string ="",key:string=""):any{       // ide az ngModel value értekei fognak becsöppenni
 //     if (!phrase) {return value}
@@ -356,6 +359,31 @@ export class DropdownDirective {
     }
   }
 }
+
+// kód szinten komponens kreálása
+<ng-template appPlaceholder></ng-template>
+
+@Directive({
+	selector: '[appPlaceholder]',
+})
+export class PlaceholderDirective {
+	constructor(public viewContainerRef: ViewContainerRef) {}
+}
+
+private closeSubscription?: Subscription;
+@ViewChild(PlaceholderDirective, { static: true })
+dynamicChild?: PlaceholderDirective;
+
+private showErrorAlert(error: string): void {
+  const hostViewContainerRef = this.dynamicChild?.viewContainerRef;
+  hostViewContainerRef?.clear();
+  const componentRef = hostViewContainerRef?.createComponent(AlertComponent) as ComponentRef<AlertComponent>;
+  componentRef.instance.message = error;
+  this.closeSubscription = componentRef?.instance.close.subscribe(() => {
+    this.closeSubscription?.unsubscribe();
+    hostViewContainerRef?.clear();
+  });
+}
 /*------------------------------------------------------------------------------------------------------------------------------------------
 // Template reference, változó
 <input #firstname (keyup)="0"></input>    // (keyup)="0"    =>   triggereli a billentyűt ha leütjük, vis frissít egyből
@@ -410,23 +438,38 @@ pristine      // dirty ellentetje
 valid         // ha az input mező valid => true
 invalid       // ha az input mező valid => false                            
 errors        // a hibák itt vannak => 
-... *ngIf="változo.errors.['required']" 
-....*ngIf="változo.errors.['minlength']" 
-... *ngIf="változo.errors.['email']" 
+... *ngIf="változo.errors['required']" 
+....*ngIf="változo.errors['minlength']" 
+... *ngIf="változo.errors['email']" 
 // ngModel része => consolba kiolvashatjuk pl. az akt. minlength értékét: változo.error.minlength.requiredLength          
 
+
+/*--------------------------------
+VALIDÁTOROK:    
+Template driven (HTML-be) =>                                          Reactive (.ts-be) =>  
+required                // muszáj megadni                             // Validators.required 
+requiredTrue            // muszáj true nak lennie, pl.: checkboxnál   // Validators.requiredTrue 
+email                   // érvényes email                             // Validators.email       
+minlength="3"           // minimum 3 karakter                         // Validators.minLength(3)
+maxlength="10"                                                        // Validators.maxLength(10)      
+min=16                  // min értéke 16                              // Validators.min(16)      
+max=16                  // max értéke 16                              // Validators.max(16)      
+pattern="regex"         // [regex] /regex/                            // Validators.pattern("regex") 
+
+egyéb validéátorok:
+static nullValidator(control: AbstractControl<any, any>): ValidationErrors | null
+static compose(validators: ValidatorFn[]): ValidatorFn | null
+static composeAsync(validators: AsyncValidatorFn[]): AsyncValidatorFn | null
+
+/*--------------------------------
 // css osztálkyok a kontroll státuszokhoz =>
 .ng-valid .ng-invalid .ng-pending .ng-pristine .ng-dirty .ng-untouched .ng-touched .ng-submitted (enclosing form element only)
 
-VALIDÁTOROK:    
-HTML-be =>                                                         FormBuilder-be =>  
-required          // muszáj megadni                             // Validators.required 
-minlength="3"     // minimum 3 karakter                         // Validators.minLength(3)
-maxlength="10"                                                  // Validators.maxLength(10)      
-pattern="regex"   // regex                                      // Validators.pattern("regex") 
-email             // érvényes email                             // Validators.email       
-                  // min értéke 16                              // Validators.min(16)      
-                  // muszáj true nak lennie, pl.: checkboxnál   // Validators.requiredTrue 
+input.ng-invalid.ng-touched{
+	border: 1px solid red;  // + egyéb css
+}
+
+
 
 
 {{ showinputerrors() }}      // a hiba megjelenítését célszerű egy fgv-be kiszervezni ahol a hibától függően jelenítjük meg a hibát
@@ -439,17 +482,50 @@ FromGroup-ok: FromControll-okat és FormGroup-okat is tartalmazhatnak
     Reactive        => több kontroll és logika, komplexebb, unit tesztelhetőség
 vs  Template-driven => egyszerübb formoknál szuper, könnyü, kevés kód  !!! logika a HTMLben !!!
 
-/*-----------------------------
+/*------------------------------------------------------------------------------------------------------------------------------------------
 // Template-driven
-<form #xxxForm="ngForm" (ngSubmit)="onSubmit(xxxForm)"> // xxxForm.form.valid és egyéb dolgok... az egész Formra
-// => onSubmit(xxxForm:NgForm){xxxForm.value}           // xxxForm.value => a form értékee kulcs érték párokként egy objektumba
-  <div ngModelGroup="name">  // egy belső formGroup => xxxForm.value.name.firstName
-    <input required  minlength="3"                      // validátorok helye
-      ngModel                // ezzel mondjuk meg, hogy formControl legyél
-// [(ngModel)]=person.firstname  // így hozzákötjük egy person objektum firstname változojához is 
+
+// form elérése 2 opció, name a property kulcsa amivel majd elérem!!!
+<form #xxxForm="ngForm" (ngSubmit)="onSubmit(xxxForm)">     <form #xxxForm="ngForm" (ngSubmit)="onSubmit()"> 
+<input ngModel name="email">                                <input ngModel name="email">
+
+// .ts  =>                                                  // .ts  =>                        
+onSubmit(xxxForm:NgForm){console.log(xxxForm)}              @ViewChild('xxxForm') form?:NgForm;
+//                                                          onSubmit(){console.log(this.form)}
+/*--------------------------------
+<input ngModel name="email" required minlength="3">   // validátorok az inputra rakjuk 
+
+<input ngModel name="email" #változo="ngModel">       // inputok egyesével történő validálása HTML-ben
+<div *ngIf="változo.touched && !változo.valid">
+
+<input [ngModel]="'ballerk@gmail.com'" name="email">  // default érték property bindingal
+<input [(ngModel)]="'ballerk@gmail.com'" name="email">// 2 irányú kötés
+
+<div id="user-data" ngModelGroup="userData" #userData="ngModelGroup">     // userData alatt lessz aki a divbe van pl.: 
+<p *ngIf="userData.invalid && userData.touched">User Data is invalid!</p> // => userData.email 
+
+/*--------------------------------
+// .ts-ben felülírás, kiolvasás=>
+
+// ez reactiveba is igy van
+
+
+@ViewChild('xxxForm') f?:NgForm;
+this.f?.setValue(teljesObject)                                  // felülirja az összes props értéket
+this.f?.form.patchValue({csakAmitFelülAkarunkcsapniPropok})     // updateeli
+this.f?.value                                                   // a form értékei
+this.f?.reset()                                                 // form resete
+
+/*--------------------------------
+// xxxForm.value => a form értékee kulcs érték párokként egy objektumba
+<form #xxxForm="ngForm" (ngSubmit)="onSubmit(xxxForm)">         // xxxForm.form.valid és egyéb dolgok... az egész Formra
+  <div ngModelGroup="name">                                     // egy belső formGroup => xxxForm.value.name.firstName
+    <input required  minlength="3"                              // validátorok helye
+      ngModel                                                   // ezzel mondjuk meg, hogy formControl legyél
+// [(ngModel)]=person.firstname                                 // így hozzákötjük egy person objektum firstname változojához is 
 // DEEEEEE ha nem szükséges a bekötés akkor => xxxForm.value.name.firstName jébe is benne van az érték submit után
-      name="firstName"      // ezzel mondjuk meg, hogy a  formControl-ra milyen kulcsal hivatkozzunk "firstName" 
-      #változo="ngModel">   // helyi HTML változóra tesszük az NgModel jét ennek az inputnak => tudjunk validálni
+      name="firstName"                // ezzel mondjuk meg, hogy a  formControl-ra milyen kulcsal hivatkozzunk "firstName" 
+      #változo="ngModel">             // helyi HTML változóra tesszük az NgModel jét ennek az inputnak => tudjunk validálni
     <div *ngIf="változo.touched && !változo.valid">
       <div *ngIf="változo.errors.required"> 
         muszáj értéket adni
@@ -462,15 +538,164 @@ vs  Template-driven => egyszerübb formoknál szuper, könnyü, kevés kód  !!!
   <div>
 <form>
 
-@ViewChild('xxxForm') form?:NgForm;
-this.form?.setValue(car)    // a car érékeit betölti a form-értékeire
-/*-----------------------------
-// Reactive
-új komponens: ng g c post-create
-app-module.ts: FormsModule, ReactiveFormsModule
-post-create.component.ts:*/
-import{FormGroup,FormBuilder,FormArray, Validators,FormControl} from '@angular/forms';
-export class PostCreateComponent implements OnInit{
+*///------------------------------------------------------------------------------------------------------------------------------------------
+// Reactive     // app-module.ts: ReactiveFormsModule
+
+// SIMPLE:
+// HTML:
+// <form [formGroup]="signupForm">
+// <input formControlName="username" />
+// [disabled]="signupForm.invalid"
+// <span *ngIf="!signupForm.get('username').valid && signupForm.get('username').touched"></span>
+// .ts:
+signupForm:FormGroup =new FormGroup({
+  username:new FormControl("default value",[Validátorok], [asyncValidátorok]), // <input formControlName="title" 
+  id:new FormControl('',[Validators.required]),
+})
+
+
+// NESTING:
+// HTML:
+// <form [formGroup]="signupForm">
+// <div formGroupName="userData">
+// <input formControlName="username" />
+// <span *ngIf="!signupForm.get('userData.username').valid && signupForm.get('userData.username').touched"></span>
+// .ts:
+this.signupForm = new FormGroup({
+  userData: new FormGroup({
+    username: new FormControl(null, Validators.required),
+    email: new FormControl(null, [Validators.required, Validators.email]),
+  }),
+});
+
+// FORMARRAY:
+// HTML:
+// <form [formGroup]="signupForm">
+// <div formArrayName="hobbies">
+// <button type="button" (click)="onAddHobby()">Add Hobby</button>
+// <div class="form-group" *ngFor="let hobbyControl of getControls(); let i = index">
+// <input type="text" class="form-control" [formControlName]="i" />
+// .ts:
+this.signupForm = new FormGroup({
+  hobbies: new FormArray([]),
+});
+getControls() {
+  return (<FormArray>this.signupForm.get('hobbies')).controls;
+}
+onAddHobby() {
+  const control = new FormControl(null, Validators.required);
+  (this.signupForm.get('hobbies') as FormArray).push(control);
+}
+
+
+
+// Errorok
+<span *ngIf="signupForm.get('userData.username').errors['nameIsForbidden']"
+
+// form változásokra feliratkozni: 
+this.signupForm.valueChanges.subscribe((data) => {
+  console.log(data);
+});
+this.signupForm.statusChanges.subscribe((data) => {
+  console.log(data);
+});
+
+// <div class="row" *ngFor="let ingredientControll of controls; let i = index" [formGroupName]="i">
+
+export class RecipeEditComponent implements OnInit, OnDestroy {
+	public recipeForm = this.createRecipeForm('', '', '', new FormArray<any>([]));
+	public get controls() {
+		// (<FormArray>this.recipeForm.get('ingredients')).clear(); // kitörli az egész arrayt
+		return (<FormArray>this.recipeForm?.get('ingredients')).controls;
+	}
+	private selectedRecipe?: Recipe;
+	private selectedRecipieSubscription?: Subscription;
+	constructor(
+		private storeRecipe: Store<Recipe>,
+		private router: Router,
+		private route: ActivatedRoute,
+		private fb: FormBuilder
+	) {}
+
+	public ngOnInit(): void {
+		this.route.params.subscribe((params) => {
+			this.storeRecipe.dispatch(setSelectedRecipeID(+params['id']));
+		});
+		this.selectedRecipieSubscription = this.storeRecipe.pipe(select(selectedRecipeSelector)).subscribe((recipe) => {
+			if (recipe) {
+				this.selectedRecipe = recipe;
+				this.initForm();
+			} else {
+				this.selectedRecipe = undefined;
+				this.initForm();
+			}
+		});
+	}
+	public ngOnDestroy(): void {
+		this.selectedRecipieSubscription?.unsubscribe();
+	}
+
+	public onSubmit(): void {
+		if (this.selectedRecipe) {
+			this.storeRecipe.dispatch(updateRecipe({ ...this.recipeForm.value, id: this.selectedRecipe.id }));
+		} else {
+			this.storeRecipe.dispatch(addRecipe({ ...this.recipeForm.value, id: undefined }));
+		}
+		this.onCancel();
+	}
+	public onCancel(): void {
+		this.router.navigate(['../'], { relativeTo: this.route });
+	}
+	public onDeleteIngredient(index: number): void {
+		(<FormArray>this.recipeForm?.get('ingredients')).removeAt(index);
+		this.storeRecipe.dispatch(deleteSelectedRecipeIngredientByIndex(index));
+	}
+
+	public onAddIngredient(): void {
+		(<FormArray>this.recipeForm?.get('ingredients')).push(this.createIngredientFormGroup('', ''));
+	}
+	private createIngredientFormGroup(name: string, amount: number | ''): FormGroup<any> {
+		return this.fb.group({
+			name: [name, Validators.required],
+			amount: [amount, [Validators.required, Validators.min(1)]],
+		});
+	}
+	private createRecipeForm(
+		name: string,
+		description: string,
+		imagePath: string,
+		ingredients: FormArray<any>
+	): FormGroup<any> {
+		return this.fb.group({
+			name: [name, Validators.required],
+			description: [description, Validators.required],
+			imagePath: [imagePath, Validators.required],
+			ingredients: ingredients,
+		});
+	}
+	private initForm(): void {
+		let ingredients = new FormArray<any>([]);
+		if (this.selectedRecipe) {
+			const { name, description, imagePath } = this.selectedRecipe;
+			if (this.selectedRecipe.ingredients) {
+				for (const ingredient of this.selectedRecipe.ingredients) {
+					ingredients.push(this.createIngredientFormGroup(ingredient.name, ingredient.amount));
+				}
+			}
+			this.recipeForm = this.createRecipeForm(name, description, imagePath, ingredients);
+		} else {
+			this.recipeForm = this.createRecipeForm('', '', '', ingredients);
+		}
+	}
+}
+
+
+
+
+
+
+
+
 // FormGroup ÉS a formControllnak is lehet =>
 // .status (VALID|INVALID|PENDING|DISABLED|PRISTINE)  // pillanatnyi validációs állapota  // formGroupnév.status==='INVALID'      // az egészre vonatkozik
 // .value                      // egy objektum amely tárolja a FormControl-ok értékeit    // pl.: value.email,value.name        
@@ -483,11 +708,6 @@ export class PostCreateComponent implements OnInit{
 this.dishForm.setValue({image:"",...dish})  // dishformba feltölti a dish mezőít plusz az image mezőjét
 this.name?.setValue(dish.name)              // vagy egyesével
 
-reactiveForm_0:FormGroup =new FormGroup({
-  title:new FormControl(""),        // <input formControlName="title" 
-  body:new FormControl(""),
-  id:new FormControl('',[Validators.required]),
-})
 // ezeket célszerű getterezni =>
 get id():AbstractControl | null{return this.reactiveForm_0.get("id")}
 // ====>
@@ -667,6 +887,63 @@ dynamic form:
 //   return pattern.test(zipInput.value) ? null :{zipError:'do not match pattern 9999'}
 // }                                    // null, ha minden rendbe van
 // 'nickname': new FormControl('', [this.zipValidator])
+
+// username: new FormControl(null, [ this.forbiddenNames.bind(this)]), 
+// forbiddenNames(control: FormControl): { [s: string]: boolean } {
+//   if (this.forbiddenUserNames.indexOf(control.value) !== -1) {  // ha class this-jét használom bindolni kell a thist
+//     return { nameIsForbidden: true };
+//   } else {
+//     return null; // HA nincs probléma akkor null KELL
+//   }
+// }
+
+// async validátor példa, amig tart a validálás addig PEDDING állapotba van
+// email: new FormControl(null, [Validators.required, Validators.email], this.forbiddenEmails),
+// forbiddenEmails(controll: FormControl): Promise<any> | Observable<any> {
+//   const promise = new Promise<any>((resolve, reject) => {
+//     setTimeout(() => {
+//       if (controll.value === 'test@test.com') {
+//         resolve({ emailIsForbidden: true });
+//       } else {
+//         resolve(null);
+//       }
+//     }, 1000);
+//   });
+//   return promise;
+// }
+
+// projectName: [
+//   '',
+//   [Validators.required, CustomValidators.invalidProjectName, CustomValidators.asyncInvalidProjectName],
+// ],
+
+// import { FormControl } from '@angular/forms';
+// import { Observable } from 'rxjs';
+
+// export class CustomValidators {
+// 	static invalidProjectName(control: FormControl): null | { [s: string]: boolean } {
+// 		if (control.value === 'Test') {
+// 			return { invalidProjectName: true };
+// 		} else {
+// 			return null;
+// 		}
+// 	}
+
+// 	static asyncInvalidProjectName(controll: FormControl): Promise<any> | Observable<any> {
+// 		const promise = new Promise<any>((resolve, reject) => {
+// 			setTimeout(() => {
+// 				if (controll.value === 'TestAsync') {
+// 					resolve({ invalidProjectName: true });
+// 				} else {
+// 					resolve(null);
+// 				}
+// 			}, 1000);
+// 		});
+// 		return promise;
+// 	}
+// }
+
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 /* ROUTING: 
 ng generate module app-routing --flat --module=app        // ha nincs routing module
@@ -719,6 +996,8 @@ const routes: Routes = [          // sorrendbe fut le lefele
     ],
 },]    
   
+// nem muszáj a lazy loadingal szarakodni, HA a gyökértől megy a route, akkor elég =>
+// app modulba beimportálni az egész modult, az app router modulba NEM kell semmi rout neki
 
 // admin.module.ts :  // KELL ADMIN MODULE aminek vannak ROUTE-s jai, amik ezek!! =>
 ngModule({ import:RouterModule.forChild(routes), exports: [RouterModule]})export class AdminModule {}
@@ -749,7 +1028,7 @@ const routes: Routes = [
 // az aktív linkre css rakás :
 // <li routerLinkActive="active current" [routerLinkActiveOptions]="{exact:true}">< <a routerLink="/elso"></a></li>
 //  routerLinkActive="active current"         // ha ezen az elemen vunk akkor a navbáron lévü li, kap egy active és current css osztályt
-// [routerlinkActiveOptions]="{exact:true}"   // csak teljes eggyezésnél lesz aktív
+// [routerLinkActiveOptions]="{exact:true}"   // csak teljes eggyezésnél lesz aktív
 // ha nem lenne beállítva az {exact:true}, akkor "/" és "/elso" re is active lenne egyszerre mert nem teljes eggyezést néz
 
 //-------------
@@ -848,6 +1127,27 @@ export class ServerResolverService implements Resolve<Server> {
 	}
 }
 
+
+export class RecipeResolverService implements Resolve<Recipe[]> {
+	constructor(private recipeService: RecipeCrudService, private storeRecipe: Store<Recipe>) {}
+	resolve(
+		route: ActivatedRouteSnapshot,
+		state: RouterStateSnapshot
+	): Recipe[] | Observable<Recipe[]> | Promise<Recipe[]> {
+		const recipeID = +route.params['id'];
+		// return this.recipeService.fetchRecipes();    // ez e nem ngrx es módszer kb csak kérni kell az adatot és megnézni hogy ez az adat létezik e
+		return this.storeRecipe.pipe(
+			select(selectRecipeByID(recipeID)),
+			tap((recipe) => {
+				if (!recipe) {
+					this.storeRecipe.dispatch(getRecipes());
+				}
+			}),
+			filter((recipe) => !!recipe),
+			first()
+		) as Observable<Recipe[]>;
+	}
+}
 //---------------------------------------------------------
 CanActivate
 
@@ -966,24 +1266,32 @@ HTTP kérések lefuttatása az adott részelem megjelenítése előtt
 //------------------------------------------------------------------------------------------------------------------------------------------
 // HTTP kérések: szükséges modulok:       // stateles-ek vis nem szükséges leiratkozni róluk, 1x lefutnak azt jól van
 app.module.ts : HttpClientModule
-services.ts-ben: HttpClient, HttpHeaders  from '@angular/common/http'
-//               Observable               from 'rxjs'       
-0. services.ts-ben:
-  constructor(private http:HttpClient){}
-1. XXX.component.ts:
-  constructor(private xxxService:XxxService)
-=> az xxxService változón keresztül elérünk mindent a servicesből
-=> a service a kapcsolat az endpointal, oda írjuk meg azt a fgv-t aminek a visszatérési értéke egy tömb vagy érték
-DE ez asszinkron adatfolyam (Observable) => ezért a xxx.componentbe :subscribe-olni kell
-url === ha csak egy adott id-ju elem kell akkor => url =`${this.jsonUrl}/${id}`
+services.ts-ben: 
+constructor(private http:HttpClient){}
 */                                                                                                                                 
-// MIT AKARUNK?     xxx.service.ts    yyyfgv():Observable<ModelTípusa>{}      xxx.component.ts: ngOnInit():                                     
-// Lekérés, GET     return this.http.get<ModelTípusa>(url);                   this.xxxService.getfgv().subscribe(data=>{this.model=data;})      
-// Törlés, DELETE   return this.http.delete<ModelTípusa>(url+"/"+id);         this.xxxService.deletefgv(model).subscribe();
-// Update, PUT      return this.http.put<ModelTípusa>(url,model,httpOptions)  this.xxxService.putfgv(model).subscribe();
-// Add, POST        return this.http.post<ModelTípusa>(url,model,httpOptions) this.xxxService.postfgv(model).subscribe();
+// MIT AKARUNK?     xxx.service.ts    yyyfgv():Observable<ModelTípusa>{}          xxx.component.ts: ngOnInit():                                     
+// Lekérés, GET     return this.http.get<ModelTípusa>(url,httpOptions);           this.xxxService.getfgv().subscribe(data=>{this.model=data;})      
+// Törlés, DELETE   return this.http.delete<ModelTípusa>(url+"/"+id,httpOptions); this.xxxService.deletefgv(model).subscribe();
+// Update, PUT      return this.http.put<ModelTípusa>(url,model,httpOptions)      this.xxxService.putfgv(model).subscribe();
+// Add, POST        return this.http.post<ModelTípusa>(url,model,httpOptions)     this.xxxService.postfgv(model).subscribe();
 //                                  .patch                                                                  .subscribe((data)=>{"mellkhatás"})
-// ++ => a httpOptions ba adjuk meg az ociókat HA nem a default értékeket szeretnénk használni, pl autentikáció 
+// httpOptions : egy objektum, opcionális
+{
+  // params = new HttpParams().set('print', 'pretty'),     // urlbe: ...?print=pretty
+  params = new HttpParams().append('print', 'pretty').append('print2', 'pretty2'),     
+  // urlbe: ...?print=pretty&print2=pretty2
+  headers = new HttpHeaders({ 'Custom-Header': 'Hello' }),
+  responseType:'json',        //'text | blob | json',
+  observe = "response" // mit akarunk megkapni? csak a body-t, az egész választ? 'body' | 'events' | 'response',
+  // event => milyen esemény történt pl filefeltöltés send normál response stb
+  // return this.http.delete(this._URL, {observe: 'events',})
+  // .pipe(tap((event) => {console.log(event);
+  //     if (event.type === HttpEventType.Response) {  // HttpEventType -al switchelem és oszthatom szét hogy mi történjen
+  //       console.log(event.body);
+  //     }
+  //   })
+  // );
+}
 // const httpOptions={headers:new HttpHeaders({"Content-Type":"application/json"})}
 
 // get:     a model jön meg
@@ -992,17 +1300,57 @@ url === ha csak egy adott id-ju elem kell akkor => url =`${this.jsonUrl}/${id}`
 // put:     az egész objektumot át kell adni mindenestűl + vissza jön a mentett model
 // patch:   elég az ID + amit szeretnénk változtatni
 
-// hibakezelés pipe-olva => a xxx.service.ts yyyfgv() ének a return után => 
-// return this.http.......
-// .pipe(catchError(this.handleError('getfgv',[])))                         // get, az összes
-// .pipe(catchError(this.handleError<ModelTípusa>('getfgv id=${id}')))      // get, az adott id-jú
-// .pipe(catchError(this.handleError<ModelTípusa>('yyyfgv')))               // post, v delete v put
-// hibakezelés a végén:
+// Hibakezelés:
+// I opció a komponensbe ha kell neki az adat
 .subscribe({
   next:(data)=>{this.data = data;},
   error:(e)=>{console.log(e)},
   complete:()=>{}   // itt zárjuk be az ablakot ha szükséges
 })
+// II opció a service-be egy Subject-el ha nem kell az adat a komponensek
+private _error = new Subject<string>();
+public createAndStore(post: Post): void {
+  this.http.post<{ name: string }>(this._URL, post).subscribe({
+    next: () => {},
+    error: (err: { error: { error: string } }) => {
+      this._error.next(err.error.error);
+    },
+  });
+}
+// III opció az observabelbe
+.pipe(catchError((errorRes) => {return throwError(() => errorRes);}))
+.pipe(catchError(this.handleError('getfgv',[])))                         // get, az összes
+.pipe(catchError(this.handleError<ModelTípusa>('getfgv id=${id}')))      // get, az adott id-jú
+.pipe(catchError(this.handleError<ModelTípusa>('yyyfgv')))               // post, v delete v put
+//------------------------------------------------------------------------------------------------------------------------------------------
+// Interceptorok: akkor kell használni ha pl a kérésekhez hozzáakarunk mindig fűzni vmit, pl header, autc cuccokat
+// app.module.ts:
+// fontos a sorrend sorba halad
+providers: [
+  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true },
+  { provide: HTTP_INTERCEPTORS, useClass: LoginInterceptorService, multi: true },
+],
+// service.ts:
+@Injectable({
+	providedIn: 'root',
+})
+export class AuthInterceptorService implements HttpInterceptor {
+	constructor() {}
+	intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+		console.log('Request');
+    const modifiledRequest = req.clone({ headers: req.headers.append('auth', 'xyz') });
+// felülirni nem tudjuk a req- eztet direktbe, hanem csak módosítani és hozzáfűzni dolgokat, pl auth
+		return next.handle(modifiledRequest); 
+    // játszhatunk magával a res- al (válasszal) is !!! =>
+    // return next.handle(modifiledRequest).pipe(tap((event) => {
+		// 	if (event.type === HttpEventType.Response) {
+		// 		console.log("body:");
+		// 		console.log(event.body);
+		// 	}
+		// }));
+	}
+}
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 // Animation
 // 1. limitált de könnyebb módsze:

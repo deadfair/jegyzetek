@@ -931,3 +931,8 @@ declare const GLOBAL:any;				// ez van a mi ts fileunkba
 
 // UTILITY TÍpusok
 https://www.typescriptlang.org/docs/handbook/utility-types.html#partialtype
+
+
+
+
+: { [keys: string]: boolean }
