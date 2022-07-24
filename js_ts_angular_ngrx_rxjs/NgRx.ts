@@ -44,32 +44,50 @@ hogy nem lehet egymásnak ellentmondó módon elérni az adatokat, hiszen a kör
 //--------------------------------------------------------------------------------------------------------------------------
 // ng add @ngrx/store
 // npm i @ngrx/store
-// npm i @ngrx/store-devtools
 // npm i @ngrx/effects
-
+// npm i --save @ngrx/store-devtools
+// npm i --save @ngrx/router-store
 
 // app.modul.ts
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 
 // imports: [
-//     StoreModule.forRoot({ users: UserReducer, comment:commentReducer, }),  // honnan kapja az adatot a store?
-//     EffectsModule.forRoot([ UserEffect, CommentEffects, ]),                // az összes effekt, azért tömb
+//      StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
+//      StoreRouterConnectingModule.forRoot(),
+//      StoreModule.forRoot({ users: UserReducer, comment:commentReducer, }),  // honnan kapja az adatot a store?
+//      EffectsModule.forRoot([ UserEffect, CommentEffects, ]),                // az összes effekt, azért tömb
+//      EffectsModule.forFeature([RecipeEffects]),        // ha almodulba teszem bele, akkor csak az almodulba kell rakni így
+//      StoreModule.forFeature('recipe', recipeReducer),
 //   ],
 
 //-------------------
 // Actions =>
 // app/store/xxx/xxx.actions.ts
 
-import { createAction } from '@ngrx/store';
+import { createAction, props } from '@ngrx/store';
 
-export const ADD_COMMENT = '[COMMENT] Add';
-export const ADD_COMMENT_SUCCESS = '[COMMENT] Add success';
-export const ADD_COMMENT_ERROR = '[COMMENT] Add error';
+const GET_COUNTRIES = '[COUNTRY] Get all';
+const GET_COUNTRIES_SUCCESS = '[COUNTRY] Get all success';
+const GET_COUNTRIES_ERROR = '[COUNTRY] Get all error';
 
-export const addComment = createAction(ADD_COMMENT,(text: string) => ({ text }));
-export const addCommentSuccess = createAction(ADD_COMMENT_SUCCESS,(comment: Comment) => ({ comment }));
-export const addCommentError = createAction(ADD_COMMENT_ERROR,(error: any) => ({ error }));
+export const getCountries = createAction(GET_COUNTRIES);
+export const getCountriesError = createAction(GET_COUNTRIES_ERROR, props<{ error: unknown }>());
+export const getCountriesSucces = createAction(GET_COUNTRIES_SUCCESS, props<{ countries: ReadonlyArray<Country> }>());
+
+export enum CountryActionType {   // tesztelés miatt
+	GET_COUNTRIES,
+	GET_COUNTRIES_SUCCESS,
+	GET_COUNTRIES_ERROR,
+}
+
+// export const ADD_COMMENT = '[COMMENT] Add';
+// export const ADD_COMMENT_SUCCESS = '[COMMENT] Add success';
+// export const ADD_COMMENT_ERROR = '[COMMENT] Add error';
+
+// export const addComment = createAction(ADD_COMMENT,(text: string) => ({ text }));
+// export const addCommentSuccess = createAction(ADD_COMMENT_SUCCESS,(comment: Comment) => ({ comment }));
+// export const addCommentError = createAction(ADD_COMMENT_ERROR,(error: any) => ({ error }));
 
 
 //-------------------

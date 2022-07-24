@@ -6,16 +6,25 @@
 root = true
 
 [*]
-indent_style = tab                          // tab al legyen behúzva
-indent_size = 4                             // 4 a mérete
-end_of_line = lf                            // sor végi karakter, (mivel linuxba és windowson ez más)
-charset = utf-8                             // char kódolás
-trim_trailing_whitespace = true             // a sor végi space kukázása
-insert_final_newline = true                 // file végére egy +sor,=> HA a két fejlesztő ugyanabba a fájlba dolgozik, és éppen a végén, akkor enélkül óhatatlanul is conflict lesz, viszont ha van üres sor a fájl végén, akkor jó git kliens beállitásokkal automatikusan tud mergelődni a két commit.
+indent_style = tab
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+max_line_length = 120
 
-[{*yml,package.json}]                       // ezekre viszont
+[*.ts]
+quote_type = single
+
+[{*yml,package.json}]
 indent_style = space
 indent_size = 2
+
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false
+
 //-------------------------------------------------------------------------------------------------
 // debug kiiráshoz // debugoláshoz
 https://www.npmjs.com/package/debug
@@ -72,3 +81,5 @@ https://wiki.shiwaforce.com/courses/playcourse.action?course=153258248&capsule=2
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 
+bugok:
+sudo sysctl -w fs.inotify.max_user_watches=524288

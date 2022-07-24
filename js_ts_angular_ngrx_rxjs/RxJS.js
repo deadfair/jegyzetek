@@ -222,7 +222,9 @@ forkJoin([of(1, 2, 3, 4),Promise.resolve(8),timer(4000)]);
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
-// magasabbrendű Observable egyesítő operátorok
+// magasabb rendű Observable egyesítő operátorok
+// magasabb rendű === Observable<Observable<type>>
+// Observable<Observable<type>> => Observable<type>
 //----------------------------------------------
 // combineLatestAll() // mint a combineLatest
 
@@ -256,7 +258,9 @@ const higherOrder = clicks.pipe(
 const result = higherOrder.pipe(exhaustAll());
 
 //----------------------------------------------
-// mergeAll()       // mint a merge ... 
+// mergeAll()       // mint a merge ... // az összes belsőt mergeli
+
+// mergeAll(1) === concatAll()
 
 const clicks = fromEvent(document, 'click');
 const higherOrder = clicks.pipe(map(() => interval(1000)));
@@ -266,10 +270,10 @@ firstOrder.subscribe(x => console.log(x));
 const clicks = fromEvent(document, 'click');
 const higherOrder = clicks.pipe(map(() => interval(1000).pipe(take(10))));
 const firstOrder = higherOrder.pipe(mergeAll(2)); // csak 2 egyidejü időzítő (mergelés) engedélyezett
-firstOrder.subscribe(x => console.log(x));
+firstOrder.subscribe(x => console.log(x));        // max 2 belső observable lehet
 
 //----------------------------------------------
-// switchAll()      // átkapcsol egy másik Observable-re
+// switchAll()      // átkapcsol egy másik Observable-re, az előzőtöl leiratkozik
 
 const clicks = fromEvent(document, 'click').pipe(tap(() => console.log('click')));
 const source = clicks.pipe(map(() => interval(1000)));    // klikkre elindul a számolás
@@ -311,20 +315,30 @@ bufferWhen(obs_1$)              // az obs_1$ bezárja a buffert, majd ujra megis
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
-// window()
+// window()     // a windowok és a variánsai nem fedik egymást át soha vis a vissza mappelésük mind1
+// higher order observable-t csinál, arra jó mint a .split(' ').join(',') ha visszamergeljük
+// sok kicsi observablet csinálunk
+// --0--1--2--3--4--5--6--7--8--9
+// ------c-----------c----c------  // 3 observabelt csinál a 3 click
+// window(c)
+// --\0-1\-2--3--4--5\-6--\7-8--9
 
-
+windowToggle(nyitóObs,()=>záróObs)
+// pl.:nyitóObs === mousedown , záróobs === mouseup  eventek
+// mouselenyomására elkezd számiolni(akkor csinál obst), amire rácsatlakoztunk,
+// majd mousefelengedésre leáll(lecsatlakozik)
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
 // Map-ek
 // egy observable hatására egy másik observable lefut, visszatér egy observable-el
+// high order observabelé mappolnak vis Observabellel térnek visssza, majd [concat,exhaust,switch,merge]
 concatMap()     // a belsőket bevárja és egymás után füzi
 exhaustMap()    // amíg a belső benem fejeződöt, addig tiltja a külsőt
-switchMap()     // ha jün egy új külső trigger, akkor vált
-mergeMap()      // totális Map (merge), nincs semmi a fentiek közt, minden trigger megjön
+switchMap()     // ha jün egy új külső trigger, akkor vált          // asyncron mappolás !!!
+mergeMap()      // totális Map (merge), nincs semmi a fentiek közt, minden trigger megjön === pipe(map(()=>inner$),mergeAll())
 
-map()           // egy observable van és annak értékeit mappeljük
+map()           // egy first order observable van és annak értékeit mappeljük
 //-----------------------------------------------------------------------------------------------------------------------------------
 // concatMap()
 // vagy pl.: a többdimenziós tömböt (egy zip-et) egy observable-be vetíti, és a gyümölcsöket egyenként adja vissza. 
@@ -384,6 +398,11 @@ of('a', 'b', 'c').pipe(                     // átadjuk az elemeket egyesével
             map(i => x+i))),
 ).subscribe(x => console.log(x));           // a0 b0 c0 a1 b1 c1 ...
 
+clickObs$.mergeMap(
+    click=> serverRequest(),
+    (click,res)=>res.email,     // az outer obs az első param, a 2. viszonta  válasz, és a választ mappolhatjuk, pl nekünk csak az email kell
+    3)                          // mennyit mergeljen összesen egyszerre, többit concatolja
+
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
@@ -428,12 +447,14 @@ switchScan((acc, one) => of(acc + one), seed)
 //-----------------------------------------------------------------------------------------------------------------------------------
 // groupBy pairwise expand
 //----------------------------------------------
-// groupBy
+// groupBy   // higher order observable-t csinál
 // csoportokat hoz létre egy logika alapján és ezeket a csoportokat dobja tovább külön külön
 // amit tovább ad csoportokat, az is observable
 // 2. paramétere a projekció, hogy az az observable objektum mely mezőit passzolja tovább
+groupBy(x => x%2)// kettészedi a számokat 2 obsé, páros és páratlanok, az eredmény alapján ami a maradék
 groupBy(p => p.id)
 groupBy(p => p.id, { element: p => p.name }),
+groupBy(p => p.id).mergeMap(innerObs => innerObs.pipe(/*...*/))
 
 //----------------------------------------------
 // pairwise
@@ -681,6 +702,7 @@ retry(2) // ujrapróbálkozik, ha hiba van 2x
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
 // SUBJECT     // olyan observer aki observable is, triggerelhetünk next-et és fel is lehet iratkozni rá
+// ha több observer is rácsatlakozik akkor kéne multikasztolni, de ezt nem értem ???????????????????
 
 const subject = new Subject<Model>();
 subject.next(m:Model)             // aki feliratkozott rá az megkapja majd az "m" -et
@@ -697,15 +719,16 @@ const behaviorsubject= new BehaviorSubject("First") // az egyesnek ő lesz az el
 //                                              DE a 2 es observer-nek az elötte lévő next lesz a default első vagyis => 'az első üzenet elment'
 //                                              az érték tárolódik, nem csak sugározuk, pl kosárnál használhatjuk 
 //----------------------------------------
-// ReplaySubject   // ideőbeli eltolásokhoz
+// ReplaySubject   // utolsó X db-ot tárolja, buffereli
+// akkor is visszadobja az utolsó X db értéket, ha complet()-lett
 
-const replaySubject= new ReplaySubject(2)       // a 2 es observer-nek a 2 vel elötte lévő lesz az első vagyis => 'az első üzenet elment' elötti, ha lenne :)
-const replaySubject= new ReplaySubject(30,200)  // a 2 es observer-nek a 30 al elötte lesz az első next ÉS 200 milisecundummal elöttelévő   
+const behaviorSubject= new ReplaySubject(1)     // különbség: replaySubject-nek nincs kezdeti értéke 
+const replaySubject= new ReplaySubject(2)       // utolsó 2 őt tárolja
+const replaySubject= new ReplaySubject(2,200)   // mennyi ideig tárolja? === 200ms, vis milyen messze lát a multba? 200ms
 //----------------------------------------
-// AsyncSubject   // complete után kapom csak meg az értéket
+// AsyncSubject   // complete után kapom csak meg az utolsó értéket
 
-const asyncSubject= new AsyncSubject()   // csak az utolsó érték lesz elküldve, a complete() elötti, HA VAN complete()
-//                                       // megvárja a completet, és az utolsó érték sugárzódik ki
+const asyncSubject= new AsyncSubject()
 
 //-----------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------
