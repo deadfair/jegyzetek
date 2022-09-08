@@ -1,0 +1,68 @@
+// html komment, ott is megjelenik
+//- csak forráskódbeli komment
+
+//- ide berakja a  template tartalmát úgy hogy cserélhet benne változókat
+extends ../elérés/template.pug
+
+//- template-be benne van valahol hogy => block name	=> John
+block name
+	| John
+//- title PUG:
+//-     block title  => PUG:asd
+block title
+	| asd
+
+//- fixen bemásolja ide a templatet
+include ../elérés/template.pug
+
+//- minden atribútum zárójelbe
+script(src="ide")
+
+style.
+	td{
+		width:200px;
+	}
+
+
+//- mixinek
+mixin size(prop1,prop2)
+	p #{prop1}
+	p #{prop2}
+
+//- meghívni :
++size('300','asd')
+
+//- ciklus
+tr
+	each value, index in context.motors.modelS
+		td #{index}
+	each value, index in context.motors.modelS
+		td #{value}
+
+//- változók
+- var változó ='bármi amit felhasználnék'
+span=változó
+span!=változó		// nem eszképel
+a(href=változó)
+
+if !context
+	//- sok kód
+else
+	//- else kód
+each value in ['a', 'b', 'c', 'd']
+	case value
+		when 'a'
+			p #{value}
+		default
+			p default ág
+
+//- js kód
+ul
+	- for (var i = 0; i<5; i++)
+		li
+			span #{i+1}
+			span
+				if i%2===0
+					| odd
+				else
+					| even

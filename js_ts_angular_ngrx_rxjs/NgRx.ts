@@ -46,7 +46,9 @@ hogy nem lehet egymásnak ellentmondó módon elérni az adatokat, hiszen a kör
 // npm i @ngrx/store
 // npm i @ngrx/effects
 // npm i --save @ngrx/store-devtools
-// npm i --save @ngrx/router-store
+// npm i --save @ngrx/router-store            // routereket is jelzi a devtools
+// npm install @ngrx/component-store --save   // komponens store
+
 
 // app.modul.ts
 import { StoreModule } from '@ngrx/store';
@@ -62,32 +64,37 @@ import { EffectsModule } from '@ngrx/effects';
 //   ],
 
 //-------------------
+// comment-payload.model.ts
+// tesztelési és kódismétlés elkerülési okok miatt
+export interface GetCommentsByImageIDSuccessPayload {
+	comments: Comment[];
+}
+export interface GetHolidaysErrorPayload {
+	error: HttpErrorResponse;
+}
+export interface GetCountriesErrorPayload {
+	error: unknown;
+}
+export interface GetCountriesSuccesPayload {
+  countries: ReadonlyArray<Country>
+}
+
+//-------------------
 // Actions =>
 // app/store/xxx/xxx.actions.ts
 
 import { createAction, props } from '@ngrx/store';
 
-const GET_COUNTRIES = '[COUNTRY] Get all';
-const GET_COUNTRIES_SUCCESS = '[COUNTRY] Get all success';
-const GET_COUNTRIES_ERROR = '[COUNTRY] Get all error';
-
-export const getCountries = createAction(GET_COUNTRIES);
-export const getCountriesError = createAction(GET_COUNTRIES_ERROR, props<{ error: unknown }>());
-export const getCountriesSucces = createAction(GET_COUNTRIES_SUCCESS, props<{ countries: ReadonlyArray<Country> }>());
-
-export enum CountryActionType {   // tesztelés miatt
-	GET_COUNTRIES,
-	GET_COUNTRIES_SUCCESS,
-	GET_COUNTRIES_ERROR,
+export enum CountryActionTypes { // tesztelés miatt
+	GET_COUNTRIES = '[COUNTRY] Get all',
+	GET_COUNTRIES_SUCCESS = '[COUNTRY] Get all success',
+	GET_COUNTRIES_ERROR = '[COUNTRY] Get all error',
 }
 
-// export const ADD_COMMENT = '[COMMENT] Add';
-// export const ADD_COMMENT_SUCCESS = '[COMMENT] Add success';
-// export const ADD_COMMENT_ERROR = '[COMMENT] Add error';
+export const getCountries = createAction(CountryActionTypes.GET_COUNTRIES);
+export const getCountriesError = createAction(CountryActionTypes.GET_COUNTRIES_ERROR, props<GetCountriesErrorPayload>());
+export const getCountriesSucces = createAction(CountryActionTypes.GET_COUNTRIES_SUCCESS, props<GetCountriesSuccesPayload>());
 
-// export const addComment = createAction(ADD_COMMENT,(text: string) => ({ text }));
-// export const addCommentSuccess = createAction(ADD_COMMENT_SUCCESS,(comment: Comment) => ({ comment }));
-// export const addCommentError = createAction(ADD_COMMENT_ERROR,(error: any) => ({ error }));
 
 
 //-------------------
@@ -104,7 +111,7 @@ import { Injectable } from '@angular/core';
 import { createEffect, Actions, ofType } from '@ngrx/effects';
 @Injectable()
 export class CommentEffects {
-
+// nincs dispatch, helyette acions-al kell visszatérni
   addComment$ = createEffect(() =>
     this.action$.pipe(
       ofType(CommentActions.addComment),
@@ -116,11 +123,11 @@ export class CommentEffects {
               userName: user.userName,
               userID: user._id
             }
-            return CommentActions.addCommentSuccess(newComment);
+            return CommentActions.addCommentSuccess({newComment});
           }),
           catchError((error) => {
             this.toast.showError("Hiba", "Hozzászólás közbeni fking hiba történt :'(");
-            return of(CommentActions.addCommentError(error));
+            return of(CommentActions.addCommentError({error}));
           })
         )
       )
@@ -141,7 +148,7 @@ import { Comment } from '../../models/comment.model';
 
 export interface CommentState {
   items: ReadonlyArray<Comment>;
-  error: any;
+  error: unknown | HttpErrorResponse | string; // bármi de ne any, any helyett unknown inkább
 }
 const initialState: CommentState = {
   items: [],
@@ -150,19 +157,11 @@ const initialState: CommentState = {
 
 export const commentReducer = createReducer(
   initialState,
-  on(ComponentActions.getCommentsByImageIDSuccess, (state, { comments }) => ({
+  on(ComponentActions.getCommentsByImageIDSuccess, (state, { comments }:GetCommentsByImageIDSuccessPayload) => ({
     ...state,
     items: [...comments],
   })),
-  on(ComponentActions.getCommentsByImageIDError, (state, error) => ({
-    ...state,
-    error: error,
-  })),
-  on(ComponentActions.addCommentSuccess, (state, { comment }) => ({
-    ...state,
-    items: [...state.items, comment],
-  })),
-  on(ComponentActions.addCommentError, (state, error) => ({
+  on(ComponentActions.getCommentsByImageIDError, (state, {error}:GetHolidaysErrorPayload) => ({
     ...state,
     error: error,
   })),
@@ -210,15 +209,64 @@ export const getImageReactionIDSelector = createSelector(
 constructor(private storeComment: Store<Comment>,){}   // itt vannak az adatok
 public comments$ = this.storeComment.pipe(select(getCommentsSelector))
 ngOnInit(): void {
-  this.storeComment.dispatch(getCommentsByImageID(imgID));
+  this.storeComment.dispatch(getCommentsByImageID({imgID}));
 }
 
 
+//-------------------
+// komponens store, a komponens életéig él
 
+// movies.store.ts
+export interface MoviesState {
+  movies: Movie[];
+}
+@Injectable()
+export class MoviesStore extends ComponentStore<MoviesState> {
+  
+  constructor() {
+    super({movies: []});
+  }
+  readonly addMovie = this.updater((state, movie: Movie) => ({
+    movies: [...state.movies, movie],
+  }));
 
+  readonly movies$: Observable<Movie[]> = this.select(state => state.movies);
+  readonly userPreferredMovieIds$ = this.select(state => state.userPreferredMoviesIds);
+ 
+  readonly userPreferredMovies$ = this.select(
+        this.movies$,
+        this.userPreferredMovieIds$,
+        (movies, ids) => movies.filter(movie => ids.includes(movie.id))
+  );
+  // Debounce selectors // nem sziknron vis akkor kap majd éréket, ha kirederelődött 
+  readonly moviesPerPage$ = this.select(state => state.moviesPerPage);
+ 
+  readonly currentPageIndex$ = this.select(state => state.currentPageIndex);
+ 
+  private readonly fetchMoviesData$ = this.select(
+    moviesPerPage$,
+    currentPageIndex$,
+    (moviesPerPage, currentPageIndex) => ({moviesPerPage, currentPageIndex}),
+    {debounce: true}, // 👈 setting this selector to debounce
+  );
+}
 
+// component :
+// providers: [ComponentStore],
 
-
+addMovie(movie: Movie) {
+  this.componentStore.setState((state) => {
+    return {
+      ...state,
+      movies: [...state.movies, movie],
+    };
+  });
+}
+addMovie(movie: Movie) {
+  this.componentStore.patchState((state) => ({
+    movies: [...state.movies, movie]
+  }));
+}
 
 
 

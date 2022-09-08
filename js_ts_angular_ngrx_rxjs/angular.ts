@@ -1355,6 +1355,7 @@ public createAndStore(post: Post): void {
     error: (err: { error: { error: string } }) => {
       this._error.next(err.error.error);
     },
+    complete:() => {}
   });
 }
 // III opció az observabelbe
@@ -1400,6 +1401,12 @@ export class AuthInterceptorService implements HttpInterceptor {
 // }
 //------------------------------------------------------------------------------------------------------------------------------------------
 // UNIT Testelés
+fdescribe // csak ez fut le   // 1 describe-be több describe is lehet + it-ek
+xdescribe // ez nem fut le
+fit// csak ez fut le
+xit// ez nem fut le
+
+// 99% ban beforeEach és afterEach  // 0,1% ban beforAll és afterAll
 
 // PIPE:
 // describe('ReversePipe', () => {
@@ -1418,7 +1425,7 @@ export class AuthInterceptorService implements HttpInterceptor {
 //   });
 
 //   it('should create', () => {
-//     let fixture = TestBed.createComponent(UserComponent);
+//     let fixture = TestBed.createComponent(UserComponent); // ezzel végzünk interakciókat a komponensen
 //     let app = fixture.debugElement.componentInstance;
 //     expect(app).toBeTruthy();
 //   });
