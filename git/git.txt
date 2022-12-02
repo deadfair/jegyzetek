@@ -94,8 +94,13 @@ git merge <branch-name>				// a fő ágba küldjük a mi branch ünket
 
 
 
+// ingatlan földrészlet keresö
 
 
+git -c http.sslVerify=false clone https://felhaszn:jelszo@tadads1.tad.mavinformatika.hu/MAVICollection/TopoRail/_git/TopoRail_backend
 
+git pull ssh://tadads1.tad.mavinformatika.hu:22/MAVICollection/TopoRail/_git/TopoRail_backend
+git -c http.sslVerify=false pull https://ballerk:X9DwN6YMX@tadads1.tad.mavinformatika.hu/MAVICollection/TopoRail/_git/TopoRail_backend
 
+git fetch ssh://tadads1.tad.mavinformatika.hu:22/MAVICollection/TopoRail/_git/TopoRail_backend +refs/heads/*:refs/remotes/origin/*
 

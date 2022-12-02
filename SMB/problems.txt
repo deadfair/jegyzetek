@@ -1,0 +1,16 @@
+
+sudo service redis-server start // redis szerver indítása
+
+
+mat(.){0,20}button
+
+
+földrészlet kereső: fömi település után inaktív fekvés legyen a hrsz-szel együtt.
+A fömi település kiválasztás után a hrsz lista értéke megjelenik és kiválaszthatja a felhasználó.
+
+szelvény alapú kereső: hüsz vonal eltört, szelvény zóna kiválasztás komponens cseréje az újra. 
+A keresés gomb csak akkor aktív, ha a hüsz ki van töltve valamelyik szelvény komponenssel.
+
+
+ttp://dv-toporail.mav.hu:8887/api/railway-wfm-common/wfm-list?userId=318635671&limit=50&offset=0&onlyPersonalWfm=false
+        http://localhost:5000/api/railway-wfm-common/wfm-list?userId=318635671&limit=50&offset=0&onlyPersonalWfm=false

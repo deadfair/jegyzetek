@@ -1095,7 +1095,7 @@ element.removeAttribute(namee); //adott nevű attribútum eltávolítása.
 // element.Y
 // Y =>
 innerHTML               // az egész tag és benne lévő minden classnév id innertext stb nem ajánlott biztonsági rés
-innertext               // CSAK a szövegrész
+innerText               // CSAK a szövegrész
 textContent             // szövegrész + minden sortörést + szövegben lévő scriptek is 
 
 style.color             // minden css tulajdonság elérhető a style alatt
