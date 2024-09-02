@@ -281,6 +281,21 @@ addMovie(movie: Movie) {
 
 
 
+// ngrx lvl 2
+
+@Injectable()export class RinfBorderPointService extends PaginatedEntityCollectionServivce<RinfBorderPointListDto, RinfBorderPointSearch> {  constructor(actions$: Actions, serviceElementsFactory: EntityCollectionServiceElementsFactory) {    super("rinf/bp", serviceElementsFactory);    //TODO törölhető, csak Kiki-nek egy példa ha valamilyen NgRx action-re szeretne valamit hackelni.    actions$      .pipe(ofEntityOp(EntityOp.QUERY_MANY_ERROR))      .pipe(filter(action => action.payload.entityName === "rinf/bp"))      .subscribe(action => console.error(`${action.payload.entityName} action`, action.payload.entityOp));    //Másik opció    this.errors$      .pipe(filter(action => action.payload.entityName === "rinf/bp"))      .subscribe(action => console.error(`${action.payload.entityName} action`, action.payload.entityOp));  }}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -496,6 +496,24 @@ static nullValidator(control: AbstractControl<any, any>): ValidationErrors | nul
 static compose(validators: ValidatorFn[]): ValidatorFn | null
 static composeAsync(validators: AsyncValidatorFn[]): AsyncValidatorFn | null
 
+
+  inventoryNumberValidate(control: AbstractControl): Observable<ValidationErrors | null> {
+    return of(control.value).pipe(
+      delay(500), // itt validátorba ez debounce-olja a kéréseket, nem küld minden billetyű leütésre
+      switchMap(leltariSzam => {
+        return this.tartozeklistaRestService.validateLeltariSzam({ leltariSzam }).pipe(
+          map(data => {
+            if (data?.success) {
+              if (data.result) {
+                return null;
+              }
+            }
+            return { InValid: { message: data?.events[0]?.message || "ismeretlen hiba" } };
+          })
+        );
+      })
+    );
+  }
 /*--------------------------------
 // css osztálkyok a kontroll státuszokhoz =>
 .ng-valid .ng-invalid .ng-pending .ng-pristine .ng-dirty .ng-untouched .ng-touched .ng-submitted (enclosing form element only)
@@ -1083,6 +1101,9 @@ navigateX(id):void{
   this.router.navigate(['edit'], { relativeTo: this.route, queryParamsHandling: 'preserve' });
   // queryParamsHandling: 'preserve' // megtartja az össze eddigi queryparamot
   // queryParamsHandling: 'merge'    // az ujakat megtartja és mergeli a régivel
+  this.router.navigate(["/railway/bulk-attributes-maintenance"], { state: { tprIds: this.selectedElementIds.map(id => id.toString()).join(",") } });
+  const tprIds = this.router.getCurrentNavigation().extras.state?.tprIds; // !!! CSAK A KONSTRUKTORBAN MŰKÖDIK
+
 }
 // ha azt akarjuk hogy pl a headerbe, egy komponens ne jelenjen meg ha épp pl az about pagen vunk
 //<app-button *ngIf="hasRoute('/items')""  // ha most a /items en vunk akkor megjelenik
@@ -1302,6 +1323,70 @@ megkérdezhetjük a felhasználót, hogy biztos el akarja-e hagyni az adott olda
 bizonyos felhasználóknak adhatunk hozzáférést az app bizonyos részeihez
 az elérési út paramétereinek validálása
 HTTP kérések lefuttatása az adott részelem megjelenítése előtt
+
+//------------------------------------------------------------------------------------------------------------------------------------------
+// CUSTOM TEMPLATE A
+<custom-header [headerItems]="headerItems">
+  <custom-header-item label="20202" text="2020220"></custom-header-item>
+  <custom-header-item label="20202" text="2020220"><ng-template #content>asddsadsadsasda</ng-template></custom-header-item>
+  <custom-header-item label="20202" [icon]="">
+    <ng-template #content>asddsadsadsasda</ng-template>
+  </custom-header-item>
+</custom-header>
+<label>{{ label }}</label>
+<div class="row h-center h-gap">
+  <em *ngIf="icon" [class]="getPrimeNgIconClass(icon)"></em>
+  <span>
+    <ng-content></ng-content>
+    <ng-container *ngIf="contentTemplate; else defaultContent">
+      <ng-container *ngTemplateOutlet="contentTemplate; context: { $implicit: {} }"></ng-container> // itt lehet átadni neki vissza értéket amivel elérem a benti változót
+    </ng-container>
+    <ng-template #defaultContent>{{ text ?? "Automatikusan töltődik ki mentés után." }}</ng-template>
+  </span>
+</div>
+@Component({
+  selector: "custom-header-item",
+  templateUrl: "./custom-header-item.component.html",
+  styleUrls: ["./custom-header-item.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class CustomHeaderItemComponent {
+  @Input() label: string;
+
+  @Input() text?: string;
+
+  @Input() icon?: PrimeNgIcons;
+
+  @ContentChild("content") contentTemplate: TemplateRef<ElementRef>;
+
+  getPrimeNgIconClass = getPrimeNgIconClass;
+}
+custom.header.html: 
+<ng-content></ng-content>
+
+// CUSTOM TEMPLATE B
+<div class="tpr-wfm-search-header">
+  <ng-content select="[header]"></ng-content>
+</div>
+<div class="tpr-wfm-search-content">
+  <ng-content select="[content]"></ng-content>
+</div>
+<div class="tpr-wfm-search-buttons">
+  <ng-content select="[buttons]"></ng-content>
+</div>
+@Component({
+  selector: "wfm-search-panel",
+  templateUrl: "./wfm-search-panel.component.html",
+  styleUrls: ["./wfm-search-panel.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class WfmSearchPanelComponent {}
+
+<wfm-search-panel>
+  <div header class="tpr-search-content-header">{{ WfmCaseType.GEOMETRY | wfmCaseType }}</div>
+
+  <div content class="column">
+  .......
 
 //------------------------------------------------------------------------------------------------------------------------------------------
 // HTTP kérések: szükséges modulok:       // stateles-ek vis nem szükséges leiratkozni róluk, 1x lefutnak azt jól van

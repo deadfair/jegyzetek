@@ -223,11 +223,11 @@ min => annyi mindenképp lesz. az oldal növeléséve, ha nő az elem akkor nőn
 max => maximum akkora lehet. az oldal szüküléssével aaz elem is..
 
 position: 
-|| fixed(pl. navmenü)                   (kikerül a helye a dokumentumból)   =>   új kontextust hoz létre 
+|| fixed(pl. navmenü)(böngészőablakhoz)(kikerül a helye a dokumentumból)   =>   új kontextust hoz létre 
 || sticky(ha érintkezik az elem a képernyő szélével akkor fixed lesz, és ha a szülű eltünik akkor ő is)
 || static(az alapértelmezett, ahol kell lennie)   => minden ami nem static uj kontextust hoz létre a gyerekeinek
 || relative(magához viszonyítva merre?) (nem kerül ki az eredeti helye a dokumentumból)  => új kontextusba lesz a gyerekei absoluteja és relative-ja
-|| absolute(a dokumenthez viszonyítva)  (kikerül a helye a dokumentumból)   =>   új kontextust hoz létre  
+|| absolute(a kontexthez viszonyítva)  (kikerül a helye a dokumentumból)   =>   új kontextust hoz létre  
 || inherit(szülőhöz)
 left:   px              az elem hol legyen? top:0 left:0 => a bal felsö sarokba legyen az elem
 right:
@@ -654,7 +654,7 @@ flex-basis:         (default:auto) flex-direction tól függ: HA
 
 flex:       [Flex-grow] [flex-shrink] [flex-basis]
             0 0 auto // ahoyg tud összezsugorodik
-auto  ===   1 1 auto // ahogy tud kitágul 
+auto  ===   1 1 auto // ahogy tud kitágul
 1     ===   1 1 0    // mivel a basis = 0 ezért 1-1 részre lesz osztva
 50%   ===            // a terület felét foglalja el
 100%  ===            // a teljes területet
@@ -825,7 +825,7 @@ gyerek:grid-column: auto / span 2;  =>  a kezdő helye autómatikus lesz a több
     width: 50px;
     height: 50px;
     background: red;
-    position: absolute;
+    position: absolute;csak le
     left: var(--mouse-x);
     top: var(--mouse-y);
 }

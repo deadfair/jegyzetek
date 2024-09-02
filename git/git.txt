@@ -104,3 +104,21 @@ git -c http.sslVerify=false pull https://ballerk:X9DwN6YMX@tadads1.tad.mavinform
 
 git fetch ssh://tadads1.tad.mavinformatika.hu:22/MAVICollection/TopoRail/_git/TopoRail_backend +refs/heads/*:refs/remotes/origin/*
 
+git -c http.sslVerify=false clone https://felhasznalonev:jelszo@tadads1.tad.mavinformatika.hu/MAVICollection/TopoRail/_git/TopoRail_backend toporail
+
+
+route-book-settings --skip-import --skip-tests --style scss
+
+url = https://ballerk:X9DwN6YMX@tadads1.tad.mavinformatika.hu/MAVICollection/TopoRail/_git/TopoRail_backend
+
+
+CORE_HOST=localhost                         .env
+
+CORE_HOST_URL: "http://localhost:8180",
+CORE_API_URL: "http://localhost:8180/api/v1",   
+CORE_WS_URL: "http://localhost:8180/ws",    .environment.ts
+
+
+
+$ git config --global user.name "deadfair"
+$ git config --global user.email deadfair666@gmail.com

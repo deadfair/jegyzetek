@@ -168,7 +168,7 @@ Integer.parseInt("5");
 // String => Integer (bármi más primitív objektumai, hasonlóan)
 Integer.valueOf("5");
 // -----------------------------------------------------------------------------------------------------------------------
-// Csomagolók: Integer, Character, Double ...
+// Csomagolók: Integer, Character, Double ... // lehetnek null a primitívek nem
 Integer I_0; // inmutabilis => gyorsítótárazza a sokat használt számtartományokat
 int i_0;
 // Integer => int

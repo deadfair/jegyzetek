@@ -637,7 +637,7 @@ fromEvent(document, 'click')            // 1000ms onként csak 1x írja ki hogy 
 // auditTime 
 auditTime(1000) // 1 secenként dobálja az addigi utsó adatot
 // ---0--1-2---3---4
-// throttleTime(1000)
+// auditTime(1000)
 // ----0----1----3---
 
 

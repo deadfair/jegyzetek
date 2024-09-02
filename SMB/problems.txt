@@ -1,6 +1,6 @@
 
 sudo service redis-server start // redis szerver indítása
-
+bejelentkező neve: ballerk, jelszava X9DwN6YMX  már => 9319
 
 mat(.){0,20}button
 
@@ -14,3 +14,918 @@ A keresés gomb csak akkor aktív, ha a hüsz ki van töltve valamelyik szelvén
 
 ttp://dv-toporail.mav.hu:8887/api/railway-wfm-common/wfm-list?userId=318635671&limit=50&offset=0&onlyPersonalWfm=false
         http://localhost:5000/api/railway-wfm-common/wfm-list?userId=318635671&limit=50&offset=0&onlyPersonalWfm=false
+
+
+
+route add -p 10.248.222.141 MASK 255.255.255.255 172.24.0.1 # dv-toporail
+route add -p 10.1.2.82 MASK 255.255.255.255 172.24.0.1 # mbpkrdc02.mav.hu
+route add -p 10.248.16.12 MASK 255.255.255.255 172.24.0.1 # vgwebp1.mav.hu
+route add -p 10.248.222.52 MASK 255.255.255.255 172.24.0.1 # st-toporail
+route add -p 10.248.220.175 MASK 255.255.255.255 172.24.0.1 # palyaintranet
+route add -p 10.248.220.164 MASK 255.255.255.255 172.24.0.1 # jenkins
+route add -p 10.248.222.50 MASK 255.255.255.255 172.24.0.1 # toporail.mav.hu
+
+Host tadads1.tad.mavinformatika.hu
+    User ballerk
+    Port 22
+    PubkeyAcceptedAlgorithms +ssh-rsa
+    HostkeyAlgorithms +ssh-rsa
+
+
+
+
+
+a filter tömb összerakása? vagy a search ? ha search akkor a tipusok jok mert ellentmondásos a word doksival, 
++ kicsit ellentmondásos mintha keveebb lenne a fenti képemn lévő adat a példába több van a Swaggerbe huszVonalak nincs a képen
+
+ha váltok alul tabot legyen also tabon reset a régit? mert látom egy modult lehet küldeni vis vagy ez vagy az.. ?
+
+
+yarn generate-types
+
+
+szerda 14 illés norbert
+Szered u. 14, Budapest, 1147
+
+
+
+
+1 vannak objektumaim, amit majd kapok egy végpontról, 
+kell 1 listázó tábla, milyen oszlopok legynek megjelenítva? 
+ezekhez lelteri számot kell tudni rendelni meg szerksezteni, lesz végpont a szerkesztéshez
+kell kereső amivel leszűkitem az összes ilyne objektumot,
+minden ilyen objektumhoz adhatok hozzá tetszőleges mennyiségű objelktumot?
+1 csak 1 hez tartozhat v többhöz is? vis egy hidhoz tartozhat csavar de ugyanaz a csavar nem tartozhat máshoz és a híd se?
+eltávolitani is lehet nyilván
+a táblába megjelenő objektumoknak milyen oszlopok kell?
+szerkesztéskor meg keresőnél milyen mezőket lhessen? a kép elég ratyi a pdf ben v amit küldél kép olyan mezők? az mind
+törölt leltári számok lekérdezése? 
+ehhez akkor semmi végpont?
+propokról az adatszerkezetről ami backendről jön, lehet tudni valamit?
+vagy pont olyan lesz mint a térképen egy objektum? csak leltári számmal?
+(a térkép kijelölés rész egyenlőre skip)
+
+summa: 1 tábla 1 kereső egy szerkesztő oldal, majd itt hozzárendelések, és a hozzárendelteknek a szerkesztése
+
+
+
+2.4.4:
+Ha egy leltári számmal nem rendelkező, főelem-listában szereplő
+objektumnak az attribútum karbantartó felületen megadják a leltári számát, az
+megjelenik a műszaki tartozéklistánál. (Ez az eset csak akkor fordulhat elő, ha
+a lista még nem határoz meg leltári számot)
+// ha pistike adja meg y gépen az atr karbantartón és józsikának x gépen kéne real time megjelenni?
+// vagy elég frissités hatására? 
+· Egy főelem listába olyan objektum beválogatásakor, amelynek nincs leltári
+száma, és a lista meghatároz egy leltári számot, akkor az objektum is
+megkapja ezt az értéket.
+// ez sztem a backend dolga ha megtörténik a hozzáadás
+· Főelem listából való törléskor az objektum leltári száma is törlésre kerül.
+// ez sztem a backend dolga ha megtörténik a hozzáadás
+· Tartozékok közé nem lehet leltári számmal rendelkező objektumot
+beválogatni.
+// eleve azokat adná csak a backend a végpontról? vagy front end hekkel? sztem backend
+· Tartozéklistában szereplő objektumnak nem lehet leltári számot megadni.
+· Főelem listában lévő objektumnak nem lehet módosítani a leltári számát csak
+megadni. (Ez az eset csak akkor fordulhat elő, ha a lista még nem definiál
+leltári számot)
+// megadás után readonly..
+· Főelem lista nem tartalmazhat különböző leltári számú elemeket. (Üres leltári
+számmal rendelkezőt be lehet válogatni, azonban mentéskor ez is megkapja
+a kijelölt leltári számot)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+headerbe a state ás egy infó tooltip overlay jobb oldali táblába is,
+az overlaybe egy akció hogy mentés
+info gom
+
+
+
+activ jelölése
+az állapot id ja a urlbe
+megosztás gomb
+törlés gomb => érvényesités / érényetlenítés
+padding talán a táblára
+
+
+
+
+
+többet is lehessen az objektum infóba hozzácsapni? v csak 1 esével?
+
+
+
+
+
+
+
+
+
+
+ha betöltök egy állapotot hozzárajzolok vmit vagy hozzáadok uj réteget akkor
+ez az uj rajz eltünjön v sem?
+javaslatom töröljük a rétegeket, és a méréseket és késsz..
+
+
+az ujra kell kijelölt szint tenni !!
+ha kattintok szintén rá kell tenni, de a többit resetelni
+
+
+
+
+
+
+clusterOPT brencsen van amit mokkoltam
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+idleservice 
+login után user aktivitást figyel, egy timer
+move, click, doubleclik, contextmenu, dragstart
+ha elfogy az idő logout
+idlecomponens, előugrik,
+4 percnél 1 perc van vissza
+ugy érzékeljük, hogy nem .. biztonsáég érdekébe kijelentkeztetjük
+idő,
+eltünik automatice ha mozgást érzékel
+
+
+
+
+
+
+
+
+
+
+
+
+lock: kérem a lockot, megadja ki lokolja v senki 
+succes v error jön, ha nem az övé
+ügybe menve resolver, ha van lock szerkeszthető, 
+succes flag:sikerült v nem, amugy jön a lock ha van
+
+amig a felhasználó itvan frissiteni,  a lejárati időtöl függ a timer ideje
+destorynál elengedni a lockot, kivéve ha szerktérbe ment akkor az s lockolja, addig tartani
+
+lockguard az id-ra hogy a lock megvan e lockservice
+headrbe küldnei a tpr-session-id-t.
+Attributum szerksztőnáél is lockolni minden-t egyeseébe
+szerktlébe menve törlöm a lock destroyba majd ujra kérem
+változásnál ha valaki dobta lockot de a másiuk nézi akkor a mási
+megkapja  lockot és frissiti az adatokat
+lock komponens lockolo felhasználó nevét
+munkamenet szinten is van lock 
+
+update: nem fog visszaadni lockot az aquirelokc végpont
+uj végpont lesz arra hogy kié a lock  details végpont
+
+
+activaterouter nem jo mert okés hogy ott az id a route-ba de akkor kéne egy ős amin a routeba lévő id név változik... meg a másik input
+
+
+
+
+
+
+Attributum karbantarto tudja csak
+Hálozati,területi mérési koordinátorok, !!! almenüre
+
+mint az ingatlan ügynél piros az egyik másik kék térképen
+szem melyik item,
+kuka kidobjuk a listábol
+
+
+
+
+
+auditálás
+AUDIT végopont
+objektum verziók követése
+get kérés: ellenörzésre hogy támogatott e az az entitás
+2 listázos
+1 részletes lekérés (.. at revision)
+revisionNumber ==== a verziója
+changes végpont => 
+propPath=> propja
+típusa, mi volt mi lesz
+obj szereksztése 
+vagy tába
+tábla nem kell csak obj szerkesztése, de ott egymás mellet 2 verzió összehasonlítása
+
+
+
+
+menu fix, ha nem csildrenre kattintok tünjkön el
+
+
+
+
+DAte hekk eltüntetése van ott egy type
+
+
+
+
+
+
+
+első átnavigáláskor az activeLayers kiürül, // mert ugye kiszedtem a 289. sort 
+MapMode_default =	"property_deed"
+és a régi réteg viszont fentmarad,
+
+ujjab elnavigáláskor jol müködik annyi kitétellel hogy üriti a mapot és ugye felkéne vennie 
+a property_deed es map rétegeit
+
+
+
+
+
+
+
+kijelölt atributumoknál egy félébül csekboxal kijelölni miket rakunk bele a tömeges modositásba
+
+
+
+
+
+
+
+revizio mentés abstractEntyti dto alap attr dolgai maradjanak
+
+footerbe a verzio
+
+filter plusz funkciok, grouppok + propok  !!  2 kereső a régi marad
+
+
+
+
++1 validáció , ha nem mind azonos tipus
++ karbantarto autocomplate 
+oszlopok fejléc szürés, -tprid 
+plusz irtás
++ karbatarto jog
+létrehozo jog
+kijelöléseknél a gomb nagytömegü létrehozo + admin tudja csak 
+
+táblacsontváz
+
+    <tpr-entity-list
+      [model]="selectedEntityType"
+      [dataSource]="dataSource"
+      [loading]="loading"
+      [rows]="limit"
+      [showColumnFilters]="false"
+      (sortChange)="onSortChange($event)"
+      (rowSelect)="editIconOnClick($event)"
+      actionRowClass="table-button-column">
+
+
+
+id objektinfo
+pályavasút alatti menű utvonalkönyb
+fehér háttérü térkép réteg
+footer eov marad 
+findobjektbyID
+RouteBook
+a vázrajz térképre egyenlőre majd légyszíves tedd fel az elemi szakasz választót
+
+
+
+
+
+viszonylat azonosító
+kezdő, vég szolgálati hely
+érvényesség, tól ig
+
+
+
+
+a szélső pontok széthúzása,
+jobb klikk eltüntetés a páylaszakasz részét
+ jumpExtent() {
+    const extent: number[][] = this.map
+      .getLayers()
+      .getArray()
+      .filter(l => l instanceof VectorLayer)
+      .map(l => (l as any)?.getSource()?.getExtent())
+      .filter((e: number[]) => !!e && !e.includes(Infinity) && !e.includes(-Infinity));
+    if (extent.length > 0) {
+      this.map.getView().fit(extent[0], {
+        duration: 1000,
+        padding: [100, 100, 100, 100],
+      });
+    }
+  }
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
+KÉSZ:
+geopackage export gomb => 
+delete gomb ami egyböl ujragenerál
+legendnél a forrást kéne nézni hogy van e hozzáadva uj feature vaghy törtölve mert a mozgásra frissités kevés !!!
+toporal id a modositáés
+jelmagyarázat absolut pozició hekkelése
+wov levétele, koordináta kijelölés levétele meg a cooordináták levétele
+featurek helyett objektumokkal kéne szorakozni??????
+kijelölés levétele ha kiszűröm
+kill all rétegkapcsoló mind be
+vázrajz oldalra geopackage export
+toporail vázrajz_elemiszakaszid_készités idopöntja_állomás.gpkg
+httpBlobinterceptor
+elemiszakasz/utvonalon láthatom az utakat
+objekt infózni ne lehessen egyik sectionNUmbert se
+headerrbe "Útvonalkönyv : kezdete - vége"
+szerkseztő táblánál ne jelenjen meg ami nem szerksezthető
+vázrajz betöltése folyamatban
+csak a releváns rétegek jelenjenek meg
+z index vágány legyen legalul, track legyen legalul
+először a az utvonmal jelenjen meg ne a setting
+a sub layer cseréje mert abbol csak 1 lezs
+sketch layer a routebook-layer helyett a vézrajzhoz vnanak lérejek
+track az tartalmaz több objektumot is, majd lesznek labelek amit felkellr ajzolni
+loading átalakitása tömbösre
+probléma map mozgatása közbe kéri csak le a dolgokat ha változik az érték vagyis kapja a accept gombo akkor nem
+labelek
+hibakezelés, siekretelen.. 
+forgalombol kivett szűrő, objektum v track objemtumai
+rétegválaszto
+folyamatos felépitése a megállóknak
+1. állomás kiválasztása, szolg hely id  alapján kell szürni az
+2. elemi szakasznál kezd v vég id === szolg hely id és tipus = állomás, állomásköz
+kezd ===vég id === állomás
+vissza fele ne mennej
+viszonylat kuka
+objektum/entity/list/{entititype}
+szolg_hely.id
+elemiszakasz/list kezd v vég id === szolg hely id és tipus = állomásköz
+kezd.nev CONTAINSIGNORECASE lelle  id ja megvan=> 
+van ennek kezd.id és veg.id === állomásnál ez ugyanaz
+most állomásköz kezd v veg.id ez  // állomást lehessen csak választani állomásközöket ne mutassuk
+egyik id tkiválasztjuk megvan beraktuk..áálomást berakjuk
+majd menthetjük
+A listába az elemi szakaszok is legyenek benne
+megáálók? => pl lelle => 
+save utvonalkönyv req
+tábla ki mikor hozta létre érvényesség=>pipa v x é szöveg badgettel , megnevezés
+updateukobjektum végpont
+viszonylatok átnevezése => utvonal
+Viszonylat => vázrajz
+objektum mentés átdolgozása rákérdezés??  egybe mentés nem objektumokkal egyesével???
+elfoprgatással lehet gond van?? mert az atributumokat nem rakom fel??,
+sub => object layer  kiegészitő
+main
+addicional
+1 layer lesz
+sortolás
+KIVÁLASZTIOTT ELTZÜNJÖN HA ELKELL TÜNNIE
+kijelölés nem tönik el ha mentek nem relevánsra
+és ha a szürö változik akkor is
+releváns nem releváns az oszlopba oszlopszűrőként
+odszlop átméretezhetző
+swettings kiszedése a ssessionbol
+a szürű a rétegekre is szürjön vis a rétegkapcoslo nem csak a relevánst nézze ha ugy van
+vissza gomb,
+jobbra balra cucc
+térkép objektumai tábla, kereső vagy szűrő típusra
+tartsuk meg a első , mezőt
++szűrők 
++filterek
+érvényesség szürő
+objektum szekvénszám kikapcsolom eltünik
+tábla kezdő vég csere
+releváns nem releváns iinkább ikon legyne szines
+tábla: érvébnytelenités
+szürkék legyenek a töröltek a táblába
+ugrás legelsőre és legutolsára
+ne csak a vágány legyen bkapcs kezdetkor!!
+kapcsoló a futerba sematik vagy topologiai, generate-t hivjuk megy!!!! egyböl a kapcsoláskor
+min él buffer, szelvénszám, shematikust többi
+mi nem kell? min él nem kell a topologiai
+merge tracks mindig true ne legyen kint
+él táv legyen egész 
+generated at mikor készült "1 éve"
+vissza nyil nem az igazi, ne a locate.back() el
+mouseoverrel, a labelre az id jön elő wtf
+previoussettign jol müködik? ha elöször swapolok allul majd nextelek fent?
+hüsz szűrés
+ha elmegyek szólj ha modositottam
+map.put("TPR_UK_ADMIN_ROLE", "Útvonalkönyv adminisztrátor");
+map.put("TPR_UK_SZERK_ROLE", "Útvonalkönyv szerkesztő");
+map.put("TPR_UK_BETEK_ROLE", "Útvonalkönyv betekintő");
+ezek lesznek az UK jogosultságok
+majd vedd fel őket frontenden is a megfelelő helyekre
+A modul működéséhez és eléréshez jogosultság kiadása szükséges. Az alábbi jogosultságokat el kell készíteni: 
+Admin: teljes karbantartói jogosultság, valamint teljes rendszer szintű hozzáférés. 
+Koordinátor: Útvonalkönyvvel kapcsolatos szerkesztési és módosítási feladatokat láthat el a felhasználó. 
+Betekintő: Csak olvasói jogosultság az útvonalkönyv modulra, csak viszonylatot hozhat létre, valamint megtekintheti a torzított vázrajzokat. 
+létrehozta szűrő
+3szin a héttér
+legendszek fix
+táblánál ami track and object azt => editable object editable flag az attributumok közt 
+tprRelacio kell e a fetureba?  object info???
+obj info uatk nem ojo
+label sztyle nme eszik meg 2 stilust?  a cimkére
+get selectedSectionCode legyen ID é smidnne ami kod legyen id!!!
+képexport nem az igazi
+
+
+-------------------------------------------------------------------------------------------------------------------
+ELVETVE: 
+openlayers context menu context esemény re overlayt
+megjelölés
+schematikus esetén x scale és y scale 1 => default a shematikus nál nincs értelme
+grid snappelés kikapcs defaultba shematiknál ninc sértelme
+min él távolság 25, 30 defauktba
+Egyszerűsített távolság tűréshatár = 0 defaultba, shematikusnál nincs értelme
+buffer distance 50
+Grid cella méret 1
+jobb klikk v duplaklikk felugro ablak, tömör infó
+releváns nem releváns hosz pozició, modositás gomb=> relevánst nem relevánsá
+vágány mindig bekapcsolva legyen
+
+-------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
+WHAT THE FUCK??
+// pirtos készitésnél uj generálás
+labelek eltüntek
+loading a layaerekhez
+az atributum labele a metamodelből, 
+
+-------------------------------------------------------------------------------------------------------------------
+BUGOK AMI RANDOM JAVULT:
+autocomplate enterre behal, vis nem szelektel
+
+-------------------------------------------------------------------------------------------------------------------
+
+BUGOK: 
+
+probléma ha változik az ablak méret a map nem követi le az extentet
+automatic választó bug => async validátor??? maybe de erre rákéne küldnei norbit
+
+BUG MÉG?????? KELL MÉG???????:
+
+uj felvétel, tab az uj felvételénél,  
+vissza majd ujnál clearsketchlayer bugzik
+dinamikusan ukobjektiumdialog
+a szerkeszdö dinamikus szerkesztő a metamodel/listből kérjük le
+vazrajz/{entityTyle} innen
+filter a footerbe??
+
+NINCS KÉSZ:
+
+
+hasznositás modja neve változik hasznositásIránya
+uj mezö hasznositás módja a 2. sekcióba, IHASZ_HASZNOSITAS_MODJA
+
+email mező IHASZ_ELERHETOSEG
+
+
+
+[18:49] Kokeny Gabor (Guest)
+van ez a végpont: /api/v1/mapstyles/all
+[18:51] Kokeny Gabor (Guest)
+/topic/entity/change
+[18:52] Kokeny Gabor (Guest)
+getAndCacheAllStyle
+
+
+2 gombot szinessé tenni a mentés succesre a resetet pirosra.. az uj funkcióba
+
+szerktérbe utsó menüponton mindig mindenki megjelenik és csak annak kéne aki releváns
+
+
+beállitás gefejezés + tootlit
+
+kell egy olyan kis komponens ami felugik akkor ha nicns kapcsolat a szerverrel 
+window.addEventlistener("oneline", () => 
+window.addEventlistener("offline", () => 
+
+
+
+  /**
+   * Az ngrx tábláknál egy style problem, hogy ha lazyLoad bekövetkezik, akkor egy pillanatra fenn áll az, hogy
+   * üres tömb lesz a tábla értéke, és ez azért baj, mert a primeNg tábla az oszlopokat összeprobálja zsugorítani =>
+   * így ugrál a tábla az oszlopai mentén (van adat => nincs => van)
+   */
+  private setTableAndColumnWidths(table: HTMLTableElement) {
+    // 1x kéne betölteni, és resizekor ujra majd a régit mindig törölni
+    table.style.width = table.offsetWidth + "px";
+    table.classList.add("dynamicClass");
+    const rows = Array.from(table.getElementsByTagName("tr"));
+    const row = rows[0];
+    const thElements = Array.from(row.getElementsByTagName("th"));
+    const style = document.createElement("style");
+
+    thElements.forEach((th, i) => {
+      const currentWidth = th.offsetWidth;
+      style.innerHTML =
+        style.innerHTML +
+        `
+        .dynamicClass th:nth-child(${i}), td:nth-child(${i}) {
+            width: ${currentWidth}px;
+            max-width: ${currentWidth}px;
+        }
+    `;
+    });
+    document.head.appendChild(style);
+  }
+
+
+
+MapState update
+
+a ClusterLayer style jába van egy hekk, hogy addIds$ removeIds$ 
+az add, akkor fut le ha clusterezni kell vis pont volt és több mint egy
+a remove minden más esetbe
+mind2  bufferTime(3000), al összegyüjti a IDkat
+this.clusteredFeatureIds-ban amit az objekt infó komponens elér, megjelöli mivel hozzá
+ezt talán átlehetne tenni az objekt infóba és ott megflagelni, => kevesebb lag
+de kidobhato mivel kutyát se érdekel majd a click után hogy az obejt infoba az most clusterezve  van e
+
+this.activeFeatureService.addFeaturesChange$ és 
+this.activeFeatureService.removeFeaturesChange$
+re vok rácuppanva és ilyenkor üriti a layert ez must have layer be ki kapcsnál
+
+
+
+
+0,8opacici
+hvonal sorszám ???? fősorszám, alsorszám, tooltipbe a hvonal neve
+bontott státusz szinek ikonok? minimalista tooltip szöveges
+id tipusa
+cerka
+ha más  tipus tipus szerint csökkenö abc 
+csempenézet ha több ban mint 
+Row Group Table ( lassumenet Objektumok ) (entitás tipusa Objektumok) ezek a csoportok..
+darabszámok
+stilust a stilusbeállitásoktól
+loading
+x gomb
+x gomb bezárás
+mouzehover style
+a klikelt feature re mutasson a nyil pont
+out of zoomba eltünhetne az overlay
+ngonchangeproblem
+editingspace????,
+kék?
+
+
+3 row mod kapcsoló váltás ha lhet (rowGroupMode)  tui???
+
+5512157
+
+global stylok nem hatnak ki !!!!
+létrehozzuk a componentet de directivával majd figyeljük mi aktiv 
+85880 
+87567
+map-state hiba megnyit i gorget megynit görget vált görget
+backend kell: a kijelölés elvégezhető e?
+hüsz frissüljöün törlésre
+kell egy disable gomb arra hogy változtathato e a többszörös kijelölés 
+3 vektorréteg van 
+ 1 a piros kijelölés 
+ 2 a kör 
+ 3 
+ESC megöl mindent
+sugo betenni a cimkék tourba
+a kijelölésnél a szerketeresnél nem tölti be a földrészleteket meg hüszöket először
+pointermove debaunce mindenhol
+entititype 
+id
+wfm statusz loading fent
+kerület
+első betöültés rip
+egyel fölötte tábla
+gis végére
+a = a hekkem ami még nem jó, + opensteppre zoomolok
+b = mapchangre felkészülni, mindenh komponensbe átirni a map változhat, vagy csak a felsö featurekba
+de ez további bugokat vonzhat amit még nem találtam meg
+csak mater  
+felezőpont nem kell
+eov-wgs váltás 
+szinek
+minden comprefet létrehozni
+inspectorOverlays ekhez hozzákötni a comprefet is
+1. minden inspectorOverlays egy arrayba!
+2. kell oylan infó milyen zoomokba jártunk 
+3 az inspectoroverlaysba tároljuk a visibleZoom egy tömbbe
+ha zoom change van és olyan zoomba megyünk amibe voltunk akkor a Map bol
+szedjük az infokat  2 eseménybe küldünk eghy tömböt eggy add és egy remove
+ha uj zoom van akkor matekolunk távolságot majd Map-ot szettelünk
+zoom?
+keshelés hasmap vagy sima map
+zoomokhoz mentem le az összes cuccost
+export 
+
+a szerkesztés mindig nyer ő a fő prio a többi esetbe az utolsó
+
+
+
+
+
+
+
+firefoxba nem jo ez a sor 
+    document.fonts.forEach(node => {
+      (this.popoutWindow.document as any).fonts.add(node);
+    });
+
+
+
+
+labels overlay servicebe nem minden tartozik oda
+
+mapInjector tprmodul.ts 151. sor
+
+
+rinf op sol bp tbale 
+akm table
+
+  removeDrawOverlay() {
+    this.map.removeOverlay(this.drawOverlay.overlay);
+    this.drawOverlay.overlay.setPosition(undefined);
+    this.drawOverlay.mainElement.remove(); // TODO MÁSHOL?
+    this.drawOverlay = null;
+  }
+
+
+
+
+  isvalid érvényesség
+
+
+  [10:02] Kokeny Gabor (Guest)
+
+@ResponseBody
+@GetMapping(path = "/objektum-tipusok", produces = MediaType.APPLICATION_JSON_VALUE)
+@Operation(summary = "Torzított vázrajzon megjelenített objektum típusok lekérdezése")
+BaseListResponse<UkObjektumTipusDto> getVazrajzObjektumTipusok();
+ 
+[10:02] Kokeny Gabor (Guest)
+ezt az apit kell használnod majd az ukTipusok String-re alakításához
+[10:02] Kokeny Gabor (Guest)
+szeritnem már FE-n volt használva
+
+
+
+  getJumpCoordinate(ukObjects: (UkBaseObjektumDto | UkGroupObjektumDto | UkTprObjektumDto)[]): Coordinate {
+    const features = ukObjects.map(o => convertWkf2Feature(o.geometria));
+    if (ukObjects.length === 1) {
+      const type = features[0].getGeometry().getType();
+      if (type === "Point") {
+        return getCoordinates(features[0].getGeometry())[0];
+      } else if (type === "LineString") {
+        const line = turf.lineString(getCoordinates(features[0].getGeometry()));
+        const lineLength = turf.length(line, { units: "meters" });
+        const midpoint = turf.along(line, lineLength / 2, { units: "meters" });
+        return midpoint.geometry.coordinates;
+      } else if (type === "Polygon") {
+        return turf.centroid(turf.polygon([getCoordinates(features[0].getGeometry())])).geometry.coordinates;
+      }
+    }
+    const points = features.filter(f => f.getGeometry().getType() === "Point");
+    const lineStrings = features.filter(f => f.getGeometry().getType() === "LineString");
+    const polygons = features.filter(f => f.getGeometry().getType() === "Polygon");
+    if (ukObjects.length === 2) {
+      if (points.length === 2) {
+        return turf.midpoint(turf.point(getCoordinates(points[0].getGeometry())[0]), turf.point(getCoordinates(points[1].getGeometry())[0])).geometry
+          .coordinates;
+      }
+      if (points.length === 1) {
+        const point = turf.point(getCoordinates(points[0].getGeometry())[0]);
+        if (lineStrings.length === 1) {
+          const line = turf.lineString(getCoordinates(lineStrings[0].getGeometry()));
+          const closestPointOnLineCoordinate = turf.pointOnLine(line, point).geometry.coordinates;
+          return turf.midpoint(point, closestPointOnLineCoordinate).geometry.coordinates;
+        }
+        if (polygons.length === 1) {
+          const closestPointOnPolygonCoordinate = this.getPointAndPolygonNearestPointOnPolygon(
+            point.geometry.coordinates,
+            getCoordinates(polygons[0].getGeometry())
+          );
+          return turf.midpoint(point, closestPointOnPolygonCoordinate).geometry.coordinates;
+        }
+      }
+      if (points.length === 0) {
+        if (lineStrings.length === 2) {
+          const line1 = turf.lineString(getCoordinates(lineStrings[0].getGeometry()));
+          const line2 = turf.lineString(getCoordinates(lineStrings[1].getGeometry()));
+          const intersection = turf.lineIntersect(line1, line2);
+          if (intersection.features.length) {
+            return intersection.features[0].geometry.coordinates;
+          }
+          const nearestPoint = this.getLineAndLineNearestPoint(
+            getCoordinates(lineStrings[0].getGeometry()),
+            getCoordinates(lineStrings[1].getGeometry())
+          );
+          return nearestPoint;
+        }
+        if (lineStrings.length === 1 && polygons.length === 1) {
+          const line = turf.lineString(getCoordinates(lineStrings[0].getGeometry()));
+          const polygon = turf.polygon([getCoordinates(polygons[0].getGeometry())]);
+          const nearestPoint = this.getLineAndPolygonNearestPoint(getCoordinates(lineStrings[0].getGeometry()), getCoordinates(polygons[0].getGeometry()));
+          return nearestPoint;
+
+        }
+      }
+      if (ukObjects.length > 2) {
+      }
+
+      if (points.length > 2) {
+        points;
+      } else if (points.length === 1) {
+      } else {
+      }
+    }
+  }
+
+  getMidPoint(points: Coordinate[]): Coordinate {
+    return points
+      .reduce(
+        (acc, c) => {
+          acc[0] += c[0];
+          acc[1] += c[1];
+          return acc;
+        },
+        [0, 0]
+      )
+      .map(c => c / points.length);
+  }
+
+  getPointAndPolygonNearestPointOnPolygon(pointCoordinate: Coordinate, polygonCoords: Coordinate[]): Coordinate {
+    const point = turf.point(pointCoordinate);
+    const lines: turf.Feature<turf.LineString>[] = [];
+    const coordinates = polygonCoords;
+    for (let i = 0; i < coordinates.length - 1; i++) {
+      lines.push(turf.lineString([coordinates[i], coordinates[i + 1]]));
+    }
+    let nearestPoint: NearestPointOnLine = null;
+    let minDistance = Infinity;
+    lines.forEach(line => {
+      const candidatePoint = turf.nearestPointOnLine(line, point);
+      const distance = turf.distance(point, candidatePoint);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestPoint = candidatePoint;
+      }
+    });
+    return nearestPoint.geometry.coordinates;
+  }
+
+  getLineAndPolygonNearestPoint(lineCoordinates: Coordinate[], polygonCoords: Coordinate[]): Coordinate {
+    const line = turf.lineString(lineCoordinates);
+    const lines: turf.Feature<turf.LineString>[] = [];
+    const coordinates = polygonCoords;
+    for (let i = 0; i < coordinates.length - 1; i++) {
+      lines.push(turf.lineString([coordinates[i], coordinates[i + 1]]));
+    }
+
+    const numSegments = turf.length(line) % 100;
+    const linePoints: turf.Feature<turf.Point>[] = [];
+
+    for (let i = 0; i <= numSegments; i++) {
+      const distance = (i / numSegments) * turf.length(line);
+      const point = turf.along(line, distance);
+      linePoints.push(point);
+    }
+
+    let nearestPoint: NearestPointOnLine = null;
+    let minDistance = Infinity;
+
+    lines.forEach(polygonLine => {
+      linePoints.forEach(linePoint => {
+        const nearestPointOnPolygonLine = turf.nearestPointOnLine(polygonLine, linePoint);
+        const distance = turf.distance(linePoint, nearestPointOnPolygonLine);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearestPoint = nearestPointOnPolygonLine;
+        }
+      });
+    });
+    return nearestPoint.geometry.coordinates;
+  }
+
+
+  private getLineAndLineNearestPoint(coordinates: Coordinate[], coordinates2: Coordinate[]) {
+    const line1 = turf.lineString(coordinates);
+    const line2 = turf.lineString(coordinates2);
+    const intersection = turf.lineIntersect(line1, line2);
+    if (intersection.features.length) {
+      return intersection.features[0].geometry.coordinates;
+    }
+
+    const linePoint1 = this.getLinePointsBySegment(coordinates);
+    const linePoint2 = this.getLinePointsBySegment(coordinates2);
+
+  
+    const points1 = coordinates.map(c => turf.point(c));
+    const points2 = coordinates2.map(c => turf.point(c));
+    let minDistance = Infinity;
+    let nearestPoint: NearestPointOnLine = null;
+    points1.forEach(point1 => {
+      points2.forEach(point2 => {
+        const candidatePoint = turf.nearestPointOnLine(line2, point1);
+        const distance = turf.distance(point1, candidatePoint);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearestPoint = candidatePoint;
+        }
+      });
+    });
+    return nearestPoint.geometry
+  }
+  
+  getLineAndPointNearestPoint(coordinates: Coordinate[], pointCoordinate: Coordinate) {
+    const line = turf.lineString(coordinates);
+    const point = turf.point(pointCoordinate);
+    const points1 = coordinates.map(c => turf.point(c));
+
+    points1.forEach(point1 => {
+      const candidatePoint = turf.nearestPointOnLine(line, point);
+      const distance = turf.distance(point, candidatePoint);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestPoint = candidatePoint;
+      }
+    }
+    
+    const linePoints = this.getLinePointsBySegment(coordinates);
+    let minDistance = Infinity;
+    let nearestPoint: NearestPointOnLine = null;
+    linePoints.forEach(linePoint => {
+      const candidatePoint = turf.nearestPointOnLine(line, point);
+      const distance = turf.distance(point, candidatePoint);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestPoint = candidatePoint;
+      }
+    });
+    return nearestPoint.geometry.coordinates;
+  }
+  
+  getLinePointsBySegment(coordinates: Coordinate[]){
+    const line = turf.lineString(coordinates);
+
+    const numSegments = turf.length(line) % 100;
+    const linePoints: turf.Feature<turf.Point>[] = [];
+
+    for (let i = 0; i <= numSegments; i++) {
+      const distance = (i / numSegments) * turf.length(line);
+      const point = turf.along(line, distance);
+      linePoints.push(point);
+    }
+    return linePoints;
+  }
+
+
+
+
+  
